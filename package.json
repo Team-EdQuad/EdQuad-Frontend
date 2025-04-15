@@ -4,7 +4,10 @@
   "description": "git clone https://github.com/Team-EdQuad/EdQuad-Frontend.git\r cd EdQuad-Frontend",
   "main": "tailwind.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "author": "",
   "license": "ISC",
@@ -18,4 +21,6 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2"
   }
+  
 }
+
