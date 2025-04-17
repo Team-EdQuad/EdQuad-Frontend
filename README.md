@@ -3,3 +3,5 @@ cd EdQuad-Frontend
 
 git checkout non-academic
 
+npm install
+npm run dev
