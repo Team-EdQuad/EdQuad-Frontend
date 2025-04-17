@@ -96,7 +96,8 @@ function App() {
             <div className="content-footer">
               <main className="content">    
                 <Routes>
-                  <Route path="/" element={<Sports />} />
+                  <Route path="/" element={<Dashboard />} />
+
                 </Routes>
               </main>
               <div className="footer">
