@@ -84,6 +84,8 @@ import TermTestMarks from './pages/TermTestMarks';
 import MySubject from './pages/MySubject';
 import SubjectContent from './pages/SubjectContent';
 import Submission from './pages/Submission';
+import TeacherSubject from "./pages/TeacherSubject";
+import TeacherContent from "./pages/TeacherContent";
 
 
 
@@ -111,7 +113,9 @@ function App() {
                   <Route path="/subject/:id" element={<SubjectContent />} />
                   <Route path="/assignment-view/:assignmentName" element={<AssignmentView />} />
                   <Route path="/submission" element={<Submission />} />
-            
+
+                  <Route path="/teacher-subject" element={<TeacherSubject />} />
+                  <Route path="/teacher-content" element={<TeacherContent />} />
                 </Routes>
               </main>
               <div className="footer">
