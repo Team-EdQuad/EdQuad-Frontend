@@ -291,7 +291,7 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
               active={selected === "Term Test Marks"}
               onClick={() => setSelected("Term Test Marks")}
               icon={<BarChartOutlined />}
-              component={<Link to="/termtestmarks" />}
+              component={<Link to="/term-test-marks" />}
             >
               <Typography>Term Test Marks</Typography>
             </MenuItem>
