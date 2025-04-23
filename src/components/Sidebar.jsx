@@ -181,7 +181,7 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
               active={selected === "My Subject"}
               onClick={() => setSelected("My Subject")}
               icon={<PeopleOutlined />}
-              component={<Link to="/mysubject" />}
+              component={<Link to="/my-subject" />}
             >
               <Typography>My Subject</Typography>
             </MenuItem>

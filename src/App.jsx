@@ -79,6 +79,12 @@ import Dashboard from './pages/Dashboard';
 import { StoreContext } from './context/StoreContext';
 import { useContext } from "react";
 import AssignmentMarks from './pages/AssignmentMarks'; 
+import AssignmentView from './pages/AssignmentView';
+import TermTestMarks from './pages/TermTestMarks';
+import MySubject from './pages/MySubject';
+import SubjectContent from './pages/SubjectContent';
+import Submission from './pages/Submission';
+
 
 
 function App() {
@@ -98,8 +104,14 @@ function App() {
               <main className="content">    
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
-                  <Route path="/assignment-marks" element={<AssignmentMarks />} />
-
+                  <Route path="/assignment-marks" element={<AssignmentMarks />} />                  
+                  <Route path="/term-test-marks" element={<TermTestMarks />} />
+                  <Route path="/my-subject" element={<MySubject />} />
+                  <Route path="/assignment-marks" element={<AssignmentMarks />} /> 
+                  <Route path="/subject/:id" element={<SubjectContent />} />
+                  <Route path="/assignment-view/:assignmentName" element={<AssignmentView />} />
+                  <Route path="/submission" element={<Submission />} />
+            
                 </Routes>
               </main>
               <div className="footer">

@@ -10,8 +10,7 @@ import {
 } from '@mui/material';
 
 import React from 'react';
-import Topbar from '../components/Topbar';
-import Sidebar from '../components/Sidebar';
+
 
 import { Box, Typography } from '@mui/material';
 
