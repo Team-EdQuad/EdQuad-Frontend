@@ -86,6 +86,7 @@ import SubjectContent from './pages/SubjectContent';
 import Submission from './pages/Submission';
 import TeacherSubject from "./pages/TeacherSubject";
 import TeacherContent from "./pages/TeacherContent";
+import AssignmentCreate from "./pages/AssignmentCreate";
 
 
 
@@ -116,6 +117,7 @@ function App() {
 
                   <Route path="/teacher-subject" element={<TeacherSubject />} />
                   <Route path="/teacher-content" element={<TeacherContent />} />
+                  <Route path="/assignment-create" element={<AssignmentCreate />} />
                 </Routes>
               </main>
               <div className="footer">

@@ -1,11 +1,16 @@
 import React from 'react';
 import { Box, Typography, Grid, Paper, useTheme } from '@mui/material';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const TeacherContent = () => {
   const theme = useTheme(); // Access the current theme
   const location = useLocation();
+  const navigate = useNavigate();
   const { subject, className } = location.state || {}; // Get subject and class from state
+
+  const handleCreateAssignment = () => {
+    navigate('/assignment-create'); // Navigate to AssignmentCreate page
+  };
 
   return (
     <Box
@@ -43,6 +48,7 @@ const TeacherContent = () => {
                 backgroundColor: theme.palette.action.hover, // Dynamic hover background
               },
             }}
+            onClick={handleCreateAssignment}
           >
             <Typography
               variant="h6"
