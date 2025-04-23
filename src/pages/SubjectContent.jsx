@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate  } from 'react-router-dom';
-import { Box, Typography, Button, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Box, Typography, Button, List, ListItem, ListItemText, Divider, useTheme } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
 
 const SubjectContent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme(); // Access the current theme
+
   // Dummy data for lessons
   const lessons = [
     {
@@ -24,7 +25,7 @@ const SubjectContent = () => {
       title: 'Lesson 2',
       files: [
         { name: 'Topic3.pdf', type: 'pdf' },
-        { name: 'song.mp4', type: 'mp4' },       
+        { name: 'song.mp4', type: 'mp4' },
         { name: 'Assignment 2', type: 'assignment' },
       ],
     },
@@ -40,28 +41,46 @@ const SubjectContent = () => {
     }));
   };
 
-
   const handleAssignmentClick = (assignmentName) => {
     navigate(`/assignment-view/${assignmentName}`); // Navigate to AssignmentView page with assignment name
   };
 
   return (
-    <Box display="flex" flexDirection="column" bgcolor="#f5f5ff" minHeight="100vh">
-    
+    <Box
+      display="flex"
+      flexDirection="column"
+      bgcolor={theme.palette.background.default} // Dynamic background color
+      minHeight="100vh"
+    >
       <Box display="flex" flex={1}>
-      
-
         {/* Main Content */}
         <Box flex={1} p={3}>
           {/* Header */}
-          <Box display="flex" justifyContent="space-between" alignItems="center" p={2} bgcolor="#ffffff" boxShadow={1}>
-            <Typography variant="h5" fontWeight="bold">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            p={2}
+            bgcolor={theme.palette.background.paper} // Dynamic header background
+            boxShadow={1}
+          >
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              sx={{
+                color: theme.palette.text.primary, // Dynamic text color
+              }}
+            >
               Subject {id}
             </Typography>
             <Button
               variant="outlined"
               startIcon={<ArrowBackIcon />}
               onClick={() => window.history.back()}
+              sx={{
+                color: theme.palette.text.primary, // Dynamic button text color
+                borderColor: theme.palette.divider, // Dynamic border color
+              }}
             >
               Back
             </Button>
@@ -71,7 +90,11 @@ const SubjectContent = () => {
           <Box mt={3}>
             {lessons.map((lesson, lessonIndex) => (
               <Box key={lessonIndex} mb={4}>
-                <Typography variant="h6" fontWeight="bold" color="primary">
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="primary"
+                >
                   {lesson.date} - {lesson.title}
                 </Typography>
                 <List>
@@ -82,50 +105,54 @@ const SubjectContent = () => {
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        bgcolor: '#ffffff',
+                        bgcolor: theme.palette.background.paper, // Dynamic list item background
                         borderRadius: '8px',
                         mb: 1,
                         boxShadow: 1,
                       }}
                     >
-                      <ListItemText primary={file.name}
-                      onClick={() =>
-                        file.type === 'assignment' && handleAssignmentClick(file.name)
-                      } // Navigate if it's an assignment
-                      sx={{
-                        cursor: file.type === 'assignment' ? 'pointer' : 'default',
-                        color: file.type === 'assignment' ? 'blue' : 'inherit',
-                        textDecoration: file.type === 'assignment' ? 'underline' : 'none',
-                      }}
-                      
-                      />
-                      
-                      
-                      <Button
-                        variant="contained"
-                        onClick={() => handleMarkAsDone(lessonIndex, fileIndex)}
+                    <ListItemText
+                        primary={file.name}
+                        onClick={() =>
+                          file.type === 'assignment' && handleAssignmentClick(file.name)
+                        } // Navigate if it's an assignment
                         sx={{
-                          backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`] ? 'blue' : 'white',
-                          color: doneFiles[`${lessonIndex}-${fileIndex}`] ? 'white' : 'blue',
-                          border: '1px solid blue',
-                          '&:hover': {
-                            backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`] ? 'darkblue' : '#f0f0f0',
-                          },
+                          cursor: file.type === 'assignment' ? 'pointer' : 'default',
+                          color: file.type === 'assignment'
+                            ? theme.palette.primary.contrastText // Ensure visibility in dark mode
+                            : theme.palette.text.primary, // Default text color
+                          textDecoration: file.type === 'assignment' ? 'underline' : 'none',
                         }}
-                      >
-                        Mark as Done
-                      </Button>
+                      />
+                     <Button
+                    variant="contained"
+                    onClick={() => handleMarkAsDone(lessonIndex, fileIndex)}
+                    sx={{
+                      backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`]
+                        ? theme.palette.primary.main // Set color when marked as done
+                        : theme.palette.action.hover, // Set default color
+                      color: doneFiles[`${lessonIndex}-${fileIndex}`]
+                        ? theme.palette.primary.contrastText // Text color when marked as done
+                        : theme.palette.text.primary, // Default text color
+                      border: `1px solid ${theme.palette.primary.main}`, // Border color
+                      '&:hover': {
+                        backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`]
+                          ? theme.palette.primary.dark // Hover color when marked as done
+                          : theme.palette.action.hover, // Hover color when not marked as done
+                      },
+                    }}
+                  >
+                    Mark as Done
+                  </Button>
                     </ListItem>
                   ))}
                 </List>
-                <Divider sx={{ mt: 2 }} />
+                <Divider sx={{ mt: 2, bgcolor: theme.palette.divider }} />
               </Box>
             ))}
           </Box>
         </Box>
       </Box>
-
-      
     </Box>
   );
 };
