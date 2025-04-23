@@ -12,6 +12,11 @@ const TeacherContent = () => {
     navigate('/assignment-create'); // Navigate to AssignmentCreate page
   };
 
+
+  const handleAddContent = () => {
+    navigate('/add-content'); // Navigate to AddContent page
+  };
+
   return (
     <Box
       display="flex"
@@ -76,6 +81,7 @@ const TeacherContent = () => {
                 backgroundColor: theme.palette.action.hover, // Dynamic hover background
               },
             }}
+            onClick={handleAddContent}
           >
             <Typography
               variant="h6"
@@ -84,7 +90,7 @@ const TeacherContent = () => {
                 color: theme.palette.text.primary, // Dynamic text color
               }}
             >
-              Add Files
+              Add Content
             </Typography>
           </Paper>
         </Grid>
