@@ -88,6 +88,8 @@ import TeacherSubject from "./pages/TeacherSubject";
 import TeacherContent from "./pages/TeacherContent";
 import AssignmentCreate from "./pages/AssignmentCreate";
 import AddContent from "./pages/AddContent";
+import CheckAssignment from "./pages/CheckAssignment";
+import AddExamMarks from "./pages/AddExamMarks";
 
 
 
@@ -120,7 +122,8 @@ function App() {
                   <Route path="/teacher-content" element={<TeacherContent />} />
                   <Route path="/assignment-create" element={<AssignmentCreate />} />
                   <Route path="/add-content" element={<AddContent />} />
-                
+                  <Route path="/check-assignments" element={<CheckAssignment />} />
+                  <Route path="/enter-term-test-marks" element={<AddExamMarks />} />
                 
                 </Routes>
               </main>
