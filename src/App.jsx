@@ -78,6 +78,7 @@ import { Routes, Route } from "react-router-dom";
 import Dashboard from './pages/Dashboard';
 import { StoreContext } from './context/StoreContext';
 import { useContext } from "react";
+import AssignmentMarks from './pages/AssignmentMarks'; 
 
 
 function App() {
@@ -97,6 +98,7 @@ function App() {
               <main className="content">    
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
+                  <Route path="/assignment-marks" element={<AssignmentMarks />} />
 
                 </Routes>
               </main>

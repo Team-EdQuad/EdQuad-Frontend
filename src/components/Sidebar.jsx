@@ -300,7 +300,7 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
               active={selected === "Assigments Marks"}
               onClick={() => setSelected("Assigments Marks")}
               icon={<PieChartOutlineOutlined />}
-              component={<Link to="/assigmentsmarks" />}
+              component={<Link to="/assignment-marks" />}
             >
               <Typography>Assigments Marks</Typography>
             </MenuItem>
