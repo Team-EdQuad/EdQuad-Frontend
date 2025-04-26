@@ -9,6 +9,20 @@ import { Routes, Route } from "react-router-dom";
 import Dashboard from './pages/StudentDashboard';
 import { StoreContext } from './context/StoreContext';
 import { useContext } from "react";
+import AssignmentMarks from './pages/AssignmentMarks'; 
+import AssignmentView from './pages/AssignmentView';
+import TermTestMarks from './pages/TermTestMarks';
+import MySubject from './pages/MySubject';
+import SubjectContent from './pages/SubjectContent';
+import Submission from './pages/Submission';
+import TeacherSubject from "./pages/TeacherSubject";
+import TeacherContent from "./pages/TeacherContent";
+import AssignmentCreate from "./pages/AssignmentCreate";
+import AddContent from "./pages/AddContent";
+import CheckAssignment from "./pages/CheckAssignment";
+import AddExamMarks from "./pages/AddExamMarks";
+import ContentView from "./pages/ContentView";
+
 
 
 function App() {
@@ -29,6 +43,23 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/sports" element={<Sports />} />
+                  <Route path="/assignment-marks" element={<AssignmentMarks />} />                  
+                  <Route path="/term-test-marks" element={<TermTestMarks />} />
+                  <Route path="/my-subject" element={<MySubject />} />
+                  <Route path="/assignment-marks" element={<AssignmentMarks />} /> 
+                  <Route path="/subject/:id" element={<SubjectContent />} />
+                  <Route path="/assignment-view/:assignmentName" element={<AssignmentView />} />
+                  <Route path="/submission" element={<Submission />} />
+                  <Route path="/content-view" element={<ContentView />} />
+
+
+                  <Route path="/teacher-subject" element={<TeacherSubject />} />
+                  <Route path="/teacher-content" element={<TeacherContent />} />
+                  <Route path="/assignment-create" element={<AssignmentCreate />} />
+                  <Route path="/add-content" element={<AddContent />} />
+                  <Route path="/check-assignments" element={<CheckAssignment />} />
+                  <Route path="/enter-term-test-marks" element={<AddExamMarks />} />
+                
                   <Route path="/clubandsocieties" element={<Clubandsocieties />} />
                 </Routes>
               </main>

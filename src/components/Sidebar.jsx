@@ -180,7 +180,7 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
               active={selected === "My Subject"}
               onClick={() => setSelected("My Subject")}
               icon={<PeopleOutlined />}
-              component={<Link to="/mysubject" />}
+              component={<Link to="/my-subject" />}
             >
               <Typography>My Subject</Typography>
             </MenuItem>
@@ -290,7 +290,7 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
               active={selected === "Term Test Marks"}
               onClick={() => setSelected("Term Test Marks")}
               icon={<BarChartOutlined />}
-              component={<Link to="/termtestmarks" />}
+              component={<Link to="/term-test-marks" />}
             >
               <Typography>Term Test Marks</Typography>
             </MenuItem>
@@ -299,7 +299,7 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
               active={selected === "Assigments Marks"}
               onClick={() => setSelected("Assigments Marks")}
               icon={<PieChartOutlineOutlined />}
-              component={<Link to="/assigmentsmarks" />}
+              component={<Link to="/assignment-marks" />}
             >
               <Typography>Assigments Marks</Typography>
             </MenuItem>
