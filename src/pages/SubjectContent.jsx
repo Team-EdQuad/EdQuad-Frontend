@@ -14,9 +14,9 @@ const SubjectContent = () => {
       date: '2025-01-20',
       title: 'Lesson 1',
       files: [
-        { name: 'Topic1.pdf', type: 'pdf' },
-        { name: 'lab1.mp4', type: 'mp4' },
-        { name: 'Topic2.pdf', type: 'pdf' },
+        { name: 'Topic1.pdf', type: 'pdf', url: 'src/assets/pdf/topic1.pdf' },
+        { name: 'lab1.mp4', type: 'mp4', url: 'src/assets/mp4/1.mp4' },
+        { name: 'Topic2.pdf', type: 'pdf', url: '/assets/pdf/topic2.pdf' },
         { name: 'Assignment 1', type: 'assignment' },
       ],
     },
@@ -24,8 +24,8 @@ const SubjectContent = () => {
       date: '2025-01-31',
       title: 'Lesson 2',
       files: [
-        { name: 'Topic3.pdf', type: 'pdf' },
-        { name: 'song.mp4', type: 'mp4' },
+        { name: 'Topic3.pdf', type: 'pdf', url: '/assets/pdf/topic3.pdf' },
+        { name: 'song.mp4', type: 'mp4', url: 'src/assets/mp4/mp3.mkv' },
         { name: 'Assignment 2', type: 'assignment' },
       ],
     },
@@ -41,8 +41,18 @@ const SubjectContent = () => {
     }));
   };
 
-  const handleAssignmentClick = (assignmentName) => {
-    navigate(`/assignment-view/${assignmentName}`); // Navigate to AssignmentView page with assignment name
+  const handleFileClick = (file) => {
+    if (file.type === 'assignment') {
+      navigate(`/assignment-view/${file.name}`); // Navigate to AssignmentView page
+    } else {
+      navigate('/content-view', {
+        state: {
+          fileUrl: file.url, // Pass the file URL
+          fileType: file.type, // Pass the file type (e.g., 'pdf', 'mp4')
+          fileName: file.name, // Pass the file name
+        },
+      });
+    }
   };
 
   return (
@@ -111,39 +121,37 @@ const SubjectContent = () => {
                         boxShadow: 1,
                       }}
                     >
-                    <ListItemText
+                      <ListItemText
                         primary={file.name}
-                        onClick={() =>
-                          file.type === 'assignment' && handleAssignmentClick(file.name)
-                        } // Navigate if it's an assignment
+                        onClick={() => handleFileClick(file)} // Handle file click
                         sx={{
-                          cursor: file.type === 'assignment' ? 'pointer' : 'default',
+                          cursor: 'pointer',
                           color: file.type === 'assignment'
-                            ? theme.palette.primary.contrastText // Ensure visibility in dark mode
+                            ? theme.palette.primary.main // Highlight assignments
                             : theme.palette.text.primary, // Default text color
                           textDecoration: file.type === 'assignment' ? 'underline' : 'none',
                         }}
                       />
-                     <Button
-                    variant="contained"
-                    onClick={() => handleMarkAsDone(lessonIndex, fileIndex)}
-                    sx={{
-                      backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`]
-                        ? theme.palette.primary.main // Set color when marked as done
-                        : theme.palette.action.hover, // Set default color
-                      color: doneFiles[`${lessonIndex}-${fileIndex}`]
-                        ? theme.palette.primary.contrastText // Text color when marked as done
-                        : theme.palette.text.primary, // Default text color
-                      border: `1px solid ${theme.palette.primary.main}`, // Border color
-                      '&:hover': {
-                        backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`]
-                          ? theme.palette.primary.dark // Hover color when marked as done
-                          : theme.palette.action.hover, // Hover color when not marked as done
-                      },
-                    }}
-                  >
-                    Mark as Done
-                  </Button>
+                      <Button
+                        variant="contained"
+                        onClick={() => handleMarkAsDone(lessonIndex, fileIndex)}
+                        sx={{
+                          backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`]
+                            ? theme.palette.primary.main // Set color when marked as done
+                            : theme.palette.action.hover, // Set default color
+                          color: doneFiles[`${lessonIndex}-${fileIndex}`]
+                            ? theme.palette.primary.contrastText // Text color when marked as done
+                            : theme.palette.text.primary, // Default text color
+                          border: `1px solid ${theme.palette.primary.main}`, // Border color
+                          '&:hover': {
+                            backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`]
+                              ? theme.palette.primary.dark // Hover color when marked as done
+                              : theme.palette.action.hover, // Hover color when not marked as done
+                          },
+                        }}
+                      >
+                        Mark as Done
+                      </Button>
                     </ListItem>
                   ))}
                 </List>

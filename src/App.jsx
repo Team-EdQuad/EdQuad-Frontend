@@ -90,6 +90,7 @@ import AssignmentCreate from "./pages/AssignmentCreate";
 import AddContent from "./pages/AddContent";
 import CheckAssignment from "./pages/CheckAssignment";
 import AddExamMarks from "./pages/AddExamMarks";
+import ContentView from "./pages/ContentView";
 
 
 
@@ -117,6 +118,8 @@ function App() {
                   <Route path="/subject/:id" element={<SubjectContent />} />
                   <Route path="/assignment-view/:assignmentName" element={<AssignmentView />} />
                   <Route path="/submission" element={<Submission />} />
+                  <Route path="/content-view" element={<ContentView />} />
+
 
                   <Route path="/teacher-subject" element={<TeacherSubject />} />
                   <Route path="/teacher-content" element={<TeacherContent />} />
