@@ -13,7 +13,17 @@ const ContentView = () => {
   const location = useLocation();
   const { fileUrl, fileType, fileName } = location.state || {}; // Get file details from state
 
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
+  // Customize the default layout plugin
+  const defaultLayoutPluginInstance = defaultLayoutPlugin({
+    toolbarPlugin: {
+      items: (toolbarItems) => {
+        // Filter out all toolbar items except Zoom In and Zoom Out
+        return toolbarItems.filter((item) => {
+          return item.type === 'ZoomIn' || item.type === 'ZoomOut';
+        });
+      },
+    },
+  });
 
   return (
     <Box
@@ -63,7 +73,7 @@ const ContentView = () => {
           <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}>
             <Viewer
               fileUrl={fileUrl}
-              plugins={[defaultLayoutPluginInstance]}
+              plugins={[defaultLayoutPluginInstance]} // Pass the customized plugin
               theme={theme.palette.mode} // Adapt to light/dark mode
             />
           </Worker>
