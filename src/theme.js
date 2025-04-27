@@ -72,6 +72,7 @@ export const tokens = (mode) => ({
         side_bg: "#fff",
         side_b_hover: "#d6dcfa",
         side_b_active: "#6870fa",
+        
         gray: {
             100: "#141414",
             200: "#292929",
