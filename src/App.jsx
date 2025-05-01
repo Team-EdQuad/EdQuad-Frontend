@@ -4,8 +4,9 @@ import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
 import Sports from './pages/Sports';
+import Clubandsocieties from "./pages/Clubandsocieties";
 import { Routes, Route } from "react-router-dom";
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/StudentDashboard';
 import { StoreContext } from './context/StoreContext';
 import { useContext } from "react";
 import AssignmentMarks from './pages/AssignmentMarks'; 
@@ -42,6 +43,7 @@ function App() {
               <main className="content">    
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
+                  <Route path="/sports" element={<Sports />} />
                   <Route path="/assignment-marks" element={<AssignmentMarks />} />                  
                   <Route path="/term-test-marks" element={<TermTestMarks />} />
                   <Route path="/my-subject" element={<MySubject />} />
@@ -60,6 +62,7 @@ function App() {
                   <Route path="/enter-term-test-marks" element={<AddExamMarks />} />
                   <Route path="/behavioral-analysis" element={<BehavioralAnalysis />} />
                 
+                  <Route path="/clubandsocieties" element={<Clubandsocieties />} />
                 </Routes>
               </main>
               <div className="footer">
