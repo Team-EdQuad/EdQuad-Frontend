@@ -15,7 +15,7 @@ const MySubject = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8002/students/${studentId}/subjects`)
+      .get(`http://localhost:8000/api/subject/${studentId}`)
       .then((res) => {
         setSubjects(res.data);
         setLoading(false);
