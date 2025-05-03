@@ -54,13 +54,29 @@
 
 import React from "react";
 import SubjectProgress from "../components/SubjectProgress";
+import AssignmentTimeline from "../components/AssignmentTimeline";
+import StudentExamMarksChart from "../components/AcademicPerformance";
+import AttendanceOverview from "../components/AttendanceOverview";
+import Calendar from "../components/Calendar";
 
 const StudentDashboard = () => {
+
+  const studentId = 'STU009';
+  const classId = 'CLS002';
+
+  console.log("Dashboard is rendering...");
+
   return (
-    <div style={{ padding: "20px" }}>
-      <SubjectProgress />
+    <div className="p-6 space-y-8" >
+      <SubjectProgress studentId={studentId} classId={classId} />
+      <AssignmentTimeline studentId= 'STU001' classId= 'CLS001' />
+      <AttendanceOverview studentId='STU030' classId='CLS013' />
+      <StudentExamMarksChart studentId='STU001' classId='CLS001' examYear = "2024" />
+      <Calendar />
     </div>
+    
   );
+  
 };
 
 export default StudentDashboard;

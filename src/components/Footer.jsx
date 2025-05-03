@@ -8,6 +8,7 @@ const Footer = () => {
       color: 'red',
       backgroundColor: '#EFF3FF', // Change this to your desired background color
       p: 2, // Optional: adds padding
+      mt: 2
     }}>
       Footer
     </Box>
