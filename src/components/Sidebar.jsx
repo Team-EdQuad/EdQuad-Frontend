@@ -240,14 +240,16 @@ const AppSidebar = () => {
                   Predictive Analysis
                 </MenuItem>
 
-            <MenuItem
-              active={selected === "My Subject"}
-              onClick={() => setSelected("My Subject")}
-              icon={<PeopleOutlined />}
-              component={<Link to="/mysubject" />}
-            >
-              <Typography>My Subject</Typography>
-            </MenuItem>
+              </SubMenu>
+
+              <MenuItem
+                active={selected === "My Subject"}
+                onClick={() => setSelected("My Subject")}
+                icon={<PeopleOutlined />}
+                component={<Link to="/mysubject" />}
+              >
+                <Typography>My Subject</Typography>
+              </MenuItem>
 
               <MenuItem
                 active={selected === "My Profile"}
