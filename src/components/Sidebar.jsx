@@ -178,7 +178,7 @@ const AppSidebar = () => {
                   active={selected === "Subject Progress"}
                   onClick={() => setSelected("Subject Progress")}
                   icon={<SchoolOutlined />}
-                  component={<Link to="/subject-progress" />}
+                  component={<Link to="/dashboard#subject-progress" />}
                   style={{
                     marginLeft: "16px",
                     color: selected === "Subject Progress" ? "#6870fa" : "#3e4396",
@@ -192,7 +192,7 @@ const AppSidebar = () => {
                   active={selected === "Assignment Timeline"}
                   onClick={() => setSelected("Assignment Timeline")}
                   icon={<TimelineOutlined />}
-                  component={<Link to="/assigment-timeline" />}
+                  component={<Link to="/dashboard#assignment-timeline" />}
                   style={{
                     marginLeft: "16px",
                     color: selected === "Assignment Timeline" ? "#6870fa" : "#3e4396",
@@ -205,7 +205,7 @@ const AppSidebar = () => {
                   active={selected === "Attendance"}
                   onClick={() => setSelected("Attendance")}
                   icon={<EventAvailableOutlined />}
-                  component={<Link to="/attendance" />}
+                  component={<Link to="/dashboard#attendance" />}
                   style={{
                     marginLeft: "16px",
                     color: selected === "Attendance" ? "#6870fa" : "#3e4396",
@@ -218,7 +218,7 @@ const AppSidebar = () => {
                   active={selected === "Acadamic Performance"}
                   onClick={() => setSelected("Acadamic Performance")}
                   icon={<BarChartOutlined />}
-                  component={<Link to="/acadamic-performance" />}
+                  component={<Link to="/dashboard#academic-performance" />}
                   style={{
                     marginLeft: "16px",
                     color: selected === "Acadamic Performance" ? "#6870fa" : "#3e4396",
@@ -231,7 +231,7 @@ const AppSidebar = () => {
                   active={selected === "Predictive Analysis"}
                   onClick={() => setSelected("Predictive Analysis")}
                   icon={<TrendingUpOutlined />}
-                  component={<Link to="/predictive-analysis" />}
+                  component={<Link to="/dashboard#predictive-analysis" />}
                   style={{
                     marginLeft: "16px",
                     color: selected === "Predictive Analysis" ? "#6870fa" : "#3e4396",

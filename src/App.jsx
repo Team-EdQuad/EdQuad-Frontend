@@ -7,10 +7,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { StoreContext } from './context/StoreContext';
 import { useContext } from "react";
 
+import UnderConstruction from "./pages/UnderConstruction";
 
 import Sports from './pages/Sports';
 import Clubandsocieties from "./pages/Clubandsocieties";
-import Dashboard from './pages/StudentDashboard';
+import Dashboard from './pages/Dashboard';
 import AssignmentMarks from './pages/AssignmentMarks'; 
 import AssignmentView from './pages/AssignmentView';
 import TermTestMarks from './pages/TermTestMarks';
@@ -36,7 +37,8 @@ function App() {
 
   const studentRoutes = (
     <Routes>
-      <Route path="/" element={<StudentDashboard />} />
+      <Route path="/" element={<StudentDashboard/>}  />
+      <Route path="/dashboard" element={<StudentDashboard />} />
       <Route path="/sports" element={<Sports />} />        
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />         
       <Route path="/term-test-marks" element={<TermTestMarks />} />
@@ -46,7 +48,8 @@ function App() {
       <Route path="/assignment-view/:assignmentName" element={<AssignmentView />} />
       <Route path="/submission" element={<Submission />} />
       <Route path="/content-view" element={<ContentView />} />
-      <Route path="*" element={<Navigate to="/" />} /> {/* Redirect unknown routes */}
+      <Route path="/uc" element={<UnderConstruction />} />
+      <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
     </Routes>
   );
 
@@ -61,7 +64,8 @@ function App() {
       <Route path="/add-content" element={<AddContent />} />
       <Route path="/check-assignments" element={<CheckAssignment />} />
       <Route path="/enter-term-test-marks" element={<AddExamMarks />} />
-      <Route path="*" element={<Navigate to="/" />} /> {/* Redirect unknown routes */}
+      <Route path="/uc" element={<UnderConstruction />} />
+      <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
     </Routes>
   );
 
@@ -70,7 +74,8 @@ function App() {
       <Route path="/" element={<Dashboard />} />
       <Route path="/sports" element={<Sports />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
-      <Route path="*" element={<Navigate to="/" />} /> {/* Redirect unknown routes */}
+      <Route path="/uc" element={<UnderConstruction />} />
+      <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
     </Routes>
   );
 

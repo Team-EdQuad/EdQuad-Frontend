@@ -8,7 +8,7 @@ const StoreContextProvider = (props) => {
     const isMobile = useMediaQuery("(max-width:600px)");
     const isTablet = useMediaQuery("(max-width:900px)");
 
-    const [id, setId] = useState('225523R');
+    const [id, setId] = useState('STU001');
     const [name, setName] = useState('W.K.T.P.Kularathna');
 
      const [selected, setSelected] = useState("Material Progress");
