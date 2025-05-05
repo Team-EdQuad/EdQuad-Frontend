@@ -22,6 +22,8 @@ import { Doughnut } from "react-chartjs-2";
 import { getMonthlyAttendanceRate } from "../services/studentService";
 import { getWeeklyAttendanceRate } from "../services/studentService";
 import { getAttendanceRate } from "../services/studentService";
+import { getNonacademicAttendance } from "../services/studentService";
+import { getEngagementScore } from "../services/studentService";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
@@ -46,6 +48,8 @@ const AttendanceOverview = ({ studentId, classId }) => {
   const [attendanceData, setAttendanceData] = useState(null);
   const [weeklyAttendanceData, setWeeklyAttendanceData] = useState(null);
   const [attendanceRate, setAttendanceRate] = useState(null);
+  const [engagementScore, setEngagementScore] = useState(null);
+  const [nonAcademicData, setNonAcademicData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,13 +58,19 @@ const AttendanceOverview = ({ studentId, classId }) => {
         const data = await getMonthlyAttendanceRate(studentId, classId);
         const weeklyData = await getWeeklyAttendanceRate(studentId, classId);
         const attendanceRatedata = await getAttendanceRate(studentId, classId);
+        const engagementScoreData = await getEngagementScore('STU001', 'CLS001');
 
         const dataMap = new Map(data.map(item => [item.month, item.attendance_rate]));
         const weeklyDataMap = new Map(weeklyData.map(item => [item.weekday, item.attendance_rate]));
       
 
         const attendanceRates = months.map(month => dataMap.get(month) || 0);
-        const weeklyAttendanceRates = weekdays.map(weekday => weeklyDataMap.get(weekday) || 0);        
+        const weeklyAttendanceRates = weekdays.map(weekday => weeklyDataMap.get(weekday) || 0);     
+        
+        const nonAcademicResponse = await getNonacademicAttendance(studentId, classId);
+        const labels = nonAcademicResponse.activities_attendance.map(item => item.name);
+        const presentData = nonAcademicResponse.activities_attendance.map(item => item.present);
+        const absentData = nonAcademicResponse.activities_attendance.map(item => item.absent);
 
         setAttendanceData({
           labels: shortMonths,
@@ -87,6 +97,23 @@ const AttendanceOverview = ({ studentId, classId }) => {
         });
 
         setAttendanceRate(attendanceRatedata.attendance_rate);
+        setEngagementScore(engagementScoreData.engagement_score);
+
+        setNonAcademicData({
+          labels,
+          datasets: [
+            {
+              label: "Present",
+              data: presentData,
+              backgroundColor: "#4caf50",
+            },
+            {
+              label: "Absent",
+              data: absentData,
+              backgroundColor: "#f44336",
+            },
+          ],
+        });
 
         setLoading(false);
       } catch (error) {
@@ -110,6 +137,19 @@ const AttendanceOverview = ({ studentId, classId }) => {
     ],
   };
 
+  const chartData2 = {
+    datasets: [
+      {
+        
+        data: [engagementScore, 100 - engagementScore], 
+        backgroundColor: ["#1976d2", "#e0e0e0"],
+        borderWidth: 0,
+        hoverOffset: 4,
+      },
+    ],
+  };
+  
+
   // Options for the Doughnut chart
   const chartOptions = {
     aspectRatio: 3,
@@ -127,13 +167,29 @@ const AttendanceOverview = ({ studentId, classId }) => {
     cutout: "70%", 
   };
 
+  const chartOptions2 = {
+    aspectRatio: 3,
+    // rotation: -90, 
+    // circumference: 180, 
+    plugins: {
+      legend: { display: true, position: "right" }, 
+      // centerText,
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.label}: ${context.raw}%`,
+        },
+      },
+    },
+    cutout: "80%", 
+  };
+
   // Custom plugin to display text in the center
   const centerTextPlugin = {
     id: "centerText",
     beforeDraw: (chart) => {
       const { width } = chart;
       const { ctx } = chart;
-      const value = attendanceRate ? `${attendanceRate.toFixed(1)}%` : "0%";
+      const value = attendanceRate ? `${attendanceRate.toFixed(0)}%` : "0%";
 
       ctx.save();
       ctx.font = `${width / 13}px sans-serif`;
@@ -141,12 +197,32 @@ const AttendanceOverview = ({ studentId, classId }) => {
       ctx.fontWeight = "bold";
       ctx.textBaseline = "middle";
       ctx.fillStyle = "#000";
-      ctx.fillText(value, chart.width / 2, chart.height / 1.5); 
+      ctx.fillText(value, chart.width / 2, chart.height / 1.3); 
       ctx.restore();
     },
   };
 
   ChartJS.register(centerTextPlugin);
+
+  const centerTextPlugin2 = {
+    id: "centerText",
+    beforeDraw: (chart) => {
+      const { width } = chart;
+      const { ctx } = chart;
+      const value = engagementScore ? `${engagementScore.toFixed(0)}%` : "0%";
+
+      ctx.save();
+      ctx.font = `${width / 13}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.fontWeight = "bold";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#000";
+      ctx.fillText(value, chart.width / 2, chart.height / 2); 
+      ctx.restore();
+    },
+  };
+
+  ChartJS.register(centerTextPlugin2);
 
   return (
     <Paper elevation={3} sx={{ padding: 4, borderRadius: 4, mt: 4, ml: 5, mr: 2 }}>
@@ -274,17 +350,70 @@ const AttendanceOverview = ({ studentId, classId }) => {
                 <CircularProgress />
               </Box>
             ) : (
-              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: 250 }}>
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: 250 ,width: "50%" }}>
                 <Doughnut data={chartData} options={chartOptions}  plugins={[centerTextPlugin]}/>
               </Box>
             )}
             </Box>
+            <Box display={"flex"} flexDirection="column" alignItems="right" justifyContent="center" width="47%" mt={7}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h5" fontWeight={500} mb={2} sx={{ pl: 4 }}>
+                  Content Engagement Rate
+                </Typography>
+              </Box>
+              {loading ? (
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: 250 }}>
+                  <Doughnut data={chartData2} options={chartOptions2} plugins={[centerTextPlugin2]}/>
+                </Box>
+          )}
+          </Box>
         </Grid>
         <Grid container spacing={3}>
-          <Box display={"flex"} flexDirection="column" alignItems="left" justifyContent="center" width="47%" mt={5}>
-            <Typography variant="h5" fontWeight={500} mb={2} sx={{ pl: 4 }}>
+          <Box display={"flex"} flexDirection="column" alignItems="left" justifyContent="center" width="50%" mt={1}>
+            <Typography variant="h5" fontWeight={500} mb={3} sx={{ pl: 4 }}>
                 Extra Curricular Attendance
             </Typography>
+            {loading || !nonAcademicData ? (
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                <CircularProgress />
+              </Box>
+            ) : (
+              <Bar
+              sx={{ ml: 4 }}
+                data={nonAcademicData}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: {
+                      position: "right",
+                      labels: {
+                        boxWidth: 20,
+                        padding: 20,
+                        font: {
+                          weight: "bold",
+                        },
+                      },
+                    },
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 100,
+                      ticks: {
+                        stepSize: 25,
+                      },
+                    },
+                    x: {
+                      grid: { display: false },
+                    },
+                  },
+                }}
+              />
+            )}
           </Box>
         </Grid>
     </Paper>

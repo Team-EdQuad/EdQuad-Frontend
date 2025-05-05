@@ -57,7 +57,9 @@ import SubjectProgress from "../components/SubjectProgress";
 import AssignmentTimeline from "../components/AssignmentTimeline";
 import StudentExamMarksChart from "../components/AcademicPerformance";
 import AttendanceOverview from "../components/AttendanceOverview";
+import PerformancePrediction from "../components/PerformancePrediction";
 import Calendar from "../components/Calendar";
+
 
 const StudentDashboard = () => {
 
@@ -72,6 +74,7 @@ const StudentDashboard = () => {
       <AssignmentTimeline studentId= 'STU001' classId= 'CLS001' />
       <AttendanceOverview studentId='STU030' classId='CLS013' />
       <StudentExamMarksChart studentId='STU001' classId='CLS001' examYear = "2024" />
+      <PerformancePrediction />
       <Calendar />
     </div>
     
