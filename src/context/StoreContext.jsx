@@ -14,6 +14,7 @@ const StoreContextProvider = (props) => {
       };
 
     const [role, setRole] = useState("Student")
+    
 
 
     const contextValue = {
