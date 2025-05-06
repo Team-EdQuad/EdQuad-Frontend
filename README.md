@@ -4,4 +4,10 @@ cd EdQuad-Frontend
 git checkout non-academic
 
 npm install
+
 npm run dev
+
+pip freeze > requirements.txt
+git add .
+git commit -m "vjcvucv"
+git push

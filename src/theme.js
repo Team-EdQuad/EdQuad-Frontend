@@ -7,6 +7,7 @@ export const tokens = (mode) => ({
         nav_bg_1: "#040509",
         nav_bg_2: "#141b2d",
         nav_text: "#fff",
+        side_text: 'blue',
         side_bg: "#141414",
         side_b_hover: "#141b2d",
         side_b_active: "#040509",
@@ -67,9 +68,10 @@ export const tokens = (mode) => ({
         }
     } : {
         nav_bg_1: "#d0d1d5",
-        nav_bg_2: "#fff",
+        nav_bg_2: "#EFF3FF",
         nav_text: "#000",
         side_bg: "#fff",
+        side_text: '#fff',
         side_b_hover: "#d6dcfa",
         side_b_active: "#6870fa",
         gray: {
@@ -130,16 +132,6 @@ export const tokens = (mode) => ({
     })
 });
 
-
-// export const tokens = (mode) => ({
-//     ...(mode === 'dark' ? {
-//         nav_bg_1: "#040509",
-//         nav_bg_2: "#000509"
-//     } : {
-//         nav_bg_1: "#d0d1d5",
-//         nav_bg_2: "#d0d0d5"
-//     })
-// });
 
 
 // MUI theme settings
@@ -219,7 +211,7 @@ export const ColorModeContext = createContext({
 });
 
 export const useMode = () => {
-    const [mode, setMode] = useState("dark");
+    const [mode, setMode] = useState("light");
 
     const colorMode = useMemo(
         () => ({
