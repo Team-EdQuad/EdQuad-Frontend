@@ -434,12 +434,12 @@ const AppSidebar = () => {
               </MenuItem>
 
               <MenuItem
-                active={selected === "Acadamic"}
-                onClick={() => setSelected("Acadamic")}
+                active={selected === "Academic"}
+                onClick={() => setSelected("Academic")}
                 icon={<SchoolOutlined />}
-                component={<Link to="/acadamic" />}
+                component={<Link to="/academic" />}
               >
-                <Typography>Acadamic</Typography>
+                <Typography>Academic</Typography>
               </MenuItem>
 
               <MenuItem

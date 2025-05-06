@@ -42,9 +42,9 @@ function App() {
       <Route path="/dashboard" element={<StudentDashboard />} />
       <Route path="/sports" element={<Sports />} />        
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />         
-      <Route path="/term-test-marks" element={<TermTestMarks />} />
+      <Route path="/termtestmarks" element={<TermTestMarks />} />
       <Route path="/mysubject" element={<MySubject />} />
-      <Route path="/assignment-marks" element={<AssignmentMarks />} /> 
+      <Route path="/assigmentsmarks" element={<AssignmentMarks />} /> 
       <Route path="/subject/:id" element={<SubjectContent />} />
       <Route path="/assignment-view/:assignmentName" element={<AssignmentView />} />
       <Route path="/submission" element={<Submission />} />
@@ -59,14 +59,14 @@ function App() {
       <Route path="/" element={<Dashboard />} />
       <Route path="/sports" element={<Sports />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
-      <Route path="/teacher-subject" element={<TeacherSubject />} />
+      <Route path="/academic" element={<TeacherSubject />} />
       <Route path="/teacher-content" element={<TeacherContent />} />
       <Route path="/assignment-create" element={<AssignmentCreate />} />
       <Route path="/add-content" element={<AddContent />} />
       <Route path="/check-assignments" element={<CheckAssignment />} />
       <Route path="/enter-term-test-marks" element={<AddExamMarks />} />
       <Route path="/uc" element={<UnderConstruction />} />
-      <Route path="/behavioral-analysis" element={<BehavioralAnalysis />} />
+      <Route path="/behavioural-analysis" element={<BehavioralAnalysis />} />
       <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
     </Routes>
   );
