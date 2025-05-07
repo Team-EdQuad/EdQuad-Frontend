@@ -22,7 +22,26 @@ const SubjectContent = () => {
   const [error, setError] = useState(null);
   const theme = useTheme();
 
+  const getIconForItem = (item) => {
+    if (item.type === 'assignment') {
+      return '📝';
+    }
   
+    // Determine icon based on file extension for content
+    const ext = item.filePath?.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'pdf':
+        return '📄'; // PDF
+      case 'txt':
+        return '📃'; // Text
+      case 'mp3':
+        return '🎵'; // Audio
+      case 'mp4':
+        return '🎬'; // Video
+      default:
+        return '📁'; // Generic file
+    }
+  };
   const handleClick = (item) => {
     if (item.type === 'assignment') {
       navigate(`/assignment-view/${encodeURIComponent(item.name)}`);
@@ -133,7 +152,7 @@ const SubjectContent = () => {
                     }}
                   >
                     <ListItemText
-                      primary={`${item.type === 'assignment' ? '📝 ' : '📄 '}${item.name}`}
+                      primary={`${getIconForItem(item)} ${item.name}`}
                       secondary={item.description || (item.type === 'assignment' ? 'Assignment' : '')}
                       sx={{ mr: 2 }}
                     />

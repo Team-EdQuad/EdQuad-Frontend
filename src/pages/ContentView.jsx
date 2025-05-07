@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, IconButton, useTheme, CircularProgress, Button } from '@mui/material';
+import {
+  Box,
+  Typography,
+  IconButton,
+  useTheme,
+  CircularProgress,
+  Button,
+} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
-
 import '@react-pdf-viewer/core/lib/styles/index.css';
 
 const ContentView = () => {
@@ -43,7 +49,7 @@ const ContentView = () => {
     ? `http://localhost:8000/api/content/file/${contentId}`
     : null;
 
-  const fileType = contentData?.file_path?.split('.').pop().toLowerCase();
+  const fileType = contentData?.file_path?.split('.').pop()?.toLowerCase();
 
   if (loading) {
     return (
@@ -74,21 +80,25 @@ const ContentView = () => {
   }
 
   return (
-    <Box sx={{ 
-      bgcolor: theme.palette.background.default,
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
-      {/* Header */}
-      <Box sx={{
+    <Box
+      sx={{
+        bgcolor: theme.palette.background.default,
+        minHeight: '100vh',
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        p: 2,
-        bgcolor: theme.palette.background.paper,
-        boxShadow: 1
-      }}>
+        flexDirection: 'column',
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          p: 2,
+          bgcolor: theme.palette.background.paper,
+          boxShadow: 1,
+        }}
+      >
         <Typography variant="h6">
           {contentData.content_name || 'Untitled Content'}
         </Typography>
@@ -97,35 +107,73 @@ const ContentView = () => {
         </IconButton>
       </Box>
 
-      {/* Content Area */}
-      <Box sx={{
-        flex: 1,
-        p: 3,
-        display: 'flex',
-        justifyContent: 'center',
-        overflow: 'auto'
-      }}>
+      {/* Content Display Area */}
+      <Box
+        sx={{
+          flex: 1,
+          p: 3,
+          display: 'flex',
+          justifyContent: 'center',
+          overflow: 'auto',
+        }}
+      >
         {!fileUrl ? (
           <Typography variant="body1">No file available for this content</Typography>
         ) : fileType === 'pdf' ? (
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-            <div style={{ width: '80%', height: '90vh', border: `1px solid ${theme.palette.divider}`, borderRadius: '4px' }}>
+            <div
+              style={{
+                width: '80%',
+                height: '90vh',
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: '4px',
+              }}
+            >
               <Viewer fileUrl={fileUrl} />
             </div>
           </Worker>
         ) : fileType === 'txt' ? (
-          <Box sx={{
-            width: '80%',
-            p: 3,
-            bgcolor: theme.palette.background.paper,
-            borderRadius: 2,
-            whiteSpace: 'pre-wrap',
-            border: `1px solid ${theme.palette.divider}`
-          }}>
-            <Typography variant="body1">{textContent || 'No text content available'}</Typography>
+          <Box
+            sx={{
+              width: '80%',
+              p: 3,
+              bgcolor: theme.palette.background.paper,
+              borderRadius: 2,
+              whiteSpace: 'pre-wrap',
+              border: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <Typography variant="body1">
+              {textContent || 'No text content available'}
+            </Typography>
           </Box>
+        ) : fileType === 'mp4' ? (
+          <video
+            src={fileUrl}
+            controls
+            style={{
+              width: '80%',
+              borderRadius: '8px',
+              border: `1px solid ${theme.palette.divider}`,
+            }}
+          />
+        ) : fileType === 'mp3' ? (
+          <Box
+            sx={{
+              p: 2,
+              bgcolor: theme.palette.background.paper,
+              borderRadius: 2,
+              border: `1px solid ${theme.palette.divider}`,
+              width: '80%',
+            }}
+          >
+           <audio controls style={{ width: '100%' }}>
+            <source src={fileUrl} type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+      </Box>
         ) : (
-          <Box sx={{ textAlign: 'center' }}>
+          <Box textAlign="center">
             <Typography variant="body1">
               Unsupported file type: .{fileType || 'unknown'}
             </Typography>
