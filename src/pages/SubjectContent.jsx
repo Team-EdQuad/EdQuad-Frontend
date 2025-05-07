@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 
 import React, { useEffect, useState } from 'react';
 import {
@@ -21,6 +21,7 @@ const SubjectContent = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const theme = useTheme();
+  const { subjectId } = useParams();
 
   const getIconForItem = (item) => {
     if (item.type === 'assignment') {
@@ -53,7 +54,7 @@ const SubjectContent = () => {
 
   useEffect(() => {
     const studentId = 'STU001';
-    const subjectId = 'SUB001';
+    
 
     const fetchData = async () => {
       try {
@@ -111,7 +112,7 @@ const SubjectContent = () => {
     };
 
     fetchData();
-  }, []);
+  }, [subjectId]);
 
   const handleOpenFile = (filePath) => {
     window.open(`http://localhost:8000/${filePath}`, '_blank');

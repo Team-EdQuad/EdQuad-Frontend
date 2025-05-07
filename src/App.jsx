@@ -46,7 +46,8 @@ function App() {
       <Route path="/termtestmarks" element={<TermTestMarks />} />
       <Route path="/mysubject" element={<MySubject />} />
       <Route path="/assigmentsmarks" element={<AssignmentMarks />} /> 
-      <Route path="/subject/:id" element={<SubjectContent />} />
+      
+      <Route path="/subject/:subjectId" element={<SubjectContent />} />
       <Route path="/assignment-view/:assignmentId" element={<AssignmentView />} />
       <Route path="/submission/:assignment_id" element={<Submission />} />
       <Route path="/content-view/:contentId" element={<ContentView />} />
