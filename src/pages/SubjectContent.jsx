@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -11,11 +13,24 @@ import {
 } from '@mui/material';
 
 
+
 const SubjectContent = () => {
+  
+  const navigate = useNavigate();
   const [groupedItems, setGroupedItems] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const theme = useTheme();
+
+  
+  const handleClick = (item) => {
+    if (item.type === 'assignment') {
+      navigate(`/assignment-view/${encodeURIComponent(item.name)}`);
+    } else if (item.type === 'content') {
+      // Navigate using content_id in URL
+      navigate(`/content-view/${item.id}`);  // Changed to use content_id
+    }
+  };
 
   useEffect(() => {
     const studentId = 'STU001';
@@ -122,15 +137,10 @@ const SubjectContent = () => {
                       secondary={item.description || (item.type === 'assignment' ? 'Assignment' : '')}
                       sx={{ mr: 2 }}
                     />
-                    {item.type === 'content' && (
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleOpenFile(item.filePath)}
-                      >
-                        Open
-                      </Button>
-                    )}
+                  
+                    <Button variant="contained" color="primary" onClick={()=>handleClick(item)} >
+                    {item.type === 'assignment' ? 'View' : 'Open'}
+                    </Button>
                   </ListItem>
                 ))}
               </List>

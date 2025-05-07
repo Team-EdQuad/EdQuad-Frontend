@@ -1,105 +1,142 @@
-import React from 'react';
-import { Box, Typography, IconButton, useTheme } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Box, Typography, IconButton, useTheme, CircularProgress, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
-import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+
+import '@react-pdf-viewer/core/lib/styles/index.css';
 
 const ContentView = () => {
-  const theme = useTheme(); // Access the current theme
+  const theme = useTheme();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { fileUrl, fileType, fileName } = location.state || {}; // Get file details from state
+  const { contentId } = useParams();
+  const [contentData, setContentData] = useState(null);
+  const [textContent, setTextContent] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Customize the default layout plugin
-  const defaultLayoutPluginInstance = defaultLayoutPlugin({
-    toolbarPlugin: {
-      items: (toolbarItems) => {
-        // Filter out all toolbar items except Zoom In and Zoom Out
-        return toolbarItems.filter((item) => {
-          return item.type === 'ZoomIn' || item.type === 'ZoomOut';
-        });
-      },
-    },
-  });
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const metaResponse = await fetch(`http://localhost:8000/api/content/${contentId}`);
+        if (!metaResponse.ok) throw new Error(`HTTP error! status: ${metaResponse.status}`);
+        const data = await metaResponse.json();
+        if (!data.file_path) throw new Error('File path missing in response');
+        setContentData(data);
+
+        if (data.file_path.toLowerCase().endsWith('.txt')) {
+          const fileResponse = await fetch(`http://localhost:8000/api/content/file/${contentId}`);
+          const text = await fileResponse.text();
+          setTextContent(text);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContent();
+  }, [contentId]);
+
+  const fileUrl = contentData?.file_path
+    ? `http://localhost:8000/api/content/file/${contentId}`
+    : null;
+
+  const fileType = contentData?.file_path?.split('.').pop().toLowerCase();
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={4}>
+        <CircularProgress />
+        <Typography variant="body1" ml={2}>Loading content...</Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box textAlign="center" mt={4}>
+        <Typography color="error" variant="h6">Error: {error}</Typography>
+        <Button onClick={() => navigate(-1)} variant="contained" sx={{ mt: 2 }}>
+          Go Back
+        </Button>
+      </Box>
+    );
+  }
+
+  if (!contentData) {
+    return (
+      <Box textAlign="center" mt={4}>
+        <Typography variant="h6">No content data available</Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      bgcolor={theme.palette.background.default} // Dynamic background color
-      minHeight="100vh"
-    >
+    <Box sx={{ 
+      bgcolor: theme.palette.background.default,
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
       {/* Header */}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        p={2}
-        bgcolor={theme.palette.background.paper} // Dynamic header background
-        boxShadow={1}
-      >
-        <Typography
-          variant="h6"
-          sx={{
-            color: theme.palette.text.primary, // Dynamic text color
-          }}
-        >
-          {fileName || 'Content Viewer'}
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        p: 2,
+        bgcolor: theme.palette.background.paper,
+        boxShadow: 1
+      }}>
+        <Typography variant="h6">
+          {contentData.content_name || 'Untitled Content'}
         </Typography>
-        <IconButton
-          onClick={() => navigate(-1)} // Navigate back
-          sx={{
-            color: theme.palette.text.primary, // Dynamic icon color
-          }}
-        >
+        <IconButton onClick={() => navigate(-1)}>
           <CloseIcon />
         </IconButton>
       </Box>
 
-      {/* Content Viewer */}
-      <Box
-        flex={1}
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        p={2}
-        bgcolor={theme.palette.background.default} // Dynamic content background
-      >
-        {fileType === 'pdf' ? (
-          // PDF Viewer
-          <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
-            <Viewer
-              fileUrl={fileUrl}
-              plugins={[defaultLayoutPluginInstance]} // Pass the customized plugin
-              theme={theme.palette.mode} // Adapt to light/dark mode
-            />
+      {/* Content Area */}
+      <Box sx={{
+        flex: 1,
+        p: 3,
+        display: 'flex',
+        justifyContent: 'center',
+        overflow: 'auto'
+      }}>
+        {!fileUrl ? (
+          <Typography variant="body1">No file available for this content</Typography>
+        ) : fileType === 'pdf' ? (
+          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+            <div style={{ width: '80%', height: '90vh', border: `1px solid ${theme.palette.divider}`, borderRadius: '4px' }}>
+              <Viewer fileUrl={fileUrl} />
+            </div>
           </Worker>
-        ) : fileType === 'mp4' ? (
-          // Video Player
-          <video
-            controls
-            style={{
-              maxWidth: '100%',
-              maxHeight: '80vh',
-              borderRadius: '8px',
-              boxShadow: theme.shadows[3],
-            }}
-          >
-            <source src={fileUrl} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+        ) : fileType === 'txt' ? (
+          <Box sx={{
+            width: '80%',
+            p: 3,
+            bgcolor: theme.palette.background.paper,
+            borderRadius: 2,
+            whiteSpace: 'pre-wrap',
+            border: `1px solid ${theme.palette.divider}`
+          }}>
+            <Typography variant="body1">{textContent || 'No text content available'}</Typography>
+          </Box>
         ) : (
-          <Typography
-            variant="body1"
-            sx={{
-              color: theme.palette.text.secondary, // Dynamic text color
-            }}
-          >
-            Unsupported file type.
-          </Typography>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body1">
+              Unsupported file type: .{fileType || 'unknown'}
+            </Typography>
+            <Button
+              variant="contained"
+              sx={{ mt: 2 }}
+              onClick={() => window.open(fileUrl, '_blank')}
+            >
+              Open in New Tab
+            </Button>
+          </Box>
         )}
       </Box>
     </Box>

@@ -48,7 +48,7 @@ function App() {
       <Route path="/subject/:id" element={<SubjectContent />} />
       <Route path="/assignment-view/:assignmentName" element={<AssignmentView />} />
       <Route path="/submission" element={<Submission />} />
-      <Route path="/content-view" element={<ContentView />} />
+      <Route path="/content-view/:contentId" element={<ContentView />} />
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
     </Routes>
@@ -95,46 +95,6 @@ function App() {
   };
 
   return (
-    // <ColorModeContext.Provider value={colorMode}>
-    //   <ThemeProvider theme={theme}>
-    //     <CssBaseline />
-    //     <div className="topbar">
-    //       <Topbar />
-    //       <div className="sidebar">
-    //         {!isMobile && <Sidebar />}
-    //         <div className="content-footer">
-    //           <main className="content">    
-    //             <Routes>
-    //               <Route path="/" element={<Dashboard />} />
-                  // <Route path="/sports" element={<Sports />} />
-                  // <Route path="/assignment-marks" element={<AssignmentMarks />} />                  
-                  // <Route path="/term-test-marks" element={<TermTestMarks />} />
-                  // <Route path="/my-subject" element={<MySubject />} />
-                  // <Route path="/assignment-marks" element={<AssignmentMarks />} /> 
-                  // <Route path="/subject/:id" element={<SubjectContent />} />
-                  // <Route path="/assignment-view/:assignmentName" element={<AssignmentView />} />
-                  // <Route path="/submission" element={<Submission />} />
-                  // <Route path="/content-view" element={<ContentView />} />
-
-
-                  // <Route path="/teacher-subject" element={<TeacherSubject />} />
-                  // <Route path="/teacher-content" element={<TeacherContent />} />
-                  // <Route path="/assignment-create" element={<AssignmentCreate />} />
-                  // <Route path="/add-content" element={<AddContent />} />
-                  // <Route path="/check-assignments" element={<CheckAssignment />} />
-                  // <Route path="/enter-term-test-marks" element={<AddExamMarks />} />
-                
-                  // <Route path="/clubandsocieties" element={<Clubandsocieties />} />
-    //             </Routes>
-    //           </main>
-    //           <div className="footer">
-    //             <Footer />
-    //           </div>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </ThemeProvider>
-    // </ColorModeContext.Provider>
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
