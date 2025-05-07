@@ -48,7 +48,7 @@ function App() {
       <Route path="/assigmentsmarks" element={<AssignmentMarks />} /> 
       <Route path="/subject/:id" element={<SubjectContent />} />
       <Route path="/assignment-view/:assignmentId" element={<AssignmentView />} />
-      <Route path="/submission" element={<Submission />} />
+      <Route path="/submission/:assignment_id" element={<Submission />} />
       <Route path="/content-view/:contentId" element={<ContentView />} />
     
       <Route path="/assignment-file-view" element={<AssignmentFileView />} /> 

@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, useTheme, List, ListItem, ListItemText, Divider } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 
 const Submission = () => {
-  const theme = useTheme(); // Access the current theme
+  const theme = useTheme(); 
+  const { assignment_id } = useParams(); // Get the assignment ID from the URL
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
+  const student_id = "STU001";
+
+  useEffect(() => {
+    if (!assignment_id) {
+      alert('Missing assignment ID');
+      navigate(-1);
+    }
+  }, [assignment_id, navigate]);
 
   const onDrop = (acceptedFiles) => {
     setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
@@ -14,11 +23,34 @@ const Submission = () => {
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
-  const handleSave = () => {
-    console.log('Files submitted:', files);
-    // Add logic to save files
-  };
+  const handleSave = async () => {
+    if (files.length === 0) return alert('Please select a file to upload');
+    if (!assignment_id) return alert('Invalid assignment');
 
+    const formData = new FormData();
+    formData.append('file', files[0]);
+ 
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/submission/${student_id}/${assignment_id}`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || 'Submission failed');
+      }
+      alert('Submission successful!');
+      navigate(-1);
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert(`Submission failed: ${error.message}`);
+    }
+  };
+     
   const handleCancel = () => {
     navigate(-1); // Navigate back to the previous page
   };
@@ -29,7 +61,7 @@ const Submission = () => {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      bgcolor={theme.palette.background.default} // Dynamic background color
+      bgcolor={theme.palette.background.default}
       minHeight="100vh"
       p={3}
     >
@@ -38,7 +70,7 @@ const Submission = () => {
         fontWeight="bold"
         mb={3}
         sx={{
-          color: theme.palette.text.primary, // Dynamic text color
+          color: theme.palette.text.primary,
         }}
       >
         File Submissions
@@ -48,9 +80,9 @@ const Submission = () => {
       <Box
         {...getRootProps()}
         sx={{
-          border: `2px dashed ${theme.palette.divider}`, // Dynamic border color
+          border: `2px dashed ${theme.palette.divider}`,
           borderRadius: '8px',
-          backgroundColor: theme.palette.background.paper, // Dynamic background color
+          backgroundColor: theme.palette.background.paper,
           width: '100%',
           maxWidth: '600px',
           height: '200px',
@@ -65,7 +97,7 @@ const Submission = () => {
         <Typography
           variant="body1"
           sx={{
-            color: theme.palette.text.secondary, // Dynamic text color
+            color: theme.palette.text.secondary,
           }}
         >
           Drop file or select file
@@ -76,7 +108,7 @@ const Submission = () => {
       <Box
         width="100%"
         maxWidth="600px"
-        bgcolor={theme.palette.background.paper} // Dynamic background color
+        bgcolor={theme.palette.background.paper}
         borderRadius="8px"
         boxShadow={1}
         p={2}
@@ -87,7 +119,7 @@ const Submission = () => {
           fontWeight="bold"
           mb={2}
           sx={{
-            color: theme.palette.text.primary, // Dynamic text color
+            color: theme.palette.text.primary,
           }}
         >
           Uploaded Files
@@ -100,7 +132,7 @@ const Submission = () => {
                   primary={file.name}
                   secondary={`${(file.size / 1024).toFixed(2)} KB`}
                   sx={{
-                    color: theme.palette.text.primary, // Dynamic text color
+                    color: theme.palette.text.primary,
                   }}
                 />
               </ListItem>
@@ -116,10 +148,10 @@ const Submission = () => {
           variant="contained"
           onClick={handleSave}
           sx={{
-            backgroundColor: theme.palette.primary.main, // Dynamic button background
-            color: theme.palette.primary.contrastText, // Dynamic button text color
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
             '&:hover': {
-              backgroundColor: theme.palette.primary.dark, // Dynamic hover background
+              backgroundColor: theme.palette.primary.dark,
             },
           }}
         >
@@ -129,10 +161,10 @@ const Submission = () => {
           variant="outlined"
           onClick={handleCancel}
           sx={{
-            color: theme.palette.text.primary, // Dynamic button text color
-            borderColor: theme.palette.divider, // Dynamic border color
+            color: theme.palette.text.primary,
+            borderColor: theme.palette.divider,
             '&:hover': {
-              borderColor: theme.palette.text.primary, // Dynamic hover border color
+              borderColor: theme.palette.text.primary,
             },
           }}
         >
