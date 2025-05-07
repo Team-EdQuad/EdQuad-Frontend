@@ -44,7 +44,7 @@ const SubjectContent = () => {
   };
   const handleClick = (item) => {
     if (item.type === 'assignment') {
-      navigate(`/assignment-view/${encodeURIComponent(item.name)}`);
+      navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
     } else if (item.type === 'content') {
       // Navigate using content_id in URL
       navigate(`/content-view/${item.id}`);  // Changed to use content_id

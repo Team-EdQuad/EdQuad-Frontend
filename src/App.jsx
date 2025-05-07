@@ -27,6 +27,7 @@ import AddExamMarks from "./pages/AddExamMarks";
 import ContentView from "./pages/ContentView";
 import StudentDashboard from "./pages/StudentDashboard";
 import BehavioralAnalysis from "./pages/BehavioralAnalysis"
+import AssignmentFileView from "./pages/AssignmentFileView";
 
 
 
@@ -46,9 +47,11 @@ function App() {
       <Route path="/mysubject" element={<MySubject />} />
       <Route path="/assigmentsmarks" element={<AssignmentMarks />} /> 
       <Route path="/subject/:id" element={<SubjectContent />} />
-      <Route path="/assignment-view/:assignmentName" element={<AssignmentView />} />
+      <Route path="/assignment-view/:assignmentId" element={<AssignmentView />} />
       <Route path="/submission" element={<Submission />} />
       <Route path="/content-view/:contentId" element={<ContentView />} />
+    
+      <Route path="/assignment-file-view" element={<AssignmentFileView />} /> 
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
     </Routes>
