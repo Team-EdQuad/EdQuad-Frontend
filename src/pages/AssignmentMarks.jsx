@@ -12,8 +12,9 @@ import {
   Box,
   Typography,
 } from '@mui/material';
+import { Assignment } from '@mui/icons-material';
 
-const MySubject = () => {
+const AssignmentMarks = () => {
   const theme = useTheme();
   const [assignments, setAssignments] = useState([]);
   const studentId = "STU001";
@@ -97,4 +98,4 @@ const MySubject = () => {
   );
 };
 
-export default MySubject;
+export default AssignmentMarks;

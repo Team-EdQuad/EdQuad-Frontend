@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-const MySubject = () => {
+const TermTestMarks = () => {
   const theme = useTheme();
   const [data, setData] = useState([]);
   const [selectedYear, setSelectedYear] = useState('');
@@ -170,4 +170,4 @@ const term3Avg = subjectCount > 0 ? term3Total / subjectCount : 0;
   );
 };
 
-export default MySubject;
+export default TermTestMarks;
