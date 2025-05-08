@@ -20,26 +20,8 @@ const ContentView = () => {
   const [textContent, setTextContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [done, setDone] = useState(false);
 
-  const studentId = 'STU001';
-
-  const handleClose = async () => {
-    try {
-      const formData = new FormData();
-      formData.append('student_id', studentId);
-      formData.append('content_id', contentId);
-  
-      await fetch('http://127.0.0.1:8000/api/closeContentAccess', {
-        method: 'POST',
-        body: formData,
-      });
-  
-      navigate(-1);
-    } catch (error) {
-      console.error('Failed to close content access:', error);
-      navigate(-1); // Still navigate back even if the API fails
-    }
-  };
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -70,6 +52,41 @@ const ContentView = () => {
     : null;
 
   const fileType = contentData?.file_path?.split('.').pop()?.toLowerCase();
+
+  const handleClose = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('student_id', 'STU001'); // Replace with dynamic ID if needed
+      formData.append('content_id', contentId);
+
+      await fetch('http://127.0.0.1:8000/api/closeContentAccess', {
+        method: 'POST',
+        body: formData,
+      });
+
+      navigate(-1);
+    } catch (error) {
+      console.error('Error closing content access:', error);
+    }
+  };
+
+  const handleMarkAsDone = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/content/${contentId}`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to mark content as done');
+      }
+
+      setDone(true);
+      
+    } catch (error) {
+      console.error('Failed to mark as done:', error);
+      alert('Error: Could not mark as done');
+    }
+  };
 
   if (loading) {
     return (
@@ -122,9 +139,29 @@ const ContentView = () => {
         <Typography variant="h6">
           {contentData.content_name || 'Untitled Content'}
         </Typography>
-        <IconButton  onClick={handleClose}>
-          <CloseIcon />
-        </IconButton>
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="contained"
+            onClick={handleMarkAsDone}
+            disabled={done}
+            sx={{
+              bgcolor: done ? '#003366' : 'white',
+              color: done ? 'white' : '#003366',
+              border: '1px solid #003366',
+              '&:hover': {
+                bgcolor: done ? '#003366' : '#e6f0ff',
+              },
+            }}
+          >
+            {done ? 'Marked as Done' : 'Mark as Done'}
+          </Button>
+
+
+          <IconButton onClick={handleClose}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
       </Box>
 
       {/* Content Display Area */}
@@ -187,11 +224,11 @@ const ContentView = () => {
               width: '80%',
             }}
           >
-           <audio controls style={{ width: '100%' }}>
-            <source src={fileUrl} type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-      </Box>
+            <audio controls style={{ width: '100%' }}>
+              <source src={fileUrl} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+          </Box>
         ) : (
           <Box textAlign="center">
             <Typography variant="body1">
