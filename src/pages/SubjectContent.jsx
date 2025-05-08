@@ -1,5 +1,4 @@
-import { useParams,useNavigate } from 'react-router-dom';
-
+import { useParams, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -12,10 +11,7 @@ import {
   useTheme,
 } from '@mui/material';
 
-
-
 const SubjectContent = () => {
-  
   const navigate = useNavigate();
   const [groupedItems, setGroupedItems] = useState({});
   const [loading, setLoading] = useState(true);
@@ -23,39 +19,52 @@ const SubjectContent = () => {
   const theme = useTheme();
   const { subjectId } = useParams();
 
+  const studentId = 'STU001'; // ✅ Global declaration
+
   const getIconForItem = (item) => {
-    if (item.type === 'assignment') {
-      return '📝';
-    }
-  
-    // Determine icon based on file extension for content
+    if (item.type === 'assignment') return '📝';
+
     const ext = item.filePath?.split('.').pop()?.toLowerCase();
     switch (ext) {
       case 'pdf':
-        return '📄'; // PDF
+        return '📄';
       case 'txt':
-        return '📃'; // Text
+        return '📃';
       case 'mp3':
-        return '🎵'; // Audio
+        return '🎵';
       case 'mp4':
-        return '🎬'; // Video
+        return '🎬';
       default:
-        return '📁'; // Generic file
+        return '📁';
     }
   };
-  const handleClick = (item) => {
+
+  const handleClick = async (item) => {
     if (item.type === 'assignment') {
       navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
     } else if (item.type === 'content') {
-      // Navigate using content_id in URL
-      navigate(`/content-view/${item.id}`);  // Changed to use content_id
+      try {
+        const formData = new FormData();
+        formData.append('student_id', studentId);
+        formData.append('content_id', item.id);
+
+        await fetch('http://127.0.0.1:8000/api/startContentAccess', {
+          method: 'POST',
+          body: formData,
+        });
+
+        navigate(`/content-view/${item.id}`);
+      } catch (err) {
+        console.error('Failed to notify backend of content access', err);
+      }
     }
   };
 
-  useEffect(() => {
-    const studentId = 'STU001';
-    
+  const handleOpenFile = (filePath) => {
+    window.open(`http://localhost:8000/${filePath}`, '_blank');
+  };
 
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const [contentRes, assignmentRes] = await Promise.all([
@@ -68,7 +77,7 @@ const SubjectContent = () => {
 
         const allItems = [];
 
-        // ✅ Prepare content
+        // ✅ Add content items
         if (Array.isArray(contentData)) {
           contentData.forEach(item => {
             allItems.push({
@@ -82,7 +91,7 @@ const SubjectContent = () => {
           });
         }
 
-        // ✅ Prepare assignments
+        // ✅ Add assignment items
         if (assignmentData.assignments) {
           assignmentData.assignments.forEach(asm => {
             allItems.push({
@@ -114,10 +123,6 @@ const SubjectContent = () => {
     fetchData();
   }, [subjectId]);
 
-  const handleOpenFile = (filePath) => {
-    window.open(`http://localhost:8000/${filePath}`, '_blank');
-  };
-
   if (loading) return <Typography>Loading content...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
 
@@ -127,7 +132,7 @@ const SubjectContent = () => {
         <Typography>No content or assignments available.</Typography>
       ) : (
         Object.entries(groupedItems)
-          .sort((a, b) => new Date(b[0]) - new Date(a[0])) // Sort by date descending
+          .sort((a, b) => new Date(b[0]) - new Date(a[0])) // Descending date sort
           .map(([date, items]) => (
             <Box key={date} mb={4}>
               <Typography
@@ -157,13 +162,17 @@ const SubjectContent = () => {
                       secondary={item.description || (item.type === 'assignment' ? 'Assignment' : '')}
                       sx={{ mr: 2 }}
                     />
-                  
-                    <Button variant="contained" color="primary" onClick={()=>handleClick(item)} >
-                    {item.type === 'assignment' ? 'View' : 'Open'}
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleClick(item)}
+                    >
+                      {item.type === 'assignment' ? 'View' : 'Open'}
                     </Button>
                   </ListItem>
                 ))}
               </List>
+
               <Divider sx={{ mt: 3 }} />
             </Box>
           ))

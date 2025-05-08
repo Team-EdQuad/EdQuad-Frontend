@@ -21,6 +21,26 @@ const ContentView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const studentId = 'STU001';
+
+  const handleClose = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('student_id', studentId);
+      formData.append('content_id', contentId);
+  
+      await fetch('http://127.0.0.1:8000/api/closeContentAccess', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      navigate(-1);
+    } catch (error) {
+      console.error('Failed to close content access:', error);
+      navigate(-1); // Still navigate back even if the API fails
+    }
+  };
+
   useEffect(() => {
     const fetchContent = async () => {
       try {
@@ -102,7 +122,7 @@ const ContentView = () => {
         <Typography variant="h6">
           {contentData.content_name || 'Untitled Content'}
         </Typography>
-        <IconButton onClick={() => navigate(-1)}>
+        <IconButton  onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </Box>
