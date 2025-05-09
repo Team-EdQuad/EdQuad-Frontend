@@ -4,83 +4,92 @@ import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import { Link } from "react-router-dom";
 import { tokens } from "../theme";
 import { SubMenu } from "react-pro-sidebar";
-import { StoreContext } from "../context/StoreContext.jsx";
-// Import icons using named imports (more efficient)
-import { 
+import { StoreContext } from '../context/StoreContext'
+
+import {
   HomeOutlined,
   PeopleOutlined,
   ContactsOutlined,
   ReceiptOutlined,
   PersonOutlined,
   CalendarTodayOutlined,
-  HelpOutlined,
   BarChartOutlined,
   PieChartOutlineOutlined,
   TimelineOutlined,
   MenuOutlined,
-  MapOutlined,
   EventAvailable,
   CheckCircleOutline,
   Assessment,
   DescriptionOutlined,
   Close as CloseIcon,
+  SchoolOutlined,
+  EventAvailableOutlined,
+  TrendingUpOutlined,
+  MenuBookOutlined,
+  LeaderboardOutlined,
+  EmojiPeopleOutlined,
+  InsightsOutlined,
+  ReportProblemOutlined,
+  AssignmentTurnedInOutlined,
+  EditNoteOutlined,
+  PsychologyOutlined,
+  PersonAddAltOutlined,
+  BuildCircleOutlined,
+  TrackChangesOutlined,
+  PersonAddAlt1Outlined,
+  PersonRemoveOutlined,
+  ManageAccountsOutlined
 } from '@mui/icons-material';
 
 import { useEffect } from "react";
 
 
 
-const AppSidebar = () => {  // Changed component name to avoid conflict
+const AppSidebar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [selected, setSelected] = useState("Dashboard");
 
-  const { isMobile, isTablet, role, drawerOpen, setDrawerOpen, toggleDrawer} = useContext(StoreContext)
+  const { isMobile, isTablet, role, setDrawerOpen, id, name, selected, setSelected } = useContext(StoreContext)
 
   !isMobile && useEffect(() => {
     setIsCollapsed(isTablet);
     console.log("isTablet", isTablet)
-    
-  }, [isTablet]);
 
-  const fullText = "225571T - W K T P Kularathna";
-  const [id, name] = fullText.split(" - ");
+  }, [isTablet]);
 
   return (
 
     <Box
       sx={{
         display: "flex",
-        height: "100%",
-        minHeight: "100vh",
+        height: "auto",
+        minHeight: "auto",
         "& .sidebar": {
           border: "none",
         },
       }}
     >
-      <ProSidebar  // Using the aliased import
+      <ProSidebar 
         collapsed={isCollapsed}
         width="250px"
         rootStyles={{
           ".ps-sidebar-container": {
             background: colors.side_bg,
-            // background: `${colors.primary[400]} !important`,
           },
           ".ps-menu-button": {
-            height: "45px",
+            height: "45px !important",
             padding: "5px 35px 5px 20px !important",
             backgroundColor: "transparent !important",
             borderRadius: "3px",
-            // color: "#3e4396",
           },
           ".ps-menu-button:hover": {
             backgroundColor: colors.side_b_hover + "!important",
-            color: "#fff !important",
+            color: colors.nav_text + "!important",
           },
           ".ps-menu-button.ps-active": {
             backgroundColor: colors.side_b_active + "!important",
-            color: "blue !important",
+            color: colors.side_text + "!important",
           },
         }}
       >
@@ -94,8 +103,8 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
               color: colors.gray[100],
             }}
           >
-            {!isCollapsed && !isMobile &&(
-              
+            {!isCollapsed && !isMobile && (
+
               <Box
                 display="flex"
                 justifyContent="space-between"
@@ -111,14 +120,14 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
               </Box>
             )}
             {!isCollapsed && isMobile && (
-              
+
               <Box
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
                 ml="15px"
               >
-                <Typography sx={{ fontSize: '28px', fontWeight: 600 }}>
+                <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text }}>
                   Ed<span style={{ color: 'blue' }}>Q</span>urd
                 </Typography>
                 <IconButton onClick={() => setDrawerOpen(false)}>
@@ -131,21 +140,12 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
           {/* USER */}
           {!isCollapsed && isMobile && (
             <Box mb="25px">
-              {/* <Box display="flex" justifyContent="center" alignItems="center">
-                <img
-                  alt="profile-user"
-                  width="100px"
-                  height="100px"
-                  src={`../../assets/user.png`}
-                  style={{ cursor: "pointer", borderRadius: "50%" }}
-                />
-              </Box> */}
               <Box textAlign="center">
                 <Typography
                   variant="h5"
                   color={colors.gray[100]}
                   fontWeight="medium"
-                  // style={{ marginLeft: "25px" }}
+                // style={{ marginLeft: "25px" }}
                 >
                   {id}
                 </Typography>
@@ -153,12 +153,12 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
                   variant="h5"
                   color={colors.gray[300]}
                   fontWeight="medium"
-                  // sx={{ m: "0" }}
+                // sx={{ m: "0" }}
                 >
                   {name}
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  Admin
+                  {role}
                 </Typography>
               </Box>
             </Box>
@@ -167,143 +167,552 @@ const AppSidebar = () => {  // Changed component name to avoid conflict
           {/* MENU ITEMS */}
           {role === "Student" && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
-            <MenuItem
-              active={selected === "Dashboard"}
-              onClick={() => setSelected("Dashboard")}
-              icon={<HomeOutlined />}
-              component={<Link to="/" />}
-            >
-              <Typography>Dashboard</Typography>
-            </MenuItem>
 
-            <MenuItem
-              active={selected === "My Subject"}
-              onClick={() => setSelected("My Subject")}
-              icon={<PeopleOutlined />}
-              component={<Link to="/mysubject" />}
-            >
-              <Typography>My Subject</Typography>
-            </MenuItem>
-
-            <MenuItem
-              active={selected === "My Profile"}
-              onClick={() => setSelected("My Profile")}
-              icon={<ContactsOutlined />}
-              component={<Link to="/myprofile" />}
-            >
-              <Typography>My Profile</Typography>
-            </MenuItem>
-
-            <MenuItem
-              active={selected === "Calender"}
-              onClick={() => setSelected("Calender")}
-              icon={<ReceiptOutlined />}
-              component={<Link to="/calender" />}
-            >
-              <Typography>Calender</Typography>
-            </MenuItem>
-
-            <MenuItem
-              active={selected === "Sports"}
-              onClick={() => setSelected("Sports")}
-              icon={<PersonOutlined />}
-              component={<Link to="/sports" />}
-            >
-              <Typography>Sports</Typography>
-            </MenuItem>
-
-            <MenuItem
-              active={selected === "Club & Societies"}
-              onClick={() => setSelected("Club & Societies")}
-              icon={<CalendarTodayOutlined />}
-              component={<Link to="/clubandsocieties" />}
-            >
-              <Typography>Club & Societies</Typography>
-            </MenuItem>
-
-
-            {/* Attendance Module  */}
-
-            <SubMenu
-              label="Attendance"
-              icon={<EventAvailable />}
-              defaultOpen={selected.startsWith("Attendance")}
-              style={{
-                // backgroundColor: "#6870fa !important"
-              }}
-              
-            >
-              <MenuItem
-                active={selected === "Attendance Entry"}
-                onClick={() => setSelected("Attendance Entry")}
-                icon={<CheckCircleOutline />}
-                component={<Link to="/attendance/entry" />}
-                style={{
-                  marginLeft: "16px",
-                  color: selected === "Attendance Entry" ? "#6870fa" : "#3e4396",
-                }}
+              {/* Dashborad */}
+              <SubMenu
+                label="Dashboard"
+                icon={<HomeOutlined />}
+                defaultOpen={selected.startsWith("Dashboard")}
               >
-                Attendance Entry
-              </MenuItem>
+                <MenuItem
+                  active={selected === "Subject Progress"}
+                  onClick={() => setSelected("Subject Progress")}
+                  icon={<SchoolOutlined />}
+                  component={<Link to="/dashboard#subject-progress" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Subject Progress" ? "#6870fa" : "#3e4396",
 
+                  }}
+                >
+                  <Typography>Subject Progress</Typography>
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Assignment Timeline"}
+                  onClick={() => setSelected("Assignment Timeline")}
+                  icon={<TimelineOutlined />}
+                  component={<Link to="/dashboard#assignment-timeline" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Assignment Timeline" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Assignment Timeline
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Attendance"}
+                  onClick={() => setSelected("Attendance")}
+                  icon={<EventAvailableOutlined />}
+                  component={<Link to="/dashboard#attendance" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Attendance" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Attendance
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Acadamic Performance"}
+                  onClick={() => setSelected("Acadamic Performance")}
+                  icon={<BarChartOutlined />}
+                  component={<Link to="/dashboard#academic-performance" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Acadamic Performance" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Acadamic Performance
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Predictive Analysis"}
+                  onClick={() => setSelected("Predictive Analysis")}
+                  icon={<TrendingUpOutlined />}
+                  component={<Link to="/dashboard#predictive-analysis" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Predictive Analysis" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Predictive Analysis
+                </MenuItem>
+
+              </SubMenu>
 
               <MenuItem
-                active={selected === "Analysis View"}
-                onClick={() => setSelected("Analysis View")}
-                icon={<Assessment />}
-                component={<Link to="/attendance/analysis" />}
-                style={{
-                  marginLeft: "16px",
-                  color: selected === "Analysis View" ? "#6870fa" : "#3e4396",
-                }}
+                active={selected === "My Subject"}
+                onClick={() => setSelected("My Subject")}
+                icon={<PeopleOutlined />}
+                component={<Link to="/mysubject" />}
               >
-                Analysis View
+                <Typography>My Subject</Typography>
               </MenuItem>
 
               <MenuItem
-                active={selected === "Document"}
-                onClick={() => setSelected("Document")}
-                icon={<DescriptionOutlined />}
-                component={<Link to="/attendance/document" />}
-                style={{
-                  marginLeft: "16px",
-                  color: selected === "Document" ? "#6870fa" : "#3e4396",
-                }}
+                active={selected === "My Profile"}
+                onClick={() => setSelected("My Profile")}
+                icon={<ContactsOutlined />}
+                component={<Link to="/myprofile" />}
               >
-                Document
+                <Typography>My Profile</Typography>
               </MenuItem>
-            </SubMenu>
+
+              <MenuItem
+                active={selected === "Calender"}
+                onClick={() => setSelected("Calender")}
+                icon={<ReceiptOutlined />}
+                component={<Link to="/calender" />}
+              >
+                <Typography>Calender</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Sports"}
+                onClick={() => setSelected("Sports")}
+                icon={<PersonOutlined />}
+                component={<Link to="/sports" />}
+              >
+                <Typography>Sports</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Club & Societies"}
+                onClick={() => setSelected("Club & Societies")}
+                icon={<CalendarTodayOutlined />}
+                component={<Link to="/clubandsocieties" />}
+              >
+                <Typography>Club & Societies</Typography>
+              </MenuItem>
 
 
+              {/* Attendance */}
+              <SubMenu
+                label="Attendance"
+                icon={<EventAvailable />}
+                defaultOpen={selected.startsWith("Attendance")}
+              >
+                <MenuItem
+                  active={selected === "Analysis View"}
+                  onClick={() => setSelected("Analysis View")}
+                  icon={<Assessment />}
+                  component={<Link to="/student/attendance/analysis" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Analysis View" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Analysis View
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Document"}
+                  onClick={() => setSelected("Document")}
+                  icon={<DescriptionOutlined />}
+                  component={<Link to="/student/attendance/document" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Document" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Document
+                </MenuItem>
+              </SubMenu>
+
+              <MenuItem
+                active={selected === "Term Test Marks"}
+                onClick={() => setSelected("Term Test Marks")}
+                icon={<BarChartOutlined />}
+                component={<Link to="/termtestmarks" />}
+              >
+                <Typography>Term Test Marks</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Assigments Marks"}
+                onClick={() => setSelected("Assigments Marks")}
+                icon={<PieChartOutlineOutlined />}
+                component={<Link to="/assigmentsmarks" />}
+              >
+                <Typography>Assigments Marks</Typography>
+              </MenuItem>
+            </Box>
+          )}
+          {role === 'Teacher' && (
+            <Box paddingInline={isCollapsed ? undefined : "5px"}>
+
+              {/* Dashborad */}
+              <SubMenu
+                label="Dashboard"
+                icon={<HomeOutlined />}
+                defaultOpen={selected.startsWith("Dashboard")}
+              >
+                <MenuItem
+                  active={selected === "Material Progress"}
+                  onClick={() => setSelected("Material Progress")}
+                  icon={<MenuBookOutlined />}
+                  component={<Link to="/dashboard#material-progress" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Material Progress" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  <Typography>Material Progress</Typography>
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Class Performance"}
+                  onClick={() => setSelected("Class Performance")}
+                  icon={<LeaderboardOutlined />}
+                  component={<Link to="/dashboard#class-performance" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Class Performance" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Class Performance
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Student Progress"}
+                  onClick={() => setSelected("Student Progress")}
+                  icon={<EmojiPeopleOutlined />}
+                  component={<Link to="/dashboard#student-progress" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Student Progress" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Student Progress
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Attendance Analysis"}
+                  onClick={() => setSelected("Attendance Analysis")}
+                  icon={<InsightsOutlined />}
+                  component={<Link to="/dashboard#attendance-analysis" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Attendance Analysis" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Attendance Analysis
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Attendance Risk"}
+                  onClick={() => setSelected("Attendance Risk")}
+                  icon={<ReportProblemOutlined />}
+                  component={<Link to="/dashboard#attendance-risk" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Attendance Risk" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Attendance Risk
+                </MenuItem>
+              </SubMenu>
+
+              <MenuItem
+                active={selected === "My Profile"}
+                onClick={() => setSelected("My Profile")}
+                icon={<ContactsOutlined />}
+                component={<Link to="/myprofile" />}
+              >
+                <Typography>My Profile</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Calender"}
+                onClick={() => setSelected("Calender")}
+                icon={<ReceiptOutlined />}
+                component={<Link to="/calender" />}
+              >
+                <Typography>Calender</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Acadamic"}
+                onClick={() => setSelected("Acadamic")}
+                icon={<SchoolOutlined />}
+                component={<Link to="/teacher-subject" />}
+              >
+                <Typography>Acadamic</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Sports"}
+                onClick={() => setSelected("Sports")}
+                icon={<PersonOutlined />}
+                component={<Link to="/sports" />}
+              >
+                <Typography>Sports</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Club & Societies"}
+                onClick={() => setSelected("Club & Societies")}
+                icon={<CalendarTodayOutlined />}
+                component={<Link to="/clubandsocieties" />}
+              >
+                <Typography>Club & Societies</Typography>
+              </MenuItem>
+
+              {/* Attendance */}
+              <SubMenu
+                label="Attendance"
+                icon={<EventAvailable />}
+                defaultOpen={selected.startsWith("Attendance")}
+              >
+                <MenuItem
+                  active={selected === "Attendance Entry"}
+                  onClick={() => setSelected("Attendance Entry")}
+                  icon={<CheckCircleOutline />}
+                  component={<Link to="/attendance/entry" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Attendance Entry" ? "#6870fa" : "#3e4396",
+
+                  }}
+                >
+                  <Typography>Attendance Entry</Typography>
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Analysis View"}
+                  onClick={() => setSelected("Analysis View")}
+                  icon={<Assessment />}
+                  component={<Link to="/attendance/analysis" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Analysis View" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Analysis View
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Document"}
+                  onClick={() => setSelected("Document")}
+                  icon={<DescriptionOutlined />}
+                  component={<Link to="/attendance/document" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Document" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Document
+                </MenuItem>
+              </SubMenu>
+
+              <MenuItem
+                active={selected === "Check Assignments"}
+                onClick={() => setSelected("Check Assignments")}
+                icon={<AssignmentTurnedInOutlined />}
+                component={<Link to="/check-assignments" />}
+              >
+                <Typography>Check Assignments</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Enter term-test marks"}
+                onClick={() => setSelected("Enter term-test marks")}
+                icon={<EditNoteOutlined />}
+                component={<Link to="/enter-term-test-marks" />}
+              >
+                <Typography>Enter term-test marks</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Behavioural analysis"}
+                onClick={() => setSelected("Behavioural analysis")}
+                icon={<PsychologyOutlined />}
+                component={<Link to="/behavioural-analysis" />}
+              >
+                <Typography>Behavioural analysis</Typography>
+              </MenuItem>
 
 
+            </Box>
+          )}
+          {role === 'Admin' && (
+            <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
-            {/* <Typography
-              variant="h6"
-              color={colors.gray[300]}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Charts
-            </Typography> */}
+              {/* Dashborad */}
+              <SubMenu
+                label="Dashboard"
+                icon={<HomeOutlined />}
+                defaultOpen={selected.startsWith("Dashboard")}
+              >
+                <MenuItem
+                  active={selected === "Class Performance"}
+                  onClick={() => setSelected("Class Performance")}
+                  icon={<LeaderboardOutlined />}
+                  component={<Link to="/dashboard#class-performance" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Class Performance" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Class Performance
+                </MenuItem>
 
-            <MenuItem
-              active={selected === "Term Test Marks"}
-              onClick={() => setSelected("Term Test Marks")}
-              icon={<BarChartOutlined />}
-              component={<Link to="/termtestmarks" />}
-            >
-              <Typography>Term Test Marks</Typography>
-            </MenuItem>
+                <MenuItem
+                  active={selected === "Student Progress"}
+                  onClick={() => setSelected("Student Progress")}
+                  icon={<EmojiPeopleOutlined />}
+                  component={<Link to="/dashboard#student-progress" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Student Progress" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Student Progress
+                </MenuItem>
 
-            <MenuItem
-              active={selected === "Assigments Marks"}
-              onClick={() => setSelected("Assigments Marks")}
-              icon={<PieChartOutlineOutlined />}
-              component={<Link to="/assigmentsmarks" />}
-            >
-              <Typography>Assigments Marks</Typography>
-            </MenuItem>
-          </Box>
+                <MenuItem
+                  active={selected === "Attendance Analysis"}
+                  onClick={() => setSelected("Attendance Analysis")}
+                  icon={<InsightsOutlined />}
+                  component={<Link to="/dashboard#attendance-analysis" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Attendance Analysis" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Attendance Analysis
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Attendance Risk"}
+                  onClick={() => setSelected("Attendance Risk")}
+                  icon={<ReportProblemOutlined />}
+                  component={<Link to="/dashboard#attendance-risk" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Attendance Risk" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Attendance Risk
+                </MenuItem>
+              </SubMenu>
+
+              <MenuItem
+                active={selected === "My Profile"}
+                onClick={() => setSelected("My Profile")}
+                icon={<ContactsOutlined />}
+                component={<Link to="/myprofile" />}
+              >
+                <Typography>My Profile</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Calender"}
+                onClick={() => setSelected("Calender")}
+                icon={<ReceiptOutlined />}
+                component={<Link to="/calender" />}
+              >
+                <Typography>Calender</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Add Student"}
+                onClick={() => setSelected("Add Student")}
+                icon={<PersonAddAltOutlined />}
+                component={<Link to="/add-student" />}
+              >
+                <Typography>Add Student</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Sports"}
+                onClick={() => setSelected("Sports")}
+                icon={<PersonOutlined />}
+                component={<Link to="/sports" />}
+              >
+                <Typography>Sports</Typography>
+              </MenuItem>
+
+              <MenuItem
+                active={selected === "Club & Societies"}
+                onClick={() => setSelected("Club & Societies")}
+                icon={<CalendarTodayOutlined />}
+                component={<Link to="/clubandsocieties" />}
+              >
+                <Typography>Club & Societies</Typography>
+              </MenuItem>
+
+              {/* Operation */}
+              <SubMenu
+                label="Operation"
+                icon={<BuildCircleOutlined />}
+                defaultOpen={selected.startsWith("Operation")}
+              >
+                <MenuItem
+                  active={selected === "Add Teacher"}
+                  onClick={() => setSelected("Add Teacher")}
+                  icon={<PersonAddAlt1Outlined />}
+                  component={<Link to="/add-teacher" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Add Teacher" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Add Teacher
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Add Student"}
+                  onClick={() => setSelected("Add Student")}
+                  icon={<PersonAddAltOutlined />}
+                  component={<Link to="/add-student" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Add Student" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Add Student
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Delete User"}
+                  onClick={() => setSelected("Delete User")}
+                  icon={<PersonRemoveOutlined />}
+                  component={<Link to="/delete-user" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Delete User" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Delete User
+                </MenuItem>
+
+                <MenuItem
+                  active={selected === "Update User"}
+                  onClick={() => setSelected("Update User")}
+                  icon={<ManageAccountsOutlined />}
+                  component={<Link to="/update-user" />}
+                  style={{
+                    marginLeft: "16px",
+                    color: selected === "Update User" ? "#6870fa" : "#3e4396",
+                  }}
+                >
+                  Update User
+                </MenuItem>
+              </SubMenu>
+
+              <MenuItem
+                active={selected === "Access Tracking"}
+                onClick={() => setSelected("Access Tracking")}
+                icon={<TrackChangesOutlined />}
+                component={<Link to="/access-tracking" />}
+              >
+                <Typography>Access Tracking</Typography>
+              </MenuItem>
+
+            </Box>
           )}
         </Menu>
       </ProSidebar>

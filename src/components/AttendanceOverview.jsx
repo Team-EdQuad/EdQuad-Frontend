@@ -19,11 +19,11 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { Doughnut } from "react-chartjs-2";
-import { getMonthlyAttendanceRate } from "../services/studentService";
-import { getWeeklyAttendanceRate } from "../services/studentService";
-import { getAttendanceRate } from "../services/studentService";
-import { getNonacademicAttendance } from "../services/studentService";
-import { getEngagementScore } from "../services/studentService";
+import { getMonthlyAttendanceRate } from "../services/studentDService";
+import { getWeeklyAttendanceRate } from "../services/studentDService";
+import { getAttendanceRate } from "../services/studentDService";
+import { getNonacademicAttendance } from "../services/studentDService";
+import { getEngagementScore } from "../services/studentDService";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 

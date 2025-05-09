@@ -3,7 +3,7 @@ import {
   getStudentAssignments,
   getFilteredAssignments,
   getSortedAssignments,
-} from "../services/studentService";
+} from "../services/studentDService";
 import dayjs from "dayjs";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
@@ -111,7 +111,7 @@ const AssignmentTimeline = ({ studentId, classId }) => {
           <Typography>No assignments available.</Typography>
         </Box >
       ) : (
-        <Box px={2}>
+        <Box px={2} >
         <List disablePadding sx={{ maxHeight: 320, overflowY: "auto" ,p:"inherit", }}>
           {assignments.map((assignment, index) => (
             <React.Fragment key={index}>
