@@ -1,12 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+import axios  from 'axios';
 import { Box, Typography, Button, MenuItem, Select, FormControl, InputLabel, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const TeacherSubject = () => {
-  const theme = useTheme(); // Access the current theme
+  const theme = useTheme(); 
   const navigate = useNavigate();
+  const teacher_id = "TCH001";
+
   const [subject, setSubject] = useState('');
   const [className, setClassName] = useState('');
+  const [subjectList, setSubjectList] = useState([]);
+  const [classList, setClassList] = useState([]);
+
+  useEffect(()=>{
+    axios.get(`http://127.0.0.1:8000/api/subjectNclass/${teacher_id}`)
+    .then((response)=>{
+      setSubjectList(response.data.subjects);
+      setClassList(response.data.classes);
+    })
+    .catch((error)=>{
+      console.error("Error fetching subjects and classes:", error);
+    });
+  },[teacher_id]);
 
   const handleSubjectChange = (event) => {
     setSubject(event.target.value);
@@ -65,9 +81,11 @@ const TeacherSubject = () => {
             color: theme.palette.text.primary, // Dynamic text color
           }}
         >
-          <MenuItem value="Math">Math</MenuItem>
-          <MenuItem value="Science">Science</MenuItem>
-          <MenuItem value="English">English</MenuItem>
+          {subjectList.map((sub) => (
+            <MenuItem key={sub.Subject_id} value={sub.SubjectName}>
+              {sub.SubjectName}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
 
@@ -94,9 +112,11 @@ const TeacherSubject = () => {
             color: theme.palette.text.primary, // Dynamic text color
           }}
         >
-          <MenuItem value="Class 1">Class 1</MenuItem>
-          <MenuItem value="Class 2">Class 2</MenuItem>
-          <MenuItem value="Class 3">Class 3</MenuItem>
+          {classList.map((cls) => (
+            <MenuItem key={cls.class_id} value={cls.class_name}>
+              {cls.class_name}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
 

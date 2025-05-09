@@ -1,166 +1,182 @@
-import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, List, ListItem, ListItemText, Divider, useTheme } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Typography,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  useTheme,
+} from '@mui/material';
 
 const SubjectContent = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
-  const theme = useTheme(); // Access the current theme
+  const [groupedItems, setGroupedItems] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const theme = useTheme();
+  const { subjectId } = useParams();
 
-  // Dummy data for lessons
-  const lessons = [
-    {
-      date: '2025-01-20',
-      title: 'Lesson 1',
-      files: [
-        { name: 'Topic1.pdf', type: 'pdf', url: 'src/assets/pdf/topic1.pdf' },
-        { name: 'lab1.mp4', type: 'mp4', url: 'src/assets/mp4/1.mp4' },
-        { name: 'Topic2.pdf', type: 'pdf', url: '/assets/pdf/topic2.pdf' },
-        { name: 'Assignment 1', type: 'assignment' },
-      ],
-    },
-    {
-      date: '2025-01-31',
-      title: 'Lesson 2',
-      files: [
-        { name: 'Topic3.pdf', type: 'pdf', url: '/assets/pdf/topic3.pdf' },
-        { name: 'song.mp4', type: 'mp4', url: 'src/assets/mp4/mp3.mkv' },
-        { name: 'Assignment 2', type: 'assignment' },
-      ],
-    },
-  ];
+  const studentId = 'STU001'; // ✅ Global declaration
 
-  // State to track which files are marked as done
-  const [doneFiles, setDoneFiles] = useState({});
+  const getIconForItem = (item) => {
+    if (item.type === 'assignment') return '📝';
 
-  const handleMarkAsDone = (lessonIndex, fileIndex) => {
-    setDoneFiles((prev) => ({
-      ...prev,
-      [`${lessonIndex}-${fileIndex}`]: !prev[`${lessonIndex}-${fileIndex}`],
-    }));
-  };
-
-  const handleFileClick = (file) => {
-    if (file.type === 'assignment') {
-      navigate(`/assignment-view/${file.name}`); // Navigate to AssignmentView page
-    } else {
-      navigate('/content-view', {
-        state: {
-          fileUrl: file.url, // Pass the file URL
-          fileType: file.type, // Pass the file type (e.g., 'pdf', 'mp4')
-          fileName: file.name, // Pass the file name
-        },
-      });
+    const ext = item.filePath?.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'pdf':
+        return '📄';
+      case 'txt':
+        return '📃';
+      case 'mp3':
+        return '🎵';
+      case 'mp4':
+        return '🎬';
+      default:
+        return '📁';
     }
   };
 
-  return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      bgcolor={theme.palette.background.default} // Dynamic background color
-      minHeight="100vh"
-    >
-      <Box display="flex" flex={1}>
-        {/* Main Content */}
-        <Box flex={1} p={3}>
-          {/* Header */}
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            p={2}
-            bgcolor={theme.palette.background.paper} // Dynamic header background
-            boxShadow={1}
-          >
-            <Typography
-              variant="h5"
-              fontWeight="bold"
-              sx={{
-                color: theme.palette.text.primary, // Dynamic text color
-              }}
-            >
-              Subject {id}
-            </Typography>
-            <Button
-              variant="outlined"
-              startIcon={<ArrowBackIcon />}
-              onClick={() => window.history.back()}
-              sx={{
-                color: theme.palette.text.primary, // Dynamic button text color
-                borderColor: theme.palette.divider, // Dynamic border color
-              }}
-            >
-              Back
-            </Button>
-          </Box>
+  const handleClick = async (item) => {
+    if (item.type === 'assignment') {
+      navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
+    } else if (item.type === 'content') {
+      try {
+        const formData = new FormData();
+        formData.append('student_id', studentId);
+        formData.append('content_id', item.id);
 
-          {/* Lessons Content */}
-          <Box mt={3}>
-            {lessons.map((lesson, lessonIndex) => (
-              <Box key={lessonIndex} mb={4}>
-                <Typography
-                  variant="h6"
-                  fontWeight="bold"
-                  color="primary"
-                >
-                  {lesson.date} - {lesson.title}
-                </Typography>
-                <List>
-                  {lesson.files.map((file, fileIndex) => (
-                    <ListItem
-                      key={fileIndex}
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        bgcolor: theme.palette.background.paper, // Dynamic list item background
-                        borderRadius: '8px',
-                        mb: 1,
-                        boxShadow: 1,
-                      }}
+        await fetch('http://127.0.0.1:8000/api/startContentAccess', {
+          method: 'POST',
+          body: formData,
+        });
+
+        navigate(`/content-view/${item.id}`);
+      } catch (err) {
+        console.error('Failed to notify backend of content access', err);
+      }
+    }
+  };
+
+  const handleOpenFile = (filePath) => {
+    window.open(`http://localhost:8000/${filePath}`, '_blank');
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [contentRes, assignmentRes] = await Promise.all([
+          fetch(`http://localhost:8000/api/content/${studentId}/${subjectId}`),
+          fetch(`http://localhost:8000/api/assignments/${studentId}/${subjectId}`)
+        ]);
+
+        const contentData = await contentRes.json();
+        const assignmentData = await assignmentRes.json();
+
+        const allItems = [];
+
+        // ✅ Add content items
+        if (Array.isArray(contentData)) {
+          contentData.forEach(item => {
+            allItems.push({
+              type: 'content',
+              id: item.content_id,
+              name: item.content_name,
+              description: item.description,
+              filePath: item.content_file_path,
+              date: new Date(item.Date).toISOString().split('T')[0],
+            });
+          });
+        }
+
+        // ✅ Add assignment items
+        if (assignmentData.assignments) {
+          assignmentData.assignments.forEach(asm => {
+            allItems.push({
+              type: 'assignment',
+              id: asm.assignment_id,
+              name: asm.assignment_name,
+              date: new Date(asm.created_at).toISOString().split('T')[0],
+            });
+          });
+        }
+
+        // ✅ Group by date
+        const grouped = allItems.reduce((acc, item) => {
+          const date = item.date;
+          if (!acc[date]) acc[date] = [];
+          acc[date].push(item);
+          return acc;
+        }, {});
+
+        setGroupedItems(grouped);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to fetch content or assignments.');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [subjectId]);
+
+  if (loading) return <Typography>Loading content...</Typography>;
+  if (error) return <Typography color="error">{error}</Typography>;
+
+  return (
+    <Box>
+      {Object.keys(groupedItems).length === 0 ? (
+        <Typography>No content or assignments available.</Typography>
+      ) : (
+        Object.entries(groupedItems)
+          .sort((a, b) => new Date(b[0]) - new Date(a[0])) // Descending date sort
+          .map(([date, items]) => (
+            <Box key={date} mb={4}>
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{ mb: 2, color: theme.palette.primary.main }}
+              >
+                {new Date(date).toDateString()}
+              </Typography>
+
+              <List>
+                {items.map((item) => (
+                  <ListItem
+                    key={item.id}
+                    sx={{
+                      bgcolor: theme.palette.background.paper,
+                      borderRadius: '10px',
+                      mb: 2,
+                      boxShadow: 1,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <ListItemText
+                      primary={`${getIconForItem(item)} ${item.name}`}
+                      secondary={item.description || (item.type === 'assignment' ? 'Assignment' : '')}
+                      sx={{ mr: 2 }}
+                    />
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleClick(item)}
                     >
-                      <ListItemText
-                        primary={file.name}
-                        onClick={() => handleFileClick(file)} // Handle file click
-                        sx={{
-                          cursor: 'pointer',
-                          color: file.type === 'assignment'
-                            ? theme.palette.primary.main // Highlight assignments
-                            : theme.palette.text.primary, // Default text color
-                          textDecoration: file.type === 'assignment' ? 'underline' : 'none',
-                        }}
-                      />
-                      <Button
-                        variant="contained"
-                        onClick={() => handleMarkAsDone(lessonIndex, fileIndex)}
-                        sx={{
-                          backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`]
-                            ? theme.palette.primary.main // Set color when marked as done
-                            : theme.palette.action.hover, // Set default color
-                          color: doneFiles[`${lessonIndex}-${fileIndex}`]
-                            ? theme.palette.primary.contrastText // Text color when marked as done
-                            : theme.palette.text.primary, // Default text color
-                          border: `1px solid ${theme.palette.primary.main}`, // Border color
-                          '&:hover': {
-                            backgroundColor: doneFiles[`${lessonIndex}-${fileIndex}`]
-                              ? theme.palette.primary.dark // Hover color when marked as done
-                              : theme.palette.action.hover, // Hover color when not marked as done
-                          },
-                        }}
-                      >
-                        Mark as Done
-                      </Button>
-                    </ListItem>
-                  ))}
-                </List>
-                <Divider sx={{ mt: 2, bgcolor: theme.palette.divider }} />
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      </Box>
+                      {item.type === 'assignment' ? 'View' : 'Open'}
+                    </Button>
+                  </ListItem>
+                ))}
+              </List>
+
+              <Divider sx={{ mt: 3 }} />
+            </Box>
+          ))
+      )}
     </Box>
   );
 };

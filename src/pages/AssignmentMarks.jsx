@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   Table,
   TableBody,
@@ -7,48 +9,45 @@ import {
   TableRow,
   Paper,
   useTheme,
+  Box,
+  Typography,
 } from '@mui/material';
+import { Assignment } from '@mui/icons-material';
 
-import React from 'react';
+const AssignmentMarks = () => {
+  const theme = useTheme();
+  const [assignments, setAssignments] = useState([]);
+  const studentId = "STU001";
 
+  useEffect(() => {
+    const fetchAssignmentMarks = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/assignmentmarks/${studentId}`);
+        setAssignments(response.data);
+      } catch (error) {
+        console.error('Error fetching assignment marks:', error);
+      }
+    };
 
-import { Box, Typography } from '@mui/material';
-
-const subjects = [
-  { name: 'Sinhala', assignname: 'assignment 1', marks: 75 },
-  { name: 'English', assignname: 'grammer', marks: 89 },
-  { name: 'Science', assignname: 'plants', marks: 74 },
-  { name: 'Maths', assignname: 'calculas', marks: 90 },
-];
-
-const MySubject = () => {
-  const theme = useTheme(); // Access the current theme
+    fetchAssignmentMarks();
+  }, []);
 
   return (
     <Box>
-      {/* Main Content Area */}
       <Box display="flex">
-        {/* Sidebar */}
-
-        {/* Page Content */}
         <Box flex={1} p={2}>
           <Typography variant="h4" fontWeight="bold" mb={2}>
             Assignment Marks
           </Typography>
 
-          <TableContainer
-            component={Paper}
-            sx={{
-              backgroundColor: theme.palette.background.paper, // Dynamic background
-            }}
-          >
+          <TableContainer component={Paper} sx={{ backgroundColor: theme.palette.background.paper }}>
             <Table>
               <TableHead>
                 <TableRow>
                   <TableCell
                     sx={{
-                      backgroundColor: theme.palette.primary.main, // Dynamic header background
-                      color: theme.palette.primary.contrastText, // Dynamic header text color
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
                       fontWeight: 'bold',
                     }}
                   >
@@ -75,19 +74,19 @@ const MySubject = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {subjects.map((subject, index) => (
+                {assignments.map((item, index) => (
                   <TableRow
                     key={index}
                     sx={{
                       backgroundColor:
                         index % 2 === 0
-                          ? theme.palette.action.hover // Alternate row color
+                          ? theme.palette.action.hover
                           : theme.palette.background.default,
                     }}
                   >
-                    <TableCell>{subject.name}</TableCell>
-                    <TableCell>{subject.assignname}</TableCell>
-                    <TableCell>{subject.marks}</TableCell>
+                    <TableCell>{item.subject_name}</TableCell>
+                    <TableCell>{item.assignment_name || 'N/A'}</TableCell>
+                    <TableCell>{item.marks !== null ? item.marks : 'Pending'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -99,4 +98,4 @@ const MySubject = () => {
   );
 };
 
-export default MySubject;
+export default AssignmentMarks;
