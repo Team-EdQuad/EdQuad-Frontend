@@ -1,4 +1,3 @@
-// src/pages/Sports.jsx
 import React from "react";
 import { Box, Typography, Grid, Select, MenuItem } from "@mui/material";
 import SportCard from "../components/SportCard";
@@ -70,7 +69,7 @@ const sportsData = [
 const Sports = () => {
   return (
     <Box p={4} sx={{ backgroundColor: "#e6f0ff", minHeight: "100vh" }}>
-      <Typography variant="h4" fontWeight="bold" mb={3}>
+      <Typography variant="h2" fontWeight="bold" mb={3} align="center">
         Sports Activities
       </Typography>
 
