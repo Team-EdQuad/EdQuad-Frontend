@@ -1,39 +1,52 @@
-import React, { useState,useEffect } from 'react';
-import axios  from 'axios';
-import { Box, Typography, Button, MenuItem, Select, FormControl, InputLabel, useTheme } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import {
+  Box, Typography, Button, MenuItem, Select,
+  FormControl, InputLabel, useTheme
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const TeacherSubject = () => {
-  const theme = useTheme(); 
+  const theme = useTheme();
   const navigate = useNavigate();
-  const teacher_id = "TCH001";
+  const teacher_id = "TCH002";
 
+  // State
   const [subject, setSubject] = useState('');
   const [className, setClassName] = useState('');
-  const [subjectList, setSubjectList] = useState([]);
-  const [classList, setClassList] = useState([]);
+  const [subjectsClasses, setSubjectsClasses] = useState([]);
+  const [filteredClasses, setFilteredClasses] = useState([]);
 
-  useEffect(()=>{
+  // Fetch data from API
+  useEffect(() => {
     axios.get(`http://127.0.0.1:8000/api/subjectNclass/${teacher_id}`)
-    .then((response)=>{
-      setSubjectList(response.data.subjects);
-      setClassList(response.data.classes);
-    })
-    .catch((error)=>{
-      console.error("Error fetching subjects and classes:", error);
-    });
-  },[teacher_id]);
+      .then((response) => {
+        setSubjectsClasses(response.data.subjects_classes);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, [teacher_id]);
 
+  // Handle subject change
   const handleSubjectChange = (event) => {
-    setSubject(event.target.value);
+    const selectedSubject = event.target.value;
+    setSubject(selectedSubject);
+    setClassName(''); // Reset class selection when subject changes
+
+    const selected = subjectsClasses.find(
+      (item) => item.subject_name === selectedSubject
+    );
+    setFilteredClasses(selected ? selected.classes : []);
   };
 
+  // Handle class change
   const handleClassChange = (event) => {
     setClassName(event.target.value);
   };
 
+  // Submit navigation
   const handleSubmit = () => {
-    // Navigate to TeacherContent with subject and class as state
     navigate('/teacher-content', { state: { subject, className } });
   };
 
@@ -43,76 +56,40 @@ const TeacherSubject = () => {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      bgcolor={theme.palette.background.default} // Dynamic background color
+      bgcolor={theme.palette.background.default}
       minHeight="100vh"
       p={3}
     >
-      <Typography
-        variant="h5"
-        fontWeight="bold"
-        mb={3}
-        sx={{
-          color: theme.palette.text.primary, // Dynamic text color
-        }}
-      >
+      <Typography variant="h5" fontWeight="bold" mb={3} sx={{ color: theme.palette.text.primary }}>
         Select Subject and Class
       </Typography>
 
       {/* Subject Dropdown */}
-      <FormControl
-        sx={{
-          mb: 3,
-          width: '300px',
-          backgroundColor: theme.palette.background.paper, // Dynamic dropdown background
-          borderRadius: '8px',
-        }}
-      >
-        <InputLabel
-          sx={{
-            color: theme.palette.text.secondary, // Dynamic label color
-          }}
-        >
-          Select Subject
-        </InputLabel>
+      <FormControl sx={{ mb: 3, width: '300px', backgroundColor: theme.palette.background.paper, borderRadius: '8px' }}>
+        <InputLabel sx={{ color: theme.palette.text.secondary }}>Select Subject</InputLabel>
         <Select
           value={subject}
           onChange={handleSubjectChange}
-          sx={{
-            color: theme.palette.text.primary, // Dynamic text color
-          }}
+          sx={{ color: theme.palette.text.primary }}
         >
-          {subjectList.map((sub) => (
-            <MenuItem key={sub.Subject_id} value={sub.SubjectName}>
-              {sub.SubjectName}
+          {subjectsClasses.map((sub) => (
+            <MenuItem key={sub.subject_id} value={sub.subject_name}>
+              {sub.subject_name}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
 
-      {/* Class Dropdown */}
-      <FormControl
-        sx={{
-          mb: 3,
-          width: '300px',
-          backgroundColor: theme.palette.background.paper, // Dynamic dropdown background
-          borderRadius: '8px',
-        }}
-      >
-        <InputLabel
-          sx={{
-            color: theme.palette.text.secondary, // Dynamic label color
-          }}
-        >
-          Select Class
-        </InputLabel>
+      {/* Class Dropdown (filtered based on subject) */}
+      <FormControl sx={{ mb: 3, width: '300px', backgroundColor: theme.palette.background.paper, borderRadius: '8px' }}>
+        <InputLabel sx={{ color: theme.palette.text.secondary }}>Select Class</InputLabel>
         <Select
           value={className}
           onChange={handleClassChange}
-          sx={{
-            color: theme.palette.text.primary, // Dynamic text color
-          }}
+          sx={{ color: theme.palette.text.primary }}
+          disabled={!filteredClasses.length} // Disable if no subject is selected
         >
-          {classList.map((cls) => (
+          {filteredClasses.map((cls) => (
             <MenuItem key={cls.class_id} value={cls.class_name}>
               {cls.class_name}
             </MenuItem>
@@ -124,11 +101,12 @@ const TeacherSubject = () => {
       <Button
         variant="contained"
         onClick={handleSubmit}
+        disabled={!subject || !className}
         sx={{
-          backgroundColor: theme.palette.primary.main, // Dynamic button background
-          color: theme.palette.primary.contrastText, // Dynamic button text color
+          backgroundColor: theme.palette.primary.main,
+          color: theme.palette.primary.contrastText,
           '&:hover': {
-            backgroundColor: theme.palette.primary.dark, // Dynamic hover background
+            backgroundColor: theme.palette.primary.dark,
           },
         }}
       >
