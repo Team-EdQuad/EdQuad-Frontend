@@ -12,7 +12,7 @@ import DarkModeOutlined from "@mui/icons-material/DarkModeOutlined";
 import PersonOutlined from "@mui/icons-material/PersonOutlined";
 import HomeOutlined from "@mui/icons-material/HomeOutlined";
 import { ColorModeContext, tokens } from "../theme";
-import Sidebar from "./Sidebar";
+import Sidebar from "./Sidebar"; 
 import { StoreContext } from '../context/StoreContext'
 
 
@@ -42,7 +42,7 @@ const Topbar = () => {
       alignItems="center"
       p="10px 0px"
       backgroundColor={colors.nav_bg_1}
-      height="auto"
+      height="60px"
     >
       {/* LEFT: Logo and Name */}
       <Box display="flex" alignItems="center" gap="20px" >
@@ -107,3 +107,4 @@ const Topbar = () => {
 };
 
 export default Topbar;
+
