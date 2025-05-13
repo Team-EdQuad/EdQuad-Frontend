@@ -3,6 +3,8 @@ import CourseMatProgress from "../components/CourseMatProgress";
 import ClassPerformance from "../components/ClassPerformance";
 import StudentProgressMonitoring from "../components/StudentProgressMonitoring"
 import ClassAttendanceAnalysis from "../components/ClassAttendanceAnalysis"
+import AttendanceAlertBox from "../components/AttendanceAlertBox";
+import LowAttendanceRisk from "../components/LowAttendanceRisk";
 import Calendar from "../components/DashbboardCalendar";
 
 import { useEffect } from "react";
@@ -35,8 +37,11 @@ const TeacherDashboard = () => {
   return (
     <div className="p-6 space-y-8" >
       <section id="material-progress">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <CourseMatProgress teacherId="TCH001" />
-      </section>
+          <AttendanceAlertBox />
+        </div>
+    </section>
       <section id="class-performance">
           <ClassPerformance/>
       </section>
@@ -45,6 +50,9 @@ const TeacherDashboard = () => {
       </section>
       <section id="attendance-analysis">
         < ClassAttendanceAnalysis />
+      </section>
+      <section id="attendance-risk">
+        <LowAttendanceRisk />
       </section>
       
       
