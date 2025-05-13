@@ -1,11 +1,12 @@
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { StoreContext } from './context/StoreContext'
+import { useContext } from "react";
+
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { StoreContext } from './context/StoreContext';
-import { useContext } from "react";
 
 import UnderConstruction from "./pages/UnderConstruction";
 
@@ -32,6 +33,13 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminDashboard from "./pages/AdminDasboard"
 
 
+import TeacherAnalysis from "./pages/Attendance-Module/Teacher-Analysis";
+import StudentAnalysis from "./pages/Attendance-Module/Student-Analysis";
+import TeacherAttendanceEntry from "./pages/Attendance-Module/Teacher-AttendanceEntry";
+import StudentDocument from "./pages/Attendance-Module/Student-Document";
+import TeacherDocument from "./pages/Attendance-Module/Teacher-Document";
+
+
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -54,6 +62,10 @@ function App() {
       <Route path="/submission/:assignment_id" element={<Submission />} />
       <Route path="/content-view/:contentId" element={<ContentView />} />
     
+
+      <Route path="/student/attendance/analysis" element={<StudentAnalysis />} />
+      <Route path="/student/attendance/document" element={<StudentDocument studentId='STD001' classId='CLS008'/>} />
+      
       <Route path="/assignment-file-view" element={<AssignmentFileView />} /> 
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
@@ -72,6 +84,9 @@ function App() {
       <Route path="/add-content" element={<AddContent />} />
       <Route path="/check-assignments" element={<CheckAssignment />} />
       <Route path="/enter-term-test-marks" element={<AddExamMarks />} />
+      <Route path="/attendance/entry" element={<TeacherAttendanceEntry/>} />
+      <Route path="/attendance/analysis" element={<TeacherAnalysis />} />
+      <Route path="/attendance/document" element={<TeacherDocument />} />
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="/behavioural-analysis" element={<BehavioralAnalysis />} />
       <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
@@ -103,14 +118,36 @@ function App() {
   };
 
   return (
+    // <ColorModeContext.Provider value={colorMode}>
+    //   <ThemeProvider theme={theme}>
+    //     <CssBaseline />
+    //     <div className="topbar">
+    //       <Topbar />
+    //       <div className="sidebar">
+    //         {!isMobile && <Sidebar role={userRole} />} {/* Pass role to Sidebar */}
+    //         <div className="content-footer">
+    //           <main className="content">{getRoutes()}</main>
+    //           <div className="footer">
+    //             <Footer />
+    //           </div>
+    //         </div>
+    //       </div>
+    //     </div>
+    //   </ThemeProvider>
+    // </ColorModeContext.Provider>
+
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <div className="topbar">
-          <Topbar />
-          <div className="sidebar">
-            {!isMobile && <Sidebar role={userRole} />} {/* Pass role to Sidebar */}
-            <div className="content-footer">
+        <div className="panel">
+          <div className="top-panel">
+            <Topbar />
+          </div>  
+          <div className="bottom-panel">
+            <div className="bottom-left-panel">
+              {!isMobile && <Sidebar role={userRole} />}
+            </div>
+            <div className="bottom-right-panel">
               <main className="content">{getRoutes()}</main>
               <div className="footer">
                 <Footer />
@@ -124,3 +161,6 @@ function App() {
 }
 
 export default App;
+
+
+// /attendance/analysis
