@@ -18,8 +18,8 @@ const StoreContextProvider = (props) => {
         setDrawerOpen(!drawerOpen);
       };
 
-    //const [role, setRole] = useState("Student")
-    const [role, setRole] = useState("Admin")
+    const [role, setRole] = useState("Student")
+    // const [role, setRole] = useState("Admin")
     // const [role, setRole] = useState("Teacher")
 
 

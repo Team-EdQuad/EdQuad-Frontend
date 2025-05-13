@@ -41,3 +41,10 @@ export const getUserProfiles = async (searchWithId = "", role = "", classId = ""
   };
   return await fetchWithCache("user_profiles", endpoint, params);
 };
+
+
+export const getAllClasses = async () => {
+  const key = `classList`;
+  const url = `${API_URL}/api/teacher/dashboard/classes`; 
+  return fetchWithCache(key, url);
+};
