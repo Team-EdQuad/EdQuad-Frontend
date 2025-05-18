@@ -14,10 +14,11 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 
 
 
-const requestData = async (classId, subjectId, date) => {
+const requestData = async (classId, subject_type, subjectId, date) => {
     const requestData = {
         class_id: classId,
         subject_id: subjectId,
+        subject_type: subject_type,   //handle this properly
         date: date
     };
 
@@ -25,7 +26,7 @@ const requestData = async (classId, subjectId, date) => {
         // Different endpoints for student and teacher roles
         const endpoint = classId.startsWith('STU') 
             ? 'http://127.0.0.1:8000/attendance/get_student_attendance'
-            : 'http://127.0.0.1:8000/attendance/get_students_of_class';
+            : 'http://127.0.0.1:8000/attendance/students/by-class';
 
         const response = await axios.post(endpoint, requestData);
         const responseData = response.data;
@@ -34,7 +35,7 @@ const requestData = async (classId, subjectId, date) => {
             id: student.student_id,
             name: student.full_name,
             attendance: student.attendance || 'present',
-            monthly: student.att_ratio ? `${student.att_ratio * 100}%` : "Null",
+            monthly: student.att_ratio !== undefined ? `${(student.att_ratio * 100).toFixed(0)}%` : "N/A",
             trend: `${Math.floor(Math.random() * 21) + 70}%`,
         }));
 
@@ -134,7 +135,7 @@ const deleteAttendance = async (attendance_id, classId) => {
 };
 
 
-const AttendanceTable = ({ classId, attendanceType, subjectType, selectedDate, mode, panelSize }) => {
+const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, selectedDate, mode, panelSize }) => {
 
     console.log("This is from table: " + panelSize);
     const isExtraSmallPaper = panelSize < 450;
@@ -202,7 +203,7 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, selectedDate, m
     };
 
     const fetchData = async () => {
-        const responseData = await requestData(classId, attendanceType === "academic" ? "academic" : subjectType, selectedDate);
+        const responseData = await requestData(classId, subjectType, subjectId, selectedDate);
         const fetchedData = responseData.fetchedData;
         setStudents(fetchedData);
         setFilteredData(fetchedData); // Initialize filtered data with all students
@@ -211,16 +212,27 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, selectedDate, m
 
     useEffect(() => {
         fetchData();
-    }, [classId, attendanceType, selectedDate, subjectType]);
+    }, [classId, attendanceType, selectedDate, subjectType, subjectId]);
 
 
     const handleToggleAttendance = (id) => {
-        const updated = students.map(student =>
-            student.id === id
-                ? { ...student, attendance: student.attendance === 'present' ? 'absent' : 'present' }
-                : student
-        );
-        setStudents(updated);
+        console.log('Toggling attendance for student:', id);
+        
+        // Update both students and filteredData
+        const updateAttendanceInList = (list) => list.map(student => {
+            if (student.id === id) {
+                const newAttendance = student.attendance === 'present' ? 'absent' : 'present';
+                console.log('Changing attendance from', student.attendance, 'to', newAttendance);
+                return { ...student, attendance: newAttendance };
+            }
+            return student;
+        });
+
+        setStudents(prevStudents => {
+            const updatedStudents = updateAttendanceInList(prevStudents);
+            setFilteredData(updateAttendanceInList(filteredData));
+            return updatedStudents;
+        });
     };
 
     const handleSort = (key, manualDirection = null) => {

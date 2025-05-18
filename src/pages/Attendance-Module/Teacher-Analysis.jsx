@@ -54,10 +54,11 @@ const TeacherAnalysis = () => {
                 height: '100%',
                 overflow: 'hidden'
             }}>
-                <Typography variant="h3" sx={{ 
+                <Typography variant="h4" sx={{ 
                     color: '#333', 
-                    fontWeight: 'bold',
-                    px: 2
+                    fontWeight: 'semibold',
+                    px: 2,
+                    marginTop: 4,
                 }}>
                     Attendance Analysis
                 </Typography>
