@@ -16,7 +16,7 @@ const TeacherContent = () => {
 
 
   const handleAddContent = () => {
-    navigate('/add-content'); // Navigate to AddContent page
+    navigate('/add-content',{state: { class_id, subject_id}}); // Navigate to AddContent page
   };
 
   return (
