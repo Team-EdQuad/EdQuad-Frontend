@@ -47,7 +47,25 @@ const TeacherSubject = () => {
 
   // Submit navigation
   const handleSubmit = () => {
-    navigate('/teacher-content', { state: { subject, className } });
+    const selectedSubject = subjectsClasses.find(
+    (item) => item.subject_name === subject
+  );
+  
+  const selectedClass = selectedSubject?.classes.find(
+    (cls) => cls.class_name === className
+  );
+
+  const subject_id = selectedSubject?.subject_id;
+  const class_id = selectedClass?.class_id;
+
+  navigate('/teacher-content', {
+    state: {
+      subject,
+      className,
+      subject_id,
+      class_id
+    }
+  });
   };
 
   return (

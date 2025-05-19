@@ -6,10 +6,12 @@ const TeacherContent = () => {
   const theme = useTheme(); // Access the current theme
   const location = useLocation();
   const navigate = useNavigate();
-  const { subject, className } = location.state || {}; // Get subject and class from state
+  const { subject, className ,subject_id ,class_id} = location.state || {}; 
 
   const handleCreateAssignment = () => {
-    navigate('/assignment-create'); // Navigate to AssignmentCreate page
+    navigate('/assignment-create',{
+    state: { subject_id, class_id, teacher_id: 'TCH001' } 
+   }); 
   };
 
 
