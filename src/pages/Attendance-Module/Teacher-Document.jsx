@@ -5,6 +5,7 @@ import axios from 'axios';
 
 import DocumentCard from '../../components/Attendance-Module/DocumentCard';
 import CustomDropdown from '../../components/Attendance-Module/CustomDropdown';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const TeacherDocument = () => {
     const [documents, setDocuments] = useState([]);
@@ -51,7 +52,7 @@ const TeacherDocument = () => {
     // Fetch sports and clubs data
     const fetchNonAcademicSubjects = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/attendance/non-acadamic/subjects');
+            const response = await axios.get(`${attendanceModuleUrl}/non-acadamic/subjects`);
             const subjects = response.data.subject_ids;
             
             // Filter and set sports options
@@ -79,7 +80,7 @@ const TeacherDocument = () => {
     const fetchDocuments = async () => {
         try {
             const response = await axios.get(
-                `http://127.0.0.1:8000/attendance/documents?class_id=${classId}&subject_id=${subjectParam}&student_id=all`
+                `${attendanceModuleUrl}/documents?class_id=${classId}&subject_id=${subjectParam}&student_id=all`
             );
             setDocuments(response.data.data || []);
         } catch (error) {
@@ -98,7 +99,7 @@ const TeacherDocument = () => {
         if (!window.confirm('Are you sure you want to delete this document?')) return;
 
         try {
-            await axios.delete(`http://127.0.0.1:8000/attendance/delete-document/${doc._id}`);
+            await axios.delete(`${attendanceModuleUrl}/delete-document/${doc._id}`);
             setDocuments((prevDocs) => prevDocs.filter((d) => d._id !== doc._id));
         } catch (error) {
             console.error('Failed to delete document:', error);

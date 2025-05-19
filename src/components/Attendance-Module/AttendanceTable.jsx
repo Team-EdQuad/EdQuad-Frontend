@@ -10,6 +10,7 @@ import { styled } from '@mui/material/styles';
 import { MenuItem, FormControl, Select } from '@mui/material';
 import axios from 'axios';
 import useMediaQuery from '@mui/material/useMediaQuery';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 
 
@@ -25,8 +26,8 @@ const requestData = async (classId, subject_type, subjectId, date) => {
     try {
         // Different endpoints for student and teacher roles
         const endpoint = classId.startsWith('STU') 
-            ? 'http://127.0.0.1:8000/attendance/get_student_attendance'
-            : 'http://127.0.0.1:8000/attendance/students/by-class';
+            ? `${attendanceModuleUrl}/get_student_attendance`
+            : `${attendanceModuleUrl}/students/by-class`;
 
         const response = await axios.post(endpoint, requestData);
         const responseData = response.data;
@@ -74,8 +75,8 @@ const markAttendance = async (classId, subjectId, students, date = null) => {
     try {
         // Different endpoints for student and teacher roles
         const endpoint = classId.startsWith('STU')
-            ? 'http://127.0.0.1:8000/attendance/mark_student_attendance'
-            : 'http://127.0.0.1:8000/attendance/attendance_marking';
+            ? `${attendanceModuleUrl}/mark_student_attendance`
+            : `${attendanceModuleUrl}/attendance_marking`;
 
         const response = await axios.post(endpoint, payload);
         console.log('✅ Attendance marked successfully:', response.data);
@@ -105,8 +106,8 @@ const updateAttendance = async (attendance_id, classId, subjectId, students, dat
     try {
         // Different endpoints for student and teacher roles
         const endpoint = classId.startsWith('STU')
-            ? `http://127.0.0.1:8000/attendance/update_student_attendance/${attendance_id}`
-            : `http://127.0.0.1:8000/attendance/update_attendance_of_class/${attendance_id}`;
+            ? `${attendanceModuleUrl}/update_student_attendance/${attendance_id}`
+            : `${attendanceModuleUrl}/update_attendance_of_class/${attendance_id}`;
 
         const response = await axios.put(endpoint, payload);
         console.log('✅ Attendance updated successfully:', response.data);
@@ -122,8 +123,8 @@ const deleteAttendance = async (attendance_id, classId) => {
     try {
         // Different endpoints for student and teacher roles
         const endpoint = classId.startsWith('STU')
-            ? `http://127.0.0.1:8000/attendance/delete_student_attendance/${attendance_id}`
-            : `http://127.0.0.1:8000/attendance/delete_attendance_of_class/${attendance_id}`;
+            ? `${attendanceModuleUrl}/delete_student_attendance/${attendance_id}`
+            : `${attendanceModuleUrl}/delete_attendance_of_class/${attendance_id}`;
 
         const response = await axios.delete(endpoint);
         console.log('✅ Attendance deleted successfully:', response.data);

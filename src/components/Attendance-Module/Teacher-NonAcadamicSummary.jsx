@@ -6,6 +6,7 @@ import BarChartCompo from './BarChartCompo'
 import { useState, useEffect } from 'react'
 import { ColorModeContext, tokens } from "../../theme";
 import axios from 'axios';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const NonAcadamicSummary = ({classId}) => {
 
@@ -29,7 +30,7 @@ const NonAcadamicSummary = ({classId}) => {
     // Function to fetch non-academic subjects
     const fetchNonAcademicSubjects = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/attendance/non-acadamic/subjects');
+            const response = await axios.get(`${attendanceModuleUrl}/non-acadamic/subjects`);
             const subjects = response.data.subject_ids;
             
             // Transform the subject IDs into the format needed for the dropdown
@@ -90,7 +91,7 @@ const NonAcadamicSummary = ({classId}) => {
         setError(null);
         try {
 
-            const response = await fetch(`http://127.0.0.1:8000/attendance/class/nonacademic/summary?class_id=${classId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
+            const response = await fetch(`${attendanceModuleUrl}/class/nonacademic/summary?class_id=${classId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

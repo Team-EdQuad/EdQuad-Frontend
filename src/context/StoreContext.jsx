@@ -9,7 +9,8 @@ const StoreContextProvider = (props) => {
     const isTablet = useMediaQuery("(max-width:900px)");
 
     // const [id, setId] = useState('STU031');
-    const [id, setId] = useState('STU001');
+    const [studentId, setStudentId] = useState('STU031');
+    const [classId, setClassId] = useState('CLS013');
     const [name, setName] = useState('W.K.T.P.Kularathna');
 
     const [selected, setSelected] = useState("");
@@ -32,12 +33,14 @@ const StoreContextProvider = (props) => {
         toggleDrawer,
         role,
         setRole,
-        id,
-        setId,
+        studentId,
+        setStudentId,
         name,
         setName,
         selected,
-        setSelected
+        setSelected,
+        classId,
+        setClassId
     };
 
     return (

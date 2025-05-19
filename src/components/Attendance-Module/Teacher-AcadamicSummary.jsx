@@ -5,6 +5,7 @@ import CustomDropdown from './CustomDropdown'
 import BarChartCompo from './BarChartCompo'
 import { useState, useEffect } from 'react'
 import { ColorModeContext, tokens } from "../../theme";
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const AcadamicSummary = ({classId}) => {
 
@@ -60,7 +61,7 @@ const AcadamicSummary = ({classId}) => {
         setError(null);
         try {
 
-            const response = await fetch(`http://127.0.0.1:8000/attendance/class/academic/summary?class_id=${classId}&subject_id=academic&summary_type=${summaryType}&month=${month}`);
+            const response = await fetch(`${attendanceModuleUrl}/class/academic/summary?class_id=${classId}&subject_id=academic&summary_type=${summaryType}&month=${month}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

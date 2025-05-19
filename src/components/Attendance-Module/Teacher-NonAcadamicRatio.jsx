@@ -4,6 +4,7 @@ import { Box, Paper, Typography } from '@mui/material';
 import DoughnutChart from './DoughnutChart';
 import CustomDropdown from './CustomDropdown';
 import axios from 'axios';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const DEFAULT_CHART_DATA = [
     { name: "Present", value: null, color: "#9C27B0" },
@@ -77,7 +78,7 @@ const NonAcademicRatio = ({ classId }) => {
 
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/attendance/non-acadamic/subjects');
+            const response = await axios.get(`${attendanceModuleUrl}/non-acadamic/subjects`);
             if (response.data && response.data.subject_ids) {
                 return response.data.subject_ids;
             }
@@ -93,7 +94,7 @@ const NonAcademicRatio = ({ classId }) => {
         setError(null);
         try {
             const response = await fetch(
-                `http://127.0.0.1:8000/attendance/class/nonacademic/ratio?class_id=${classId}&subject_id=${subject}&summary_type=${summaryType.toLowerCase()}`
+                `${attendanceModuleUrl}/class/nonacademic/ratio?class_id=${classId}&subject_id=${subject}&summary_type=${summaryType.toLowerCase()}`
             );
             
             let data;

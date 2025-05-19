@@ -10,6 +10,7 @@ import { useElementSize } from '../../hooks/useElementSize';
 import CustomDropdown from '../../components/Attendance-Module/CustomDropdown';
 import DateSelector from '../../components/Attendance-Module/DateSelector';
 import AttendanceTable from '../../components/Attendance-Module/AttendanceTable';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 
 const TeacherAttendanceEntry = () => {
@@ -39,7 +40,7 @@ const TeacherAttendanceEntry = () => {
     // Fetch sports and clubs data
     const fetchNonAcademicSubjects = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/attendance/non-acadamic/subjects');
+            const response = await axios.get(`${attendanceModuleUrl}/non-acadamic/subjects`);
             const subjects = response.data.subject_ids;
             
             // Filter and set sports options

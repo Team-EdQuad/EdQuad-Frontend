@@ -64,7 +64,7 @@ function App() {
     
 
       <Route path="/student/attendance/analysis" element={<StudentAnalysis />} />
-      <Route path="/student/attendance/document" element={<StudentDocument studentId='STD001' classId='CLS008'/>} />
+      <Route path="/student/attendance/document" element={<StudentDocument studentId='STU031' classId='CLS013'/>} />
       
       <Route path="/assignment-file-view" element={<AssignmentFileView />} /> 
       <Route path="/uc" element={<UnderConstruction />} />
