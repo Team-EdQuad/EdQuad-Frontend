@@ -27,7 +27,7 @@ const CheckAssignment = () => {
 
   useEffect(() => {
     axios
-      .get(`http://127.0.0.1:8002/submission_view/${teacher_id}`)
+      .get(`http://127.0.0.1:8000/api/submission_view/${teacher_id}`)
       .then(({ data }) => {
         setSubmissions(data);
       })
@@ -47,7 +47,8 @@ const CheckAssignment = () => {
       alert('Please enter a valid number');
       return;
     }
-
+    formData.append("submission_id", submission_id);
+    formData.append("marks", marks);
     axios
       .post(
         `http://127.0.0.1:8000/api/update_submission_marks/${teacher_id}`,
