@@ -152,7 +152,7 @@ const AppSidebar = () => {
                 ml="15px"
               >
                 <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text }}>
-                  Ed<span style={{ color: 'blue' }}>Q</span>urd
+                  Ed<span style={{ color: 'blue' }}>Q</span>uad
                 </Typography>
                 <IconButton onClick={() => setDrawerOpen(false)}>
                   <CloseIcon />

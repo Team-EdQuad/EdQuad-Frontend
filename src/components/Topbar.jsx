@@ -52,7 +52,7 @@ const Topbar = () => {
               <MenuIcon />
             </IconButton>
             <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text, pl: isMobile ? "0px" : "18%" }}>
-              Ed<span style={{ color: 'blue' }}>Q</span>urd
+              Ed<span style={{ color: 'blue' }}>Q</span>uad
             </Typography>
           </Box>
 
@@ -62,7 +62,7 @@ const Topbar = () => {
           <Box display="flex" justifyContent="flex-start" alignItems="center">
             <Box width={isTablet ? 'auto' : '250px'} marginX={isTablet ? '20px' : '0px'} backgroundColor='' display='flex' alignItems='center' justifyContent='center'>
               <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text }}>
-                Ed<span style={{ color: 'blue' }}>Q</span>urd
+                Ed<span style={{ color: 'blue' }}>Q</span>uad
               </Typography>
             </Box>
 
