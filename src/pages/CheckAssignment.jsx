@@ -43,24 +43,36 @@ const CheckAssignment = () => {
 
   const handleSubmitMarks = (submission_id) => {
     const marks = parseInt(marksInput[submission_id], 10);
-    if (isNaN(marks)) {
-      alert('Please enter a valid number');
+    if (isNaN(marks) || marks < 0 || marks > 100) {
+      alert('Please enter a valid number between 0 and 100');
       return;
     }
-    formData.append("submission_id", submission_id);
-    formData.append("marks", marks);
+
+    // Create URL-encoded form data
+    const formData = new URLSearchParams();
+    formData.append('submission_id', submission_id);
+    formData.append('marks', marks);
+
     axios
       .post(
         `http://127.0.0.1:8000/api/update_submission_marks/${teacher_id}`,
-        { submission_id, marks }
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            accept: 'application/json',
+          },
+        }
       )
       .then(({ data }) => {
-        console.log("Update marks response:", data);
+        console.log('Update marks response:', data);
         setSubmissions((prev) =>
           prev.map((s) =>
             s.submission_id === submission_id ? { ...s, marks: data.marks } : s
           )
         );
+        alert('Marks updated successfully!');
+        window.location.reload();
       })
       .catch((err) => {
         console.error('Error updating marks:', err);
