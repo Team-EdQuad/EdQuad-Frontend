@@ -7,6 +7,7 @@ import {
     Stack
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const FileUploadForm = ({ student_id, class_id, subject_id, onUploadSuccess }) => {
     const [file, setFile] = useState(null);
@@ -51,7 +52,7 @@ const FileUploadForm = ({ student_id, class_id, subject_id, onUploadSuccess }) =
         data.append('date', new Date().toISOString().slice(0, 10));
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/attendance/document-upload', {
+            const response = await fetch(`${attendanceModuleUrl}/document-upload`, {
                 method: 'POST',
                 body: data,
             });

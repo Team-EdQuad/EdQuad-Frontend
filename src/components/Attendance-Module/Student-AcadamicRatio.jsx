@@ -4,6 +4,7 @@ import { Box, Paper, Typography } from '@mui/material';
 
 import DoughnutChart from './DoughnutChart';
 import CustomDropdown from './CustomDropdown';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const AcadamicRatio = ({studentId}) => {
 
@@ -32,7 +33,7 @@ const AcadamicRatio = ({studentId}) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`http://127.0.0.1:8000/attendance/student/academic/ratio?student_id=${studentId}&subject_id=academic&summary_type=${summaryType}`);
+            const response = await fetch(`${attendanceModuleUrl}/student/academic/ratio?student_id=${studentId}&subject_id=academic&summary_type=${summaryType}`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);

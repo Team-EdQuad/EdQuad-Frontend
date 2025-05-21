@@ -5,6 +5,8 @@ import CustomDropdown from './CustomDropdown'
 import BarChartCompo from './BarChartCompo'
 import { useState, useEffect } from 'react'
 import { fi } from 'date-fns/locale'
+import axios from 'axios';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const NonAcadamicSummary = ({ studentId }) => {
 
@@ -15,13 +17,48 @@ const NonAcadamicSummary = ({ studentId }) => {
     const [monthlyData, setMonthlyData] = useState([]);
     const [weeklyData, setWeeklyData] = useState([]);
 
+    const [subjectType, setSubjectType] = useState('');
+    const [subjectTypeOptions, setSubjectTypeOptions] = useState([]);
+
+    const handleSubjectTypeChange = (e) => {
+        setSubjectType(e.target.value);
+    };
+
+    // Function to fetch non-academic subjects
+    const fetchNonAcademicSubjects = async () => {
+        try {
+            const response = await axios.get(`${attendanceModuleUrl}/non-acadamic/subjects/${studentId}`);
+            const subjects = response.data.subject_ids;
+            
+            // Transform the subject IDs into the format needed for the dropdown
+            const options = subjects.map(id => ({
+                label: id, // You might want to add a more descriptive label if available from the API
+                value: id
+            }));
+            
+            setSubjectTypeOptions(options);
+            
+            // Set initial value if not set
+            if (!subjectType && options.length > 0) {
+                setSubjectType(options[0].value);
+            }
+        } catch (error) {
+            console.error('Failed to fetch subjects:', error);
+            setError('Failed to fetch subjects');
+        }
+    };
+
+    // Add useEffect for fetching subjects
+    useEffect(() => {
+        fetchNonAcademicSubjects();
+    }, [studentId]);
 
     const [subjectList, setSubjectList] = useState([]);
 
     const fetchSubjects = async (studentId) => {
         try {
             const response = await fetch(
-                `http://127.0.0.1:8000/attendance/subjects/${studentId}`
+                `${attendanceModuleUrl}/subjects/${studentId}`
             );
 
             if (!response.ok) {
@@ -44,30 +81,6 @@ const NonAcadamicSummary = ({ studentId }) => {
         console.log("Subject List:", subjectList);
     }, [studentId]);
 
-
-
-    const [subjectType, setSubjectType] = useState('SUB001');
-
-    const handleSubjectTypeChange = (e) => {
-        setSubjectType(e.target.value);
-    };
-
-    const subjectTypeOptions = [
-        { label: 'Cricket', value: 'SUB001' },
-        { label: 'Basketball', value: 'SUB002' },
-        { label: 'Science Club', value: 'SUB003' },
-        { label: 'Maths Club', value: 'SUB004' },
-    ];
-
-    const filteredSubjectTypeOptions = subjectTypeOptions.filter(option =>
-        subjectList.includes(option.value)
-    );
-
-    useEffect(() => {
-        console.log("Filtered Subject Type Options:", filteredSubjectTypeOptions);
-    }, [filteredSubjectTypeOptions]);
-
-
     const [summeryType, setSummeryType] = useState('Monthly');
 
     const handlesummeryTypeChange = (e) => {
@@ -79,7 +92,6 @@ const NonAcadamicSummary = ({ studentId }) => {
         { label: 'Weekly', value: 'Weekly' },
         { label: 'Daily', value: 'Daily' },
     ];
-
 
     const [month, setMonth] = useState('April');
 
@@ -108,8 +120,8 @@ const NonAcadamicSummary = ({ studentId }) => {
         setError(null);
         try {
 
-            // const response = await fetch(`http://127.0.0.1:8000/attendance/class/nonacademic/summary?class_id=${classId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
-            const response = await fetch(`http://127.0.0.1:8000/attendance/student/nonacademic/summary?student_id=${studentId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
+            // const response = await fetch(`${attendanceModuleUrl}/class/nonacademic/summary?class_id=${classId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
+            const response = await fetch(`${attendanceModuleUrl}/student/nonacademic/summary?student_id=${studentId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
