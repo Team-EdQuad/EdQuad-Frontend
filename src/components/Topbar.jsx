@@ -12,7 +12,7 @@ import DarkModeOutlined from "@mui/icons-material/DarkModeOutlined";
 import PersonOutlined from "@mui/icons-material/PersonOutlined";
 import HomeOutlined from "@mui/icons-material/HomeOutlined";
 import { ColorModeContext, tokens } from "../theme";
-import Sidebar from "./Sidebar";
+import Sidebar from "./Sidebar"; 
 import { StoreContext } from '../context/StoreContext'
 
 
@@ -42,7 +42,7 @@ const Topbar = () => {
       alignItems="center"
       p="10px 0px"
       backgroundColor={colors.nav_bg_1}
-      height="auto"
+      height="60px"
     >
       {/* LEFT: Logo and Name */}
       <Box display="flex" alignItems="center" gap="20px" >
@@ -52,7 +52,7 @@ const Topbar = () => {
               <MenuIcon />
             </IconButton>
             <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text, pl: isMobile ? "0px" : "18%" }}>
-              Ed<span style={{ color: 'blue' }}>Q</span>urd
+              Ed<span style={{ color: 'blue' }}>Q</span>uad
             </Typography>
           </Box>
 
@@ -62,7 +62,7 @@ const Topbar = () => {
           <Box display="flex" justifyContent="flex-start" alignItems="center">
             <Box width={isTablet ? 'auto' : '250px'} marginX={isTablet ? '20px' : '0px'} backgroundColor='' display='flex' alignItems='center' justifyContent='center'>
               <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text }}>
-                Ed<span style={{ color: 'blue' }}>Q</span>urd
+                Ed<span style={{ color: 'blue' }}>Q</span>uad
               </Typography>
             </Box>
 
@@ -107,3 +107,4 @@ const Topbar = () => {
 };
 
 export default Topbar;
+

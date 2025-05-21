@@ -1,7 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Sidebar as ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { tokens } from "../theme";
 import { SubMenu } from "react-pro-sidebar";
 import { StoreContext } from '../context/StoreContext'
@@ -41,36 +41,60 @@ import {
   ManageAccountsOutlined
 } from '@mui/icons-material';
 
-import { useEffect } from "react";
-
-
-
 const AppSidebar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const location = useLocation();
+  const { isMobile, isTablet, role, setDrawerOpen, id, name, selected, setSelected } = useContext(StoreContext);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const { isMobile, isTablet, role, setDrawerOpen, id, name, selected, setSelected } = useContext(StoreContext)
+  // Sync selected state with current route
+  useEffect(() => {
+    const path = location.pathname;
+    let newSelected = "";
+    
+    switch(path) {
+      case "/":
+        newSelected = "Material Progress";
+        break;
+      case "/material-progress":
+        newSelected = "Material Progress";
+        break;
+      case "/attendance/entry":
+        newSelected = "Attendance Entry";
+        break;
+      case "/attendance/analysis":
+        newSelected = "Analysis View";
+        break;
+      case "/attendance/document":
+        newSelected = "Document";
+        break;
+      default:
+        // Keep current selection if route doesn't match
+        return;
+    }
+    
+    setSelected(newSelected);
+  }, [location.pathname, setSelected]);
 
   !isMobile && useEffect(() => {
     setIsCollapsed(isTablet);
-    console.log("isTablet", isTablet)
-
   }, [isTablet]);
+  
 
   return (
 
     <Box
       sx={{
         display: "flex",
-        height: "auto",
-        minHeight: "auto",
+        height: "100%",
+        minHeight: "100%",
         "& .sidebar": {
           border: "none",
         },
       }}
     >
-      <ProSidebar 
+      <ProSidebar
         collapsed={isCollapsed}
         width="250px"
         rootStyles={{
@@ -128,7 +152,7 @@ const AppSidebar = () => {
                 ml="15px"
               >
                 <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text }}>
-                  Ed<span style={{ color: 'blue' }}>Q</span>urd
+                  Ed<span style={{ color: 'blue' }}>Q</span>uad
                 </Typography>
                 <IconButton onClick={() => setDrawerOpen(false)}>
                   <CloseIcon />
@@ -348,16 +372,29 @@ const AppSidebar = () => {
                 label="Dashboard"
                 icon={<HomeOutlined />}
                 defaultOpen={selected.startsWith("Dashboard")}
+                rootStyles={{
+                  '.ps-submenu-content': {
+                    paddingLeft: "16px",
+                    backgroundColor: colors.side_bg,
+                  },
+                  '.ps-menuitem-root': {
+                    color: colors.side_b_submenu_text + '!important',
+                  },
+                  '.ps-menuitem-root:hover': {
+                    backgroundColor: colors.side_b_hover + "!important",
+                    color: colors.nav_text + "!important",
+                  },
+                  '.ps-menuitem-root.active': {
+                    backgroundColor: colors.side_b_active + "!important",
+                    color: colors.side_text + "!important",
+                  },
+                }}
               >
                 <MenuItem
                   active={selected === "Material Progress"}
                   onClick={() => setSelected("Material Progress")}
                   icon={<MenuBookOutlined />}
                   component={<Link to="/dashboard#material-progress" />}
-                  style={{
-                    marginLeft: "16px",
-                    color: selected === "Material Progress" ? "#6870fa" : "#3e4396",
-                  }}
                 >
                   <Typography>Material Progress</Typography>
                 </MenuItem>
@@ -367,10 +404,6 @@ const AppSidebar = () => {
                   onClick={() => setSelected("Class Performance")}
                   icon={<LeaderboardOutlined />}
                   component={<Link to="/dashboard#class-performance" />}
-                  style={{
-                    marginLeft: "16px",
-                    color: selected === "Class Performance" ? "#6870fa" : "#3e4396",
-                  }}
                 >
                   Class Performance
                 </MenuItem>
@@ -380,10 +413,6 @@ const AppSidebar = () => {
                   onClick={() => setSelected("Student Progress")}
                   icon={<EmojiPeopleOutlined />}
                   component={<Link to="/dashboard#student-progress" />}
-                  style={{
-                    marginLeft: "16px",
-                    color: selected === "Student Progress" ? "#6870fa" : "#3e4396",
-                  }}
                 >
                   Student Progress
                 </MenuItem>
@@ -393,10 +422,6 @@ const AppSidebar = () => {
                   onClick={() => setSelected("Attendance Analysis")}
                   icon={<InsightsOutlined />}
                   component={<Link to="/dashboard#attendance-analysis" />}
-                  style={{
-                    marginLeft: "16px",
-                    color: selected === "Attendance Analysis" ? "#6870fa" : "#3e4396",
-                  }}
                 >
                   Attendance Analysis
                 </MenuItem>
@@ -406,10 +431,6 @@ const AppSidebar = () => {
                   onClick={() => setSelected("Attendance Risk")}
                   icon={<ReportProblemOutlined />}
                   component={<Link to="/dashboard#attendance-risk" />}
-                  style={{
-                    marginLeft: "16px",
-                    color: selected === "Attendance Risk" ? "#6870fa" : "#3e4396",
-                  }}
                 >
                   Attendance Risk
                 </MenuItem>
@@ -465,15 +486,33 @@ const AppSidebar = () => {
                 label="Attendance"
                 icon={<EventAvailable />}
                 defaultOpen={selected.startsWith("Attendance")}
+                rootStyles={{
+                  '.ps-submenu-content': {
+                    paddingLeft: "16px",
+                    backgroundColor: colors.side_bg,
+                  },
+                  '.ps-menuitem-root': {
+                    color: colors.side_b_submenu_text + '!important',
+                  },
+                  '.ps-menuitem-root:hover': {
+                    backgroundColor: colors.side_b_hover + "!important",
+                    color: colors.nav_text + "!important",
+                  },
+                  '.ps-menuitem-root.active': {
+                    backgroundColor: colors.side_b_active + "!important",
+                    color: colors.side_text + "!important",
+                  },
+                }}
               >
+
                 <MenuItem
                   active={selected === "Attendance Entry"}
                   onClick={() => setSelected("Attendance Entry")}
                   icon={<CheckCircleOutline />}
                   component={<Link to="/attendance/entry" />}
                   style={{
-                    marginLeft: "16px",
-                    color: selected === "Attendance Entry" ? "#6870fa" : "#3e4396",
+                    // marginLeft: "16px",
+                    // color: selected === "Attendance Entry" ? "#6870fa" : "#3e4396",
 
                   }}
                 >
@@ -485,10 +524,6 @@ const AppSidebar = () => {
                   onClick={() => setSelected("Analysis View")}
                   icon={<Assessment />}
                   component={<Link to="/attendance/analysis" />}
-                  style={{
-                    marginLeft: "16px",
-                    color: selected === "Analysis View" ? "#6870fa" : "#3e4396",
-                  }}
                 >
                   Analysis View
                 </MenuItem>
@@ -498,10 +533,6 @@ const AppSidebar = () => {
                   onClick={() => setSelected("Document")}
                   icon={<DescriptionOutlined />}
                   component={<Link to="/attendance/document" />}
-                  style={{
-                    marginLeft: "16px",
-                    color: selected === "Document" ? "#6870fa" : "#3e4396",
-                  }}
                 >
                   Document
                 </MenuItem>

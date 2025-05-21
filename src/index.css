@@ -1,61 +1,73 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap'); */
 
-html,
-body,
-#root,
-.app,
-.content {
+html, body {
   height: 100%;
-  min-height: 100%;
-  width: 100%;
-  font-family: 'Source Sans 3', sans-serif;
+  margin: 0;
 }
 
-.topbar {
-  /* height: 100%; */
-  width: 100%;
+.panel {
   display: flex;
   flex-direction: column;
-  font-family: 'Source Sans 3', sans-serif;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.sidebar {
-  height: 920px;
-  /* min-height: 100%; */
-  display: flex;
-  /* position: relative; */
-} 
-
-.content-footer {
-  width: 100%;
+.top-panel {
   height: auto;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  flex-shrink: 0;
 }
 
+.bottom-panel {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.bottom-left-panel {
+  width: auto;
+  flex-shrink: 0;
+}
+
+.bottom-right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: calc(100vh - var(--topbar-height, 64px));
+  background-color: inherit;
+}
+
+.content {
+  flex: 1 0 auto;
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--topbar-height, 64px));
+  background-color: inherit;
+}
 
 .footer {
-  height: auto;
+  flex-shrink: 0;
   width: 100%;
-  /* position: relative; */
+  background-color: inherit;
+  margin-top: auto;
 }
 
 ::-webkit-scrollbar {
   width: 10px;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
   background: #e0e0e0;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
   background: #888;
 }
 
-/* Handle on Hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 } 
+
+
+

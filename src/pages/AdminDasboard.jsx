@@ -1,7 +1,10 @@
 import React from "react";
+import AdminStats from "../components/AdminStats";
+import AccessUserProfiles from "../components/AccessUserProfiles";
 import ClassPerformance from "../components/ClassPerformance";
 import StudentProgressMonitoring from "../components/StudentProgressMonitoring"
 import ClassAttendanceAnalysis from "../components/ClassAttendanceAnalysis"
+import LowAttendanceRisk from "../components/LowAttendanceRisk";
 import Calendar from "../components/DashbboardCalendar";
 
 import { useEffect } from "react";
@@ -33,6 +36,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="p-6 space-y-8" >
+      <AdminStats />
+      <AccessUserProfiles />
       <section id="class-performance">
           <ClassPerformance/>
       </section>
@@ -42,7 +47,9 @@ const AdminDashboard = () => {
       <section id="attendance-analysis">
         < ClassAttendanceAnalysis />
       </section>
-      
+      <section id="attendance-risk">
+        <LowAttendanceRisk />
+      </section>
       
     <Calendar />
     </div>

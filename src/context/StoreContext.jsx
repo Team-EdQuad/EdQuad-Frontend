@@ -8,10 +8,11 @@ const StoreContextProvider = (props) => {
     const isMobile = useMediaQuery("(max-width:600px)");
     const isTablet = useMediaQuery("(max-width:900px)");
 
+    // const [id, setId] = useState('STU031');
     const [id, setId] = useState('STU001');
     const [name, setName] = useState('W.K.T.P.Kularathna');
 
-     const [selected, setSelected] = useState("Material Progress");
+    const [selected, setSelected] = useState("");
 
     const [drawerOpen, setDrawerOpen] = useState(false);
     const toggleDrawer = () => {
@@ -19,8 +20,8 @@ const StoreContextProvider = (props) => {
       };
 
     const [role, setRole] = useState("Student")
-    //const [role, setRole] = useState("Admin")
-    //const [role, setRole] = useState("Teacher")
+    // const [role, setRole] = useState("Admin")
+    // const [role, setRole] = useState("Teacher")
 
 
     const contextValue = {
