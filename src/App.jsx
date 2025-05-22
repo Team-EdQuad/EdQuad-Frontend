@@ -31,7 +31,7 @@ import BehavioralAnalysis from "./pages/BehavioralAnalysis"
 import AssignmentFileView from "./pages/AssignmentFileView";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminDashboard from "./pages/AdminDasboard"
-
+import SubmissionView from "./pages/SubmissionView";
 
 import TeacherAnalysis from "./pages/Attendance-Module/Teacher-Analysis";
 import StudentAnalysis from "./pages/Attendance-Module/Student-Analysis";
@@ -89,6 +89,7 @@ function App() {
       <Route path="/attendance/document" element={<TeacherDocument />} />
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="/behavioural-analysis" element={<BehavioralAnalysis />} />
+      <Route path="/submission/view/:submissionId" element={<SubmissionView />} />
       <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
     </Routes>
   );
