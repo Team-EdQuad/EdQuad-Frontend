@@ -38,7 +38,7 @@ import StudentAnalysis from "./pages/Attendance-Module/Student-Analysis";
 import TeacherAttendanceEntry from "./pages/Attendance-Module/Teacher-AttendanceEntry";
 import StudentDocument from "./pages/Attendance-Module/Student-Document";
 import TeacherDocument from "./pages/Attendance-Module/Teacher-Document";
-
+import Login from "./pages/Login";
 
 
 function App() {
@@ -91,6 +91,8 @@ function App() {
       <Route path="/behavioural-analysis" element={<BehavioralAnalysis />} />
       <Route path="/submission/view/:submissionId" element={<SubmissionView />} />
       <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
+      <Route path="/login" element={<Login />} />
+
     </Routes>
   );
 
