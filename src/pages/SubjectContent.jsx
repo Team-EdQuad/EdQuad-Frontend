@@ -39,26 +39,41 @@ const SubjectContent = () => {
     }
   };
 
-  const handleClick = async (item) => {
-    if (item.type === 'assignment') {
-      navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
-    } else if (item.type === 'content') {
-      try {
-        const formData = new FormData();
-        formData.append('student_id', studentId);
-        formData.append('content_id', item.id);
+const handleClick = async (item) => {
+  if (item.type === 'assignment') {
+    navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
+  } else if (item.type === 'content') {
+    try {
+      const formData = new FormData();
+      formData.append('student_id', studentId);
+      formData.append('content_id', item.id);
 
-        await fetch('http://127.0.0.1:8000/api/startContentAccess', {
-          method: 'POST',
-          body: formData,
-        });
+      await fetch('http://127.0.0.1:8000/api/startContentAccess', {
+        method: 'POST',
+        body: formData,
+      });
 
-        navigate(`/content-view/${item.id}`);
-      } catch (err) {
-        console.error('Failed to notify backend of content access', err);
-      }
+      // ✅ Pass the content data through navigation state
+      navigate(`/content-view/${item.id}`, {
+        state: {
+          contentData: {
+            content_id: item.id,
+            content_name: item.name,
+            content_file_id: item.fileId,
+            description: item.description,
+            Date: item.date,
+            file_type: item.fileId ? 'pdf' : 'unknown' // Default to PDF for Google Drive
+          }
+        }
+      });
+    } catch (err) {
+      console.error('Failed to notify backend of content access', err);
     }
-  };
+  }
+};
+
+
+
 
   const handleOpenFile = (fileId) => {
     window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
