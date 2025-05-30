@@ -60,8 +60,8 @@ const SubjectContent = () => {
     }
   };
 
-  const handleOpenFile = (filePath) => {
-    window.open(`http://localhost:8000/${filePath}`, '_blank');
+  const handleOpenFile = (fileId) => {
+    window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
   };
 
   useEffect(() => {
@@ -77,7 +77,7 @@ const SubjectContent = () => {
 
         const allItems = [];
 
-        // ✅ Add content items
+        // Add content items
         if (Array.isArray(contentData)) {
           contentData.forEach(item => {
             allItems.push({
@@ -85,13 +85,13 @@ const SubjectContent = () => {
               id: item.content_id,
               name: item.content_name,
               description: item.description,
-              filePath: item.content_file_path,
+              fileId: item.content_file_id,
               date: new Date(item.Date).toISOString().split('T')[0],
             });
           });
         }
 
-        // ✅ Add assignment items
+        //  Add assignment items
         if (assignmentData.assignments) {
           assignmentData.assignments.forEach(asm => {
             allItems.push({
@@ -103,7 +103,7 @@ const SubjectContent = () => {
           });
         }
 
-        // ✅ Group by date
+        // Group by date
         const grouped = allItems.reduce((acc, item) => {
           const date = item.date;
           if (!acc[date]) acc[date] = [];
