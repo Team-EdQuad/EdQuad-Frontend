@@ -32,15 +32,34 @@ const Login = () => {
     }));
   };
 
-  const handleLogin = () => {
-    if (formData.username === "student") {
-      setRole("Student");
-    } else if (formData.username === "teacher") {
-      setRole("Teacher");
-    } else if (formData.username === "admin") {
-      setRole("Admin");
-    } else {
-      alert("Invalid credentials");
+  //Login fastApi
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Invalid credentials");
+      }
+
+      const data = await response.json();
+
+      // Assuming your FastAPI returns { role: "Student" | "Teacher" | "Admin" }
+      if (["Student", "Teacher", "Admin"].includes(data.role)) {
+        setRole(data.role);
+      } else {
+        throw new Error("Unknown role");
+      }
+    } catch (err) {
+      alert(err.message || "Login failed");
     }
   };
 

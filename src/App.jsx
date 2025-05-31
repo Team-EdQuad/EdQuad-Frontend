@@ -1,7 +1,7 @@
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { StoreContext } from './context/StoreContext'
+import { StoreContext } from "./context/StoreContext";
 import { useContext } from "react";
 
 import Topbar from "./components/Topbar";
@@ -20,12 +20,12 @@ import AdminDashboard from "./pages/AdminDasboard";
 import Sports from "./pages/Sports";
 import UnderConstruction from "./pages/UnderConstruction";
 import Clubandsocieties from "./pages/Clubandsocieties";
-import Dashboard from './pages/Dashboard';
-import AssignmentMarks from './pages/AssignmentMarks';
-import AssignmentView from './pages/AssignmentView';
-import TermTestMarks from './pages/TermTestMarks';
-import MySubject from './pages/MySubject';
-import SubjectContent from './pages/SubjectContent';
+import Dashboard from "./pages/Dashboard";
+import AssignmentMarks from "./pages/AssignmentMarks";
+import AssignmentView from "./pages/AssignmentView";
+import TermTestMarks from "./pages/TermTestMarks";
+import MySubject from "./pages/MySubject";
+import SubjectContent from "./pages/SubjectContent";
 import Submission from "./pages/Submission";
 import TeacherSubject from "./pages/TeacherSubject";
 import TeacherContent from "./pages/TeacherContent";
@@ -37,16 +37,14 @@ import ContentView from "./pages/ContentView";
 import BehavioralAnalysis from "./pages/BehavioralAnalysis";
 import AssignmentFileView from "./pages/AssignmentFileView";
 
-
 import TeacherAnalysis from "./pages/Attendance-Module/Teacher-Analysis";
 import StudentAnalysis from "./pages/Attendance-Module/Student-Analysis";
 import TeacherAttendanceEntry from "./pages/Attendance-Module/Teacher-AttendanceEntry";
 import StudentDocument from "./pages/Attendance-Module/Student-Document";
 import TeacherDocument from "./pages/Attendance-Module/Teacher-Document";
 
-
-
 function Layout() {
+  const [theme, colorMode] = useMode();
   const { isMobile, role: userRole } = useContext(StoreContext);
 
   const studentRoutes = (
@@ -66,11 +64,16 @@ function Layout() {
       />
       <Route path="/submission/:assignment_id" element={<Submission />} />
       <Route path="/content-view/:contentId" element={<ContentView />} />
-    
 
-      <Route path="/student/attendance/analysis" element={<StudentAnalysis />} />
-      <Route path="/student/attendance/document" element={<StudentDocument studentId='STD001' classId='CLS008'/>} />
-        <Route path="/assignment-file-view" element={<AssignmentFileView />} />
+      <Route
+        path="/student/attendance/analysis"
+        element={<StudentAnalysis />}
+      />
+      <Route
+        path="/student/attendance/document"
+        element={<StudentDocument studentId="STD001" classId="CLS008" />}
+      />
+      <Route path="/assignment-file-view" element={<AssignmentFileView />} />
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="*" element={<Navigate to="/uc" />} />
     </>
@@ -89,7 +92,7 @@ function Layout() {
       <Route path="/add-content" element={<AddContent />} />
       <Route path="/check-assignments" element={<CheckAssignment />} />
       <Route path="/enter-term-test-marks" element={<AddExamMarks />} />
-      <Route path="/attendance/entry" element={<TeacherAttendanceEntry/>} />
+      <Route path="/attendance/entry" element={<TeacherAttendanceEntry />} />
       <Route path="/attendance/analysis" element={<TeacherAnalysis />} />
       <Route path="/attendance/document" element={<TeacherDocument />} />
       <Route path="/uc" element={<UnderConstruction />} />
@@ -99,7 +102,7 @@ function Layout() {
     </>
   );
 
-    // Admin Routes
+  // Admin Routes
   const adminRoutes = (
     <>
       <Route path="/" element={<AdminDashboard />} />
@@ -107,38 +110,67 @@ function Layout() {
       <Route path="/add-teacher" element={<AddTeacher />} />
       <Route path="/add-student" element={<AddStudent />} />
       <Route path="/sports" element={<Sports />} />
-       <Route path="/academic" element={<TeacherSubject />} />
+      <Route path="/academic" element={<TeacherSubject />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="*" element={<Navigate to="/uc" />} />
     </>
   );
 
-    const getRoutes = () => {
-        switch (userRole) {
-            case "Student":
-                return studentRoutes;
-            case "Teacher":
-                return teacherRoutes;
-            case "Admin":
-                return adminRoutes;
-            default:
-                return  <Routes>
-                         <Route path="/" element={<Login />} />
-                         <Route path="*" element={<Navigate to="/" />} />
-                       </Routes>;
-        }
-    };
+  const getRoutes = () => {
+    switch (userRole) {
+      case "Student":
+        return studentRoutes;
+      case "Teacher":
+        return teacherRoutes;
+      case "Admin":
+        return adminRoutes;
+      default:
+        return (
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        );
+    }
+  };
 
   return (
+    <>
+      <CssBaseline />
+      <div className="panel">
+        <div className="top-panel">
+          <Topbar />
+        </div>
+        <div className="bottom-panel">
+          <div className="bottom-left-panel">
+            {!isMobile && <Sidebar role={userRole} />}
+          </div>
+          <div className="bottom-right-panel">
+            <main className="content">
+              <Routes>{getRoutes()}</Routes>
+            </main>
+
+            <div className="footer">
+              <Footer />
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+
     // <ColorModeContext.Provider value={colorMode}>
     //   <ThemeProvider theme={theme}>
     //     <CssBaseline />
-    //     <div className="topbar">
-    //       <Topbar />
-    //       <div className="sidebar">
-    //         {!isMobile && <Sidebar role={userRole} />} {/* Pass role to Sidebar */}
-    //         <div className="content-footer">
+    //     <div className="panel">
+    //       <div className="top-panel">
+    //         <Topbar />
+    //       </div>
+    //       <div className="bottom-panel">
+    //         <div className="bottom-left-panel">
+    //           {!isMobile && <Sidebar role={userRole} />}
+    //         </div>
+    //         <div className="bottom-right-panel">
     //           <main className="content">{getRoutes()}</main>
     //           <div className="footer">
     //             <Footer />
@@ -148,28 +180,6 @@ function Layout() {
     //     </div>
     //   </ThemeProvider>
     // </ColorModeContext.Provider>
-
-    <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <div className="panel">
-          <div className="top-panel">
-            <Topbar />
-          </div>  
-          <div className="bottom-panel">
-            <div className="bottom-left-panel">
-              {!isMobile && <Sidebar role={userRole} />}
-            </div>
-            <div className="bottom-right-panel">
-              <main className="content">{getRoutes()}</main>
-              <div className="footer">
-                <Footer />
-              </div>
-            </div>
-          </div>
-        </div>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
   );
 }
 

@@ -14,6 +14,8 @@ import {
   Checkbox,
   useTheme,
   MenuItem,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { tokens } from "../theme";
 
@@ -34,6 +36,8 @@ const AddStudent = () => {
     selectedSubjects: [],
   });
 
+  const [alert, setAlert] = useState({ open: false, type: "", message: "" });
+
   const handleChange = (field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
   };
@@ -46,11 +50,46 @@ const AddStudent = () => {
       return { ...prev, selectedSubjects: updated };
     });
   };
-  
 
-  const handleSubmit = () => {
-    console.log("Submitting Student:", formData);
-    // API call here
+  const handleSubmit = async () => {
+    const payload = {
+      studentId: formData.studentId,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      gender: formData.gender,
+      email: formData.email,
+      class: formData.class,
+      subjects: formData.selectedSubjects,
+    };
+
+    try {
+      const res = await fetch("http://localhost:8000/api/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to add student");
+
+      setAlert({
+        open: true,
+        type: "success",
+        message: "Student added successfully!",
+      });
+
+      // Optional: Reset form
+      setFormData({
+        studentId: "",
+        firstName: "",
+        lastName: "",
+        gender: "Male",
+        email: "",
+        class: "",
+        selectedSubjects: [],
+      });
+    } catch (err) {
+      setAlert({ open: true, type: "error", message: err.message });
+    }
   };
 
   return (
@@ -80,8 +119,11 @@ const AddStudent = () => {
               onChange={handleChange("studentId")}
               size="small"
               sx={{ mt: 1 }}
+              placeholder="e.g., STU001"
             />
           </Grid>
+
+          {/* Empty spacer */}
           <Grid item xs={12} md={6}></Grid>
 
           {/* First and Last Name */}
@@ -95,6 +137,7 @@ const AddStudent = () => {
               onChange={handleChange("firstName")}
               size="small"
               sx={{ mt: 1 }}
+              placeholder="First name"
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -107,6 +150,7 @@ const AddStudent = () => {
               onChange={handleChange("lastName")}
               size="small"
               sx={{ mt: 1 }}
+              placeholder="Last name"
             />
           </Grid>
 
@@ -121,12 +165,19 @@ const AddStudent = () => {
                 value={formData.gender}
                 onChange={handleChange("gender")}
               >
-                <FormControlLabel value="Male" control={<Radio />} label="Male" />
-                <FormControlLabel value="Female" control={<Radio />} label="Female" />
+                <FormControlLabel
+                  value="Male"
+                  control={<Radio />}
+                  label="Male"
+                />
+                <FormControlLabel
+                  value="Female"
+                  control={<Radio />}
+                  label="Female"
+                />
               </RadioGroup>
             </FormControl>
           </Grid>
-          <Grid item xs={12} md={6}></Grid>
 
           {/* Email */}
           <Grid item xs={12} md={6}>
@@ -139,22 +190,27 @@ const AddStudent = () => {
               onChange={handleChange("email")}
               size="small"
               sx={{ mt: 1 }}
+              placeholder="e.g., student@example.com"
             />
           </Grid>
 
           {/* Class */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} sx={{ width: "100%" }}>
             <Typography fontWeight="bold" fontSize={14}>
-              Select Class
+              Class
             </Typography>
             <TextField
               select
               fullWidth
-              label="Select class"
               value={formData.class}
               onChange={handleChange("class")}
-              size="small"
-              sx={{ mt: 1 }}
+              size="medium"
+              label="Select class"
+              sx={{
+                mt: 1,
+                width: "10%", 
+              }}
+             
             >
               {classes.map((cls) => (
                 <MenuItem key={cls} value={cls}>
@@ -167,11 +223,11 @@ const AddStudent = () => {
           {/* Subjects */}
           <Grid item xs={12}>
             <Typography fontWeight="bold" fontSize={14} sx={{ mb: 1 }}>
-              Subject
+              Subjects
             </Typography>
             <Grid container spacing={2}>
-              {subjects.map((subject, index) => (
-                <Grid item xs={12} sm={6} md={3} key={index}>
+              {subjects.map((subject) => (
+                <Grid item xs={12} sm={6} md={3} key={subject}>
                   <FormGroup>
                     <FormControlLabel
                       control={
@@ -194,7 +250,7 @@ const AddStudent = () => {
               <Button
                 variant="contained"
                 color="primary"
-                sx={{ textTransform: "none", fontWeight: "bold" }}
+                sx={{ textTransform: "none", fontWeight: "bold", px: 5 }}
                 onClick={handleSubmit}
               >
                 Submit
@@ -203,6 +259,22 @@ const AddStudent = () => {
           </Grid>
         </Grid>
       </Paper>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={4000}
+        onClose={() => setAlert({ ...alert, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity={alert.type}
+          variant="filled"
+          onClose={() => setAlert({ ...alert, open: false })}
+        >
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

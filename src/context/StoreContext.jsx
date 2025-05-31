@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState,useMemo } from "react";
 import { useMediaQuery } from "@mui/material"; 
 
 export const StoreContext = createContext(null);
@@ -19,12 +19,12 @@ const StoreContextProvider = (props) => {
         setDrawerOpen(!drawerOpen);
       };
 
-    const [role, setRole] = useState("Student")
-    // const [role, setRole] = useState("Admin")
-    // const [role, setRole] = useState("Teacher")
+    // const [role, setRole] = useState("Student")
+    const [role, setRole] = useState("Admin")
+    // const [role, setRole] = useState("Teacher") 
 
 
-    const contextValue = {
+    const contextValue = useMemo(() => ({
         isMobile,
         isTablet,
         drawerOpen,
@@ -38,7 +38,21 @@ const StoreContextProvider = (props) => {
         setName,
         selected,
         setSelected
-    };
+    }), [
+        isMobile,
+        isTablet,
+        drawerOpen,
+        setDrawerOpen,
+        toggleDrawer,
+        role,
+        setRole,
+        id,
+        setId,
+        name,
+        setName,
+        selected,
+        setSelected
+    ]);
 
     return (
         <StoreContext.Provider value={contextValue}>

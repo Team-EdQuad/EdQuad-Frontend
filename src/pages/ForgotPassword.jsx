@@ -34,6 +34,66 @@ const ForgotPassword = () => {
     }
   };
 
+  const handleSendResetEmail = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) throw new Error("Failed to send reset email");
+      setStep(2);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/verify-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          code: code.join(""),
+        }),
+      });
+
+      if (!res.ok) throw new Error("Invalid verification code");
+      setStep(3);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (passwords.password !== passwords.confirm) {
+      return alert("Passwords do not match");
+    }
+
+    try {
+      const res = await fetch("http://localhost:8000/api/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          new_password: passwords.password,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update password");
+
+      alert("Password updated successfully");
+      setStep(1);
+      setEmail("");
+      setCode(["", "", "", "", ""]);
+      setPasswords({ password: "", confirm: "" });
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const renderEmailStep = () => (
     <>
       <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -64,7 +124,7 @@ const ForgotPassword = () => {
             backgroundColor: "#2563eb",
           },
         }}
-        onClick={() => setStep(2)}
+        onClick={handleSendResetEmail}
       >
         Reset Password
       </Button>
@@ -79,13 +139,13 @@ const ForgotPassword = () => {
       <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
         We sent a reset link to <strong>{email}</strong>
         <br />
-        Enter 5 digit code that mentioned in the email
+        Enter 5 digit code that was mentioned in the email
       </Typography>
 
       <Box
         sx={{
           display: "flex",
-          justifyContent: "center", // ← centers horizontally
+          justifyContent: "center",
           alignItems: "center",
           gap: 2,
           mb: 4,
@@ -125,14 +185,18 @@ const ForgotPassword = () => {
             backgroundColor: "#2563eb",
           },
         }}
-        onClick={() => setStep(3)}
+        onClick={handleVerifyCode}
       >
         Verify Code
       </Button>
 
       <Typography variant="body2" align="center" sx={{ mt: 3 }}>
         Haven’t got the email yet?{" "}
-        <Typography component="span" color="primary" sx={{ cursor: "pointer" }}>
+        <Typography
+          component="span"
+          color="primary"
+          sx={{ cursor: "pointer" }}
+        >
           Resend email
         </Typography>
       </Typography>
@@ -188,7 +252,7 @@ const ForgotPassword = () => {
             backgroundColor: "#2563eb",
           },
         }}
-        onClick={() => alert("Password updated successfully")}
+        onClick={handleUpdatePassword}
       >
         Update Password
       </Button>
