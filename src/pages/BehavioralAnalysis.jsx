@@ -24,9 +24,9 @@ const BehavioralAnalysis = () => {
   const theme = useTheme();
   const teacher_id = "TCH001";
   const API_BASE_URL = 'http://127.0.0.1:8000/api';
-  const BEHAVIORAL_API_BASE_URL = 'http://127.0.0.1:8005/api'; // Your behavioral service
+  const BEHAVIORAL_API_BASE_URL = 'http://127.0.0.1:8005/api';
 
-  // State
+  // State declarations
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState('');
   const [subjectsGrades, setSubjectsGrades] = useState([]);
@@ -39,14 +39,14 @@ const BehavioralAnalysis = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-
-  // Chart data state for MUI X Charts
+  const [chartLoading, setChartLoading] = useState(false);
+  const [weekRange, setWeekRange] = useState(12);
   const [chartData, setChartData] = useState({
     xAxisData: [],
     series: []
   });
 
-  // Fetch subjects and grades from API
+  // Fetch subjects and grades on component mount
   useEffect(() => {
     const fetchSubjectsAndGrades = async () => {
       try {
@@ -65,70 +65,117 @@ const BehavioralAnalysis = () => {
     fetchSubjectsAndGrades();
   }, [teacher_id]);
 
-  // Handle subject change
+  // Log chartData changes for debugging
+  useEffect(() => {
+    console.log('chartData updated:', chartData);
+  }, [chartData]);
+
+  // Re-fetch or reprocess chart data when weekRange, subject, or grade changes
+  useEffect(() => {
+    if (subject && grade) {
+      const selectedSubject = subjectsGrades.find((item) => item.subject_name === subject);
+      const selectedGrade = selectedSubject?.classes.find((cls) => cls.class_name === grade);
+      const subject_id = selectedSubject?.subject_id;
+      const class_id = selectedGrade?.class_id;
+
+      if (subject_id && class_id) {
+        console.log('weekRange changed, re-fetching data for:', { subject_id, class_id, weekRange });
+        fetchVisualizationData(subject_id, class_id);
+      }
+    }
+  }, [weekRange, subject, grade, subjectsGrades]);
+
+  // Event handlers
   const handleSubjectChange = (event) => {
     const selectedSubject = event.target.value;
     setSubject(selectedSubject);
     setGrade('');
     setAssignmentAvailable('');
     setError('');
-
     const selected = subjectsGrades.find((item) => item.subject_name === selectedSubject);
     setFilteredGrades(selected ? selected.classes : []);
   };
 
-  // Handle grade change
   const handleGradeChange = (event) => {
     setGrade(event.target.value);
     setError('');
   };
 
-  // Handle input changes
   const handleExpectedContentCountChange = (event) => {
     setExpectedContentCount(event.target.value);
     setError('');
   };
 
-  // Handle assignment available change
   const handleAssignmentAvailableChange = (event) => {
     setAssignmentAvailable(event.target.value);
     setError('');
   };
 
-  // Fetch visualization data from your behavioral service
+  const handleWeekRangeChange = (event) => {
+    const newWeekRange = Number(event.target.value);
+    setWeekRange(newWeekRange);
+    console.log('Week range changed to:', newWeekRange);
+  };
+
+  // Fetch visualization data for chart
   const fetchVisualizationData = async (subject_id, class_id) => {
     try {
-      const response = await axios.get(`${BEHAVIORAL_API_BASE_URL}/visualize_data/${subject_id}/${class_id}`);
-      
-      if (response.data.x && response.data.y) {
-        setChartData({
-          xAxisData: response.data.x, // Week numbers
-          series: [
-            {
-              data: response.data.y, // Total Active Time values
+      setChartLoading(true);
+      const url = `${BEHAVIORAL_API_BASE_URL}/visualize_data/${subject_id}/${class_id}`;
+      console.log('Fetching data from:', url);
+      const response = await axios.get(url);
+      console.log('API Response:', response.data);
+
+      if (response.data && Array.isArray(response.data.x) && Array.isArray(response.data.y)) {
+        let xData = response.data.x.map(Number);
+        let yData = response.data.y.map(Number);
+        console.log('xData before slicing:', xData);
+        console.log('yData before slicing:', yData);
+
+        const maxWeeks = weekRange;
+        if (xData.length > maxWeeks) {
+          xData = xData.slice(-maxWeeks);
+          yData = yData.slice(-maxWeeks);
+        }
+        console.log('Sliced xData:', xData);
+        console.log('Sliced yData:', yData);
+
+        if (xData.length === yData.length && xData.length > 0) {
+          const newChartData = {
+            xAxisData: xData,
+            series: [{
+              data: yData,
               label: 'Total Active Time (mins)',
               color: theme.palette.primary.main,
-            }
-          ]
-        });
+            }]
+          };
+          console.log('Setting chartData:', newChartData);
+          setChartData(newChartData);
+        } else {
+          console.log('Data length mismatch or empty');
+          setChartData({ xAxisData: [], series: [] });
+        }
+      } else {
+        console.log('Invalid API response structure');
+        setChartData({ xAxisData: [], series: [] });
       }
     } catch (error) {
-      console.error('Error fetching visualization data:', error);
-      // Set default empty chart data if fetch fails
-      setChartData({
-        xAxisData: [],
-        series: []
-      });
+      console.error('Fetch error:', error);
+      setChartData({ xAxisData: [], series: [] });
+      setError('Failed to fetch visualization data. Please try again.');
+    } finally {
+      setChartLoading(false);
     }
   };
 
-  // Handle submit
+  // Handle form submission
   const handleSubmit = async () => {
     const selectedSubject = subjectsGrades.find((item) => item.subject_name === subject);
     const selectedGrade = selectedSubject?.classes.find((cls) => cls.class_name === grade);
-
     const subject_id = selectedSubject?.subject_id;
     const class_id = selectedGrade?.class_id;
+
+    console.log('Selected subject_id:', subject_id, 'class_id:', class_id);
 
     if (!subject_id || !class_id) {
       setError('Invalid subject or grade selection.');
@@ -139,47 +186,39 @@ const BehavioralAnalysis = () => {
     setError('');
 
     try {
-      // Make all requests in parallel for better performance
       const [timeSpentResponse, activeTimeResponse, accessFrequencyResponse] = await Promise.all([
         axios.get(`${API_BASE_URL}/TimeSpendOnResources/${subject_id}/${class_id}`),
         axios.get(`${API_BASE_URL}/SiteAverageActiveTime/${class_id}`),
         axios.get(`${API_BASE_URL}/ResourceAccessFrequency/${subject_id}/${class_id}`)
       ]);
 
-      // Update state with API responses
       setAvgTimeSpent(timeSpentResponse.data.avgTimeSpentPerStudent || 0);
       setAvgActiveTime(activeTimeResponse.data.siteAverageActiveTimePerStudent || 0);
       setAvgAccessFrequency(accessFrequencyResponse.data.avgAccessPerStudentInClass || 0);
 
-      // Fetch visualization data from your behavioral service
       await fetchVisualizationData(subject_id, class_id);
-
-      console.log('Data fetched successfully:', {
-        subject,
-        grade,
-        subject_id,
-        class_id,
-        expectedContentCount,
-        assignmentAvailable,
-        avgTimeSpent: timeSpentResponse.data.avgTimeSpentPerStudent,
-        avgActiveTime: activeTimeResponse.data.siteAverageActiveTimePerStudent,
-        avgAccessFrequency: accessFrequencyResponse.data.avgAccessPerStudentInClass
-      });
     } catch (error) {
-      console.error('Detailed error:', error);
-      
-      if (error.response) {
-        setError(`Server error: ${error.response.status} - ${error.response.data?.message || 'Unknown error'}`);
-      } else if (error.request) {
-        setError('No response from server. Please check if the server is running on port 8000.');
-      } else {
-        setError(`Request error: ${error.message}`);
-      }
+      console.error('Error in handleSubmit:', error);
+      setError('Failed to fetch data. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  // Test chart with static data
+  const handleTestChart = () => {
+    const testData = {
+      xAxisData: [1, 2, 3, 4, 5],
+      series: [{
+        data: [100, 150, 200, 175, 225],
+        label: 'Test Data',
+        color: theme.palette.primary.main,
+      }]
+    };
+    setChartData(testData);
+  };
+
+  // Initial loading state
   if (initialLoading) {
     return (
       <Box
@@ -225,14 +264,9 @@ const BehavioralAnalysis = () => {
         </Typography>
         
         <Box display="flex" flexWrap="wrap" gap={2} mb={3}>
-          {/* Subject Dropdown */}
           <FormControl sx={{ minWidth: '200px', flex: 1 }}>
             <InputLabel sx={{ color: theme.palette.text.secondary }}>Select Subject</InputLabel>
-            <Select
-              value={subject}
-              onChange={handleSubjectChange}
-              sx={{ color: theme.palette.text.primary }}
-            >
+            <Select value={subject} onChange={handleSubjectChange} sx={{ color: theme.palette.text.primary }}>
               {subjectsGrades.map((sub) => (
                 <MenuItem key={sub.subject_id} value={sub.subject_name}>
                   {sub.subject_name}
@@ -241,7 +275,6 @@ const BehavioralAnalysis = () => {
             </Select>
           </FormControl>
 
-          {/* Grade Dropdown */}
           <FormControl sx={{ minWidth: '200px', flex: 1 }}>
             <InputLabel sx={{ color: theme.palette.text.secondary }}>Select Grade</InputLabel>
             <Select
@@ -257,10 +290,20 @@ const BehavioralAnalysis = () => {
               ))}
             </Select>
           </FormControl>
+
+          <FormControl sx={{ minWidth: '200px', flex: 1 }}>
+            <InputLabel sx={{ color: theme.palette.text.secondary }}>Weeks to Display</InputLabel>
+            <Select value={weekRange} onChange={handleWeekRangeChange} sx={{ color: theme.palette.text.primary }}>
+              <MenuItem value={4}>Last 4 weeks (1 month)</MenuItem>
+              <MenuItem value={8}>Last 8 weeks (2 months)</MenuItem>
+              <MenuItem value={12}>Last 12 weeks (3 months)</MenuItem>
+              <MenuItem value={24}>Last 24 weeks (6 months)</MenuItem>
+              <MenuItem value={52}>Last 52 weeks (1 year)</MenuItem>
+            </Select>
+          </FormControl>
         </Box>
 
         <Box display="flex" flexWrap="wrap" gap={2} mb={3}>
-          {/* Expected Content Count Input */}
           <TextField
             label="Expected Content Count for Next Week"
             type="number"
@@ -271,7 +314,6 @@ const BehavioralAnalysis = () => {
             InputProps={{ sx: { color: theme.palette.text.primary } }}
           />
 
-          {/* Assignment Available Dropdown */}
           <FormControl sx={{ minWidth: '200px', flex: 1 }}>
             <InputLabel sx={{ color: theme.palette.text.secondary }}>Assignment Available Next Week</InputLabel>
             <Select
@@ -286,8 +328,7 @@ const BehavioralAnalysis = () => {
           </FormControl>
         </Box>
 
-        {/* Submit Button */}
-        <Box display="flex" justifyContent="center">
+        <Box display="flex" justifyContent="center" gap={2}>
           <Button
             variant="contained"
             onClick={handleSubmit}
@@ -297,30 +338,27 @@ const BehavioralAnalysis = () => {
               py: 1.5,
               backgroundColor: theme.palette.primary.main,
               color: theme.palette.primary.contrastText,
-              '&:hover': {
-                backgroundColor: theme.palette.primary.dark,
-              },
-              '&:disabled': {
-                backgroundColor: theme.palette.action.disabled,
-              },
+              '&:hover': { backgroundColor: theme.palette.primary.dark },
+              '&:disabled': { backgroundColor: theme.palette.action.disabled },
             }}
             startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <TrendingUpIcon />}
           >
             {loading ? 'Analyzing...' : 'Analyze Behavior'}
+          </Button>
+
+          <Button variant="outlined" onClick={handleTestChart} sx={{ px: 3, py: 1.5 }}>
+            Test Chart
           </Button>
         </Box>
       </Card>
 
       {/* Metrics Cards */}
       <Box display="flex" flexWrap="wrap" gap={2} width="100%" maxWidth="900px" mb={4}>
-        {/* Avg. Daily Active Time */}
         <Card sx={{ flex: 1, minWidth: '250px' }}>
           <CardContent>
             <Box display="flex" alignItems="center" mb={1}>
               <AccessTimeIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-              <Typography variant="subtitle1" fontWeight="bold">
-                Avg. Daily Active Time
-              </Typography>
+              <Typography variant="subtitle1" fontWeight="bold">Avg. Daily Active Time</Typography>
             </Box>
             <Typography variant="h4" fontWeight="bold" color={theme.palette.primary.main}>
               {avgActiveTime} <span style={{ fontSize: '1rem' }}>mins</span>
@@ -331,14 +369,11 @@ const BehavioralAnalysis = () => {
           </CardContent>
         </Card>
 
-        {/* Time Spent on Resources */}
         <Card sx={{ flex: 1, minWidth: '250px' }}>
           <CardContent>
             <Box display="flex" alignItems="center" mb={1}>
               <AccessTimeIcon sx={{ mr: 1, color: theme.palette.secondary.main }} />
-              <Typography variant="subtitle1" fontWeight="bold">
-                Time Spent on Resources
-              </Typography>
+              <Typography variant="subtitle1" fontWeight="bold">Time Spent on Resources</Typography>
             </Box>
             <Typography variant="h4" fontWeight="bold" color={theme.palette.secondary.main}>
               {avgTimeSpent} <span style={{ fontSize: '1rem' }}>mins</span>
@@ -349,14 +384,11 @@ const BehavioralAnalysis = () => {
           </CardContent>
         </Card>
 
-        {/* Frequency of Resource Access */}
         <Card sx={{ flex: 1, minWidth: '250px' }}>
           <CardContent>
             <Box display="flex" alignItems="center" mb={1}>
               <InsertChartIcon sx={{ mr: 1, color: theme.palette.success.main }} />
-              <Typography variant="subtitle1" fontWeight="bold">
-                Resource Access Frequency
-              </Typography>
+              <Typography variant="subtitle1" fontWeight="bold">Resource Access Frequency</Typography>
             </Box>
             <Typography variant="h4" fontWeight="bold" color={theme.palette.success.main}>
               {avgAccessFrequency.toFixed(2)} <span style={{ fontSize: '1rem' }}>/day</span>
@@ -368,43 +400,78 @@ const BehavioralAnalysis = () => {
         </Card>
       </Box>
 
-      {/* MUI X Charts LineChart */}
+      {/* Line Chart */}
       <Card sx={{ width: '100%', maxWidth: '900px', p: 2 }}>
         <Typography variant="h6" fontWeight="bold" mb={3} sx={{ color: theme.palette.text.primary }}>
           📈 Weekly Active Time Trends
+          {chartData.xAxisData.length > 0 && (
+            <Typography component="span" variant="body2" color="text.secondary">
+              {' '}(Last {chartData.xAxisData.length} weeks: Week {Math.min(...chartData.xAxisData)} - {Math.max(...chartData.xAxisData)})
+            </Typography>
+          )}
         </Typography>
-        {chartData.xAxisData.length > 0 ? (
-          <LineChart
-            width={850}
-            height={400}
-            series={chartData.series}
-            xAxis={[{ 
-              scaleType: 'point', 
-              data: chartData.xAxisData,
-              label: 'Week Number'
-            }]}
-            yAxis={[{
-              label: 'Total Active Time (minutes)'
-            }]}
-            margin={{ left: 80, right: 30, top: 30, bottom: 80 }}
-            grid={{ vertical: true, horizontal: true }}
-          />
-        ) : (
-          <Box 
-            display="flex" 
-            alignItems="center" 
-            justifyContent="center" 
+
+        <Box sx={{ mb: 2, p: 1, backgroundColor: theme.palette.grey[100], borderRadius: 1 }}>
+          <Typography variant="caption" color="text.secondary">
+            Debug Info: X-axis length: {chartData.xAxisData.length || 0}, Series length: {chartData.series.length || 0}
+          </Typography>
+          {chartData.xAxisData.length > 0 && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+              Week range: {Math.min(...chartData.xAxisData)} - {Math.max(...chartData.xAxisData)}
+            </Typography>
+          )}
+        </Box>
+
+        {chartLoading ? (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
             height={400}
             sx={{ backgroundColor: theme.palette.grey[50], borderRadius: 1 }}
           >
-            <Typography variant="body1" color={theme.palette.text.secondary}>
-              Select subject and grade to view active time trends
+            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">Loading chart data...</Typography>
+          </Box>
+        ) : chartData.xAxisData.length > 0 && chartData.series.length > 0 ? (
+          <Box sx={{ width: '100%', height: 400 }}>
+            <LineChart
+              width={850}
+              height={400}
+              series={chartData.series}
+              xAxis={[{ scaleType: 'linear', data: chartData.xAxisData, label: 'Week Number' }]}
+              yAxis={[{ label: 'Total Active Time (minutes)' }]}
+              margin={{ left: 80, right: 30, top: 30, bottom: 80 }}
+              grid={{ vertical: true, horizontal: true }}
+              skipAnimation={chartData.xAxisData.length > 20}
+            />
+          </Box>
+        ) : (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            height={400}
+            sx={{ backgroundColor: theme.palette.grey[50], borderRadius: 1 }}
+          >
+            <Typography variant="body1" color={theme.palette.text.secondary} sx={{ mb: 1 }}>
+              {chartData.xAxisData.length === 0
+                ? "No data available for the selected subject and class"
+                : "Select subject and grade to view active time trends"}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Current chart state: {JSON.stringify({
+                xAxisLength: chartData.xAxisData.length || 0,
+                seriesLength: chartData.series.length || 0
+              })}
             </Typography>
           </Box>
         )}
       </Card>
 
-      {/* Additional Insights */}
+      {/* Insights Section */}
       {(avgActiveTime > 0 || avgTimeSpent > 0 || avgAccessFrequency > 0) && (
         <Card sx={{ width: '100%', maxWidth: '900px', mt: 3, p: 2 }}>
           <Typography variant="h6" fontWeight="bold" mb={2} sx={{ color: theme.palette.text.primary }}>
