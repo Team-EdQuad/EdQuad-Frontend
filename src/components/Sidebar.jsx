@@ -255,7 +255,7 @@ const AppSidebar = () => {
                 active={selected === "My Profile"}
                 onClick={() => setSelected("My Profile")}
                 icon={<ContactsOutlined />}
-                component={<Link to="/myprofile" />}
+                component={<Link to="/my-profile" />}
               >
                 <Typography>My Profile</Typography>
               </MenuItem>
@@ -419,7 +419,7 @@ const AppSidebar = () => {
                 active={selected === "My Profile"}
                 onClick={() => setSelected("My Profile")}
                 icon={<ContactsOutlined />}
-                component={<Link to="/myprofile" />}
+                component={<Link to="/my-profile" />}
               >
                 <Typography>My Profile</Typography>
               </MenuItem>
@@ -603,7 +603,7 @@ const AppSidebar = () => {
                 active={selected === "My Profile"}
                 onClick={() => setSelected("My Profile")}
                 icon={<ContactsOutlined />}
-                component={<Link to="/myprofile" />}
+                component={<Link to="/my-profile" />}
               >
                 <Typography>My Profile</Typography>
               </MenuItem>

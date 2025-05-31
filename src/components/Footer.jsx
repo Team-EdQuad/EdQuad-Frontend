@@ -83,7 +83,7 @@ const Footer = () => {
             </Box>
           </Grid>
         </Grid>
-        <Box mt={10} textAlign="center">
+        <Box mt={2} textAlign="center">
           <hr />
           <Typography variant="caption">
             Copyright &copy; 2025 EdQuad
