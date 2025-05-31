@@ -19,7 +19,6 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminDashboard from "./pages/AdminDasboard";
 import Sports from "./pages/Sports";
 import UnderConstruction from "./pages/UnderConstruction";
-import Sports from './pages/Sports';
 import Clubandsocieties from "./pages/Clubandsocieties";
 import Dashboard from './pages/Dashboard';
 import AssignmentMarks from './pages/AssignmentMarks';
@@ -28,12 +27,6 @@ import TermTestMarks from './pages/TermTestMarks';
 import MySubject from './pages/MySubject';
 import SubjectContent from './pages/SubjectContent';
 import Submission from "./pages/Submission";
-import TermTestMarks from "./pages/TermTestMarks";
-import MySubject from "./pages/MySubject";
-import AssignmentMarks from "./pages/AssignmentMarks";
-import AssignmentView from "./pages/AssignmentView";
-import Submission from "./pages/Submission";
-import SubjectContent from "./pages/SubjectContent";
 import TeacherSubject from "./pages/TeacherSubject";
 import TeacherContent from "./pages/TeacherContent";
 import AssignmentCreate from "./pages/AssignmentCreate";
@@ -43,8 +36,6 @@ import AddExamMarks from "./pages/AddExamMarks";
 import ContentView from "./pages/ContentView";
 import BehavioralAnalysis from "./pages/BehavioralAnalysis";
 import AssignmentFileView from "./pages/AssignmentFileView";
-import TeacherDashboard from "./pages/TeacherDashboard";
-import AdminDashboard from "./pages/AdminDasboard"
 
 
 import TeacherAnalysis from "./pages/Attendance-Module/Teacher-Analysis";
@@ -109,16 +100,6 @@ function Layout() {
   );
 
     // Admin Routes
-    const adminRoutes = (
-        <Routes>
-            <Route path="/dashboard" element={<AdminDashboard />} />
-            <Route path="/sports" element={<Sports />} />
-            <Route path="/clubandsocieties" element={<Clubandsocieties />} />
-            <Route path="/academic" element={<TeacherSubject />} />
-            <Route path="/uc" element={<UnderConstruction />} />
-            <Route path="*" element={<Navigate to="/uc" />} />
-        </Routes>
-    );
   const adminRoutes = (
     <>
       <Route path="/" element={<AdminDashboard />} />
@@ -126,6 +107,7 @@ function Layout() {
       <Route path="/add-teacher" element={<AddTeacher />} />
       <Route path="/add-student" element={<AddStudent />} />
       <Route path="/sports" element={<Sports />} />
+       <Route path="/academic" element={<TeacherSubject />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="*" element={<Navigate to="/uc" />} />
@@ -142,7 +124,7 @@ function Layout() {
                 return adminRoutes;
             default:
                 return  <Routes>
-                         <Route path="/" element={<LoginPage />} />
+                         <Route path="/" element={<Login />} />
                          <Route path="*" element={<Navigate to="/" />} />
                        </Routes>;
         }
@@ -191,7 +173,21 @@ function Layout() {
   );
 }
 
+function App() {
+  const [theme, colorMode] = useMode();
+
+  return (
+    <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/*" element={<Layout />} />
+        </Routes>
+      </ThemeProvider>
+    </ColorModeContext.Provider>
+  );
+}
+
 export default App;
-
-
-// /attendance/analysis
