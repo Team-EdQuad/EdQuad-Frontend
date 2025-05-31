@@ -18,12 +18,13 @@ import {
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart } from '@mui/x-charts/LineChart';
 
 const BehavioralAnalysis = () => {
   const theme = useTheme();
-  const teacher_id = "TCH001"; // Example teacher ID, adjust as needed
+  const teacher_id = "TCH001";
   const API_BASE_URL = 'http://127.0.0.1:8000/api';
+  const BEHAVIORAL_API_BASE_URL = 'http://127.0.0.1:8005/api'; // Your behavioral service
 
   // State
   const [subject, setSubject] = useState('');
@@ -39,44 +40,11 @@ const BehavioralAnalysis = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  // Sample data for the chart (to be updated with API data if needed)
-  const [chartData, setChartData] = useState([
-    { name: 'Mon', engagement: 45, frequency: 15 },
-    { name: 'Tue', engagement: 50, frequency: 18 },
-    { name: 'Wed', engagement: 60, frequency: 20 },
-    { name: 'Thu', engagement: 40, frequency: 12 },
-    { name: 'Fri', engagement: 50, frequency: 15 },
-  ]);
-
-  // Axios interceptors for debugging
-  useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(
-      (config) => {
-        console.log('Making request to:', config.url);
-        return config;
-      },
-      (error) => {
-        console.error('Request error:', error);
-        return Promise.reject(error);
-      }
-    );
-
-    const responseInterceptor = axios.interceptors.response.use(
-      (response) => {
-        console.log('Response received from:', response.config.url);
-        return response;
-      },
-      (error) => {
-        console.error('Response error:', error);
-        return Promise.reject(error);
-      }
-    );
-
-    return () => {
-      axios.interceptors.request.eject(requestInterceptor);
-      axios.interceptors.response.eject(responseInterceptor);
-    };
-  }, []);
+  // Chart data state for MUI X Charts
+  const [chartData, setChartData] = useState({
+    xAxisData: [],
+    series: []
+  });
 
   // Fetch subjects and grades from API
   useEffect(() => {
@@ -101,9 +69,9 @@ const BehavioralAnalysis = () => {
   const handleSubjectChange = (event) => {
     const selectedSubject = event.target.value;
     setSubject(selectedSubject);
-    setGrade(''); // Reset grade selection
-    setAssignmentAvailable(''); // Reset assignment available
-    setError(''); // Clear error
+    setGrade('');
+    setAssignmentAvailable('');
+    setError('');
 
     const selected = subjectsGrades.find((item) => item.subject_name === selectedSubject);
     setFilteredGrades(selected ? selected.classes : []);
@@ -112,19 +80,46 @@ const BehavioralAnalysis = () => {
   // Handle grade change
   const handleGradeChange = (event) => {
     setGrade(event.target.value);
-    setError(''); // Clear error
+    setError('');
   };
 
   // Handle input changes
   const handleExpectedContentCountChange = (event) => {
     setExpectedContentCount(event.target.value);
-    setError(''); // Clear error
+    setError('');
   };
 
   // Handle assignment available change
   const handleAssignmentAvailableChange = (event) => {
     setAssignmentAvailable(event.target.value);
-    setError(''); // Clear error
+    setError('');
+  };
+
+  // Fetch visualization data from your behavioral service
+  const fetchVisualizationData = async (subject_id, class_id) => {
+    try {
+      const response = await axios.get(`${BEHAVIORAL_API_BASE_URL}/visualize_data/${subject_id}/${class_id}`);
+      
+      if (response.data.x && response.data.y) {
+        setChartData({
+          xAxisData: response.data.x, // Week numbers
+          series: [
+            {
+              data: response.data.y, // Total Active Time values
+              label: 'Total Active Time (mins)',
+              color: theme.palette.primary.main,
+            }
+          ]
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching visualization data:', error);
+      // Set default empty chart data if fetch fails
+      setChartData({
+        xAxisData: [],
+        series: []
+      });
+    }
   };
 
   // Handle submit
@@ -156,15 +151,8 @@ const BehavioralAnalysis = () => {
       setAvgActiveTime(activeTimeResponse.data.siteAverageActiveTimePerStudent || 0);
       setAvgAccessFrequency(accessFrequencyResponse.data.avgAccessPerStudentInClass || 0);
 
-      // Optionally update chart data based on the metrics
-      const newChartData = [
-        { name: 'Mon', engagement: Math.round(timeSpentResponse.data.avgTimeSpentPerStudent * 0.8), frequency: Math.round(accessFrequencyResponse.data.avgAccessPerStudentInClass * 3) },
-        { name: 'Tue', engagement: Math.round(timeSpentResponse.data.avgTimeSpentPerStudent * 0.9), frequency: Math.round(accessFrequencyResponse.data.avgAccessPerStudentInClass * 3.2) },
-        { name: 'Wed', engagement: Math.round(timeSpentResponse.data.avgTimeSpentPerStudent * 1.1), frequency: Math.round(accessFrequencyResponse.data.avgAccessPerStudentInClass * 3.5) },
-        { name: 'Thu', engagement: Math.round(timeSpentResponse.data.avgTimeSpentPerStudent * 0.7), frequency: Math.round(accessFrequencyResponse.data.avgAccessPerStudentInClass * 2.8) },
-        { name: 'Fri', engagement: Math.round(timeSpentResponse.data.avgTimeSpentPerStudent * 0.85), frequency: Math.round(accessFrequencyResponse.data.avgAccessPerStudentInClass * 3.1) },
-      ];
-      setChartData(newChartData);
+      // Fetch visualization data from your behavioral service
+      await fetchVisualizationData(subject_id, class_id);
 
       console.log('Data fetched successfully:', {
         subject,
@@ -181,13 +169,10 @@ const BehavioralAnalysis = () => {
       console.error('Detailed error:', error);
       
       if (error.response) {
-        // Server responded with error status
         setError(`Server error: ${error.response.status} - ${error.response.data?.message || 'Unknown error'}`);
       } else if (error.request) {
-        // Request made but no response received
         setError('No response from server. Please check if the server is running on port 8000.');
       } else {
-        // Something else happened
         setError(`Request error: ${error.message}`);
       }
     } finally {
@@ -383,52 +368,40 @@ const BehavioralAnalysis = () => {
         </Card>
       </Box>
 
-      {/* Engagement Trends Chart */}
+      {/* MUI X Charts LineChart */}
       <Card sx={{ width: '100%', maxWidth: '900px', p: 2 }}>
         <Typography variant="h6" fontWeight="bold" mb={3} sx={{ color: theme.palette.text.primary }}>
-          📈 Weekly Engagement Trends
+          📈 Weekly Active Time Trends
         </Typography>
-        <ResponsiveContainer width="100%" height={350}>
+        {chartData.xAxisData.length > 0 ? (
           <LineChart
-            data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            width={850}
+            height={400}
+            series={chartData.series}
+            xAxis={[{ 
+              scaleType: 'point', 
+              data: chartData.xAxisData,
+              label: 'Week Number'
+            }]}
+            yAxis={[{
+              label: 'Total Active Time (minutes)'
+            }]}
+            margin={{ left: 80, right: 30, top: 30, bottom: 80 }}
+            grid={{ vertical: true, horizontal: true }}
+          />
+        ) : (
+          <Box 
+            display="flex" 
+            alignItems="center" 
+            justifyContent="center" 
+            height={400}
+            sx={{ backgroundColor: theme.palette.grey[50], borderRadius: 1 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
-            <XAxis 
-              dataKey="name" 
-              stroke={theme.palette.text.secondary}
-              fontSize={12}
-            />
-            <YAxis 
-              stroke={theme.palette.text.secondary}
-              fontSize={12}
-            />
-            <Tooltip 
-              contentStyle={{
-                backgroundColor: theme.palette.background.paper,
-                border: `1px solid ${theme.palette.divider}`,
-                borderRadius: '8px',
-              }}
-            />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="engagement" 
-              stroke={theme.palette.primary.main}
-              strokeWidth={3}
-              dot={{ fill: theme.palette.primary.main, strokeWidth: 2, r: 6 }}
-              name="Engagement (mins)"
-            />
-            <Line 
-              type="monotone" 
-              dataKey="frequency" 
-              stroke={theme.palette.secondary.main}
-              strokeWidth={3}
-              dot={{ fill: theme.palette.secondary.main, strokeWidth: 2, r: 6 }}
-              name="Access Frequency"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+            <Typography variant="body1" color={theme.palette.text.secondary}>
+              Select subject and grade to view active time trends
+            </Typography>
+          </Box>
+        )}
       </Card>
 
       {/* Additional Insights */}
