@@ -43,8 +43,9 @@ const BehavioralAnalysis = () => {
   const [weekRange, setWeekRange] = useState(12);
   const [chartData, setChartData] = useState({
     xAxisData: [],
-    series: []
+    series: [],
   });
+  const [predictedData, setPredictedData] = useState(null); // New state for predicted value
 
   // Fetch subjects and grades on component mount
   useEffect(() => {
@@ -68,7 +69,8 @@ const BehavioralAnalysis = () => {
   // Log chartData changes for debugging
   useEffect(() => {
     console.log('chartData updated:', chartData);
-  }, [chartData]);
+    console.log('predictedData updated:', predictedData);
+  }, [chartData, predictedData]);
 
   // Re-fetch or reprocess chart data when weekRange, subject, or grade changes
   useEffect(() => {
@@ -141,13 +143,31 @@ const BehavioralAnalysis = () => {
         console.log('Sliced yData:', yData);
 
         if (xData.length === yData.length && xData.length > 0) {
+          // Prepare historical series
+          const historicalSeries = {
+            data: yData,
+            label: 'Historical Active Time (mins)',
+            color: theme.palette.primary.main, // Blue for historical data
+          };
+
+          // Prepare predicted series if predictedData exists
+          let series = [historicalSeries];
+          let finalXData = [...xData];
+
+          if (predictedData) {
+            const nextWeek = xData[xData.length - 1] + 1; // e.g., 121
+            finalXData = [...xData, nextWeek];
+            series.push({
+              data: [...Array(xData.length).fill(null), predictedData.predicted_active_time], // Nulls for historical weeks, then predicted value
+              label: 'Predicted Active Time (mins)',
+              color: '#d32f2f', // Red for predicted data
+              showMark: true, // Show a marker for the predicted point
+            });
+          }
+
           const newChartData = {
-            xAxisData: xData,
-            series: [{
-              data: yData,
-              label: 'Total Active Time (mins)',
-              color: theme.palette.primary.main,
-            }]
+            xAxisData: finalXData,
+            series,
           };
           console.log('Setting chartData:', newChartData);
           setChartData(newChartData);
@@ -182,24 +202,39 @@ const BehavioralAnalysis = () => {
       return;
     }
 
+    if (!expectedContentCount || !assignmentAvailable) {
+      setError('Please provide Expected Content Count and Assignment Available.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      const [timeSpentResponse, activeTimeResponse, accessFrequencyResponse] = await Promise.all([
+      // Fetch historical data and other metrics
+      const [timeSpentResponse, activeTimeResponse, accessFrequencyResponse, predictResponse] = await Promise.all([
         axios.get(`${API_BASE_URL}/TimeSpendOnResources/${subject_id}/${class_id}`),
         axios.get(`${API_BASE_URL}/SiteAverageActiveTime/${class_id}`),
-        axios.get(`${API_BASE_URL}/ResourceAccessFrequency/${subject_id}/${class_id}`)
+        axios.get(`${API_BASE_URL}/ResourceAccessFrequency/${subject_id}/${class_id}`),
+        // Fetch predicted active time
+        axios.post(`${BEHAVIORAL_API_BASE_URL}/predict_active_time`, {
+          Weeknumber: 121, // Predict for next week
+          SpecialEventThisWeek: assignmentAvailable === 'Yes' ? 1 : 0,
+          ResourcesUploadedThisWeek: Number(expectedContentCount),
+        }),
       ]);
 
       setAvgTimeSpent(timeSpentResponse.data.avgTimeSpentPerStudent || 0);
       setAvgActiveTime(activeTimeResponse.data.siteAverageActiveTimePerStudent || 0);
       setAvgAccessFrequency(accessFrequencyResponse.data.avgAccessPerStudentInClass || 0);
+      setPredictedData(predictResponse.data); // Store predicted value
+      console.log('Predicted Active Time:', predictResponse.data);
 
-      await fetchVisualizationData(subject_id, class_id);
+      await fetchVisualizationData(subject_id, class_id); // Fetch historical data
     } catch (error) {
       console.error('Error in handleSubmit:', error);
-      setError('Failed to fetch data. Please try again.');
+      setError('Failed to fetch data or predict active time. Please try again.');
+      setPredictedData(null); // Clear predicted data on error
     } finally {
       setLoading(false);
     }
@@ -208,12 +243,20 @@ const BehavioralAnalysis = () => {
   // Test chart with static data
   const handleTestChart = () => {
     const testData = {
-      xAxisData: [1, 2, 3, 4, 5],
-      series: [{
-        data: [100, 150, 200, 175, 225],
-        label: 'Test Data',
-        color: theme.palette.primary.main,
-      }]
+      xAxisData: [1, 2, 3, 4, 5, 6],
+      series: [
+        {
+          data: [100, 150, 200, 175, 225, null],
+          label: 'Test Historical Data',
+          color: theme.palette.primary.main,
+        },
+        {
+          data: [null, null, null, null, null, 250],
+          label: 'Test Predicted Data',
+          color: '#d32f2f',
+          showMark: true,
+        },
+      ],
     };
     setChartData(testData);
   };
@@ -262,7 +305,7 @@ const BehavioralAnalysis = () => {
         <Typography variant="h6" fontWeight="bold" mb={2} sx={{ color: theme.palette.text.primary }}>
           🎯 Select Parameters
         </Typography>
-        
+
         <Box display="flex" flexWrap="wrap" gap={2} mb={3}>
           <FormControl sx={{ minWidth: '200px', flex: 1 }}>
             <InputLabel sx={{ color: theme.palette.text.secondary }}>Select Subject</InputLabel>
@@ -405,8 +448,11 @@ const BehavioralAnalysis = () => {
         <Typography variant="h6" fontWeight="bold" mb={3} sx={{ color: theme.palette.text.primary }}>
           📈 Weekly Active Time Trends
           {chartData.xAxisData.length > 0 && (
-            <Typography component="span" variant="body2" color="text.secondary">
-              {' '}(Last {chartData.xAxisData.length} weeks: Week {Math.min(...chartData.xAxisData)} - {Math.max(...chartData.xAxisData)})
+            <Typography component="span" color="text.secondary">
+              {' '}
+              (Last {chartData.xAxisData.length - (predictedData ? 1 : 0)} weeks
+              {predictedData && ', including predicted week'}:{' '}
+              {Math.min(...chartData.xAxisData)} - {Math.max(...chartData.xAxisData)}))
             </Typography>
           )}
         </Typography>
@@ -418,6 +464,7 @@ const BehavioralAnalysis = () => {
           {chartData.xAxisData.length > 0 && (
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
               Week range: {Math.min(...chartData.xAxisData)} - {Math.max(...chartData.xAxisData)}
+              {predictedData && `, Predicted for Week 121: ${predictedData.predicted_active_time.toFixed(2)} mins`}
             </Typography>
           )}
         </Box>
@@ -429,9 +476,9 @@ const BehavioralAnalysis = () => {
             alignItems="center"
             justifyContent="center"
             height={400}
-            sx={{ backgroundColor: theme.palette.grey[50], borderRadius: 1 }}
+            sx={{ backgroundColor: theme.palette.grey[100], borderRadius: 1 }}
           >
-            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <CircularProgress size={40} />
             <Typography variant="body2" color="text.secondary">Loading chart data...</Typography>
           </Box>
         ) : chartData.xAxisData.length > 0 && chartData.series.length > 0 ? (
@@ -454,17 +501,17 @@ const BehavioralAnalysis = () => {
             alignItems="center"
             justifyContent="center"
             height={400}
-            sx={{ backgroundColor: theme.palette.grey[50], borderRadius: 1 }}
+            sx={{ backgroundColor: theme.palette.grey[100], borderRadius: 1 }}
           >
             <Typography variant="body1" color={theme.palette.text.secondary} sx={{ mb: 1 }}>
               {chartData.xAxisData.length === 0
-                ? "No data available for the selected subject and class"
-                : "Select subject and grade to view active time trends"}
+                ? 'No data available for the selected subject and class'
+                : 'Select subject and grade to view active time trends'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               Current chart state: {JSON.stringify({
                 xAxisLength: chartData.xAxisData.length || 0,
-                seriesLength: chartData.series.length || 0
+                seriesLength: chartData.series.length || 0,
               })}
             </Typography>
           </Box>
@@ -472,7 +519,7 @@ const BehavioralAnalysis = () => {
       </Card>
 
       {/* Insights Section */}
-      {(avgActiveTime > 0 || avgTimeSpent > 0 || avgAccessFrequency > 0) && (
+      {(avgActiveTime || avgTimeSpent || avgAccessFrequency) && (
         <Card sx={{ width: '100%', maxWidth: '900px', mt: 3, p: 2 }}>
           <Typography variant="h6" fontWeight="bold" mb={2} sx={{ color: theme.palette.text.primary }}>
             💡 Insights & Recommendations
@@ -491,6 +538,14 @@ const BehavioralAnalysis = () => {
             {avgTimeSpent > 60 && (
               <Alert severity="success" sx={{ mb: 2 }}>
                 Excellent! Students are spending significant time on learning resources.
+              </Alert>
+            )}
+            {predictedData && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Predicted active time for next week (Week 121): {predictedData.predicted_active_time.toFixed(2)} minutes.
+                {predictedData.predicted_active_time < 200
+                  ? ' Consider increasing content or engagement strategies.'
+                  : ' This suggests continued strong engagement.'}
               </Alert>
             )}
           </Box>
