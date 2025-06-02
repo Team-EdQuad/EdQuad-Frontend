@@ -155,15 +155,33 @@ const BehavioralAnalysis = () => {
           let finalXData = [...xData];
 
           if (predictedData) {
-            const nextWeek = xData[xData.length - 1] + 1; // e.g., 121
-            finalXData = [...xData, nextWeek];
-            series.push({
-              data: [...Array(xData.length).fill(null), predictedData.predicted_active_time], // Nulls for historical weeks, then predicted value
-              label: 'Predicted Active Time (mins)',
-              color: '#d32f2f', // Red for predicted data
-              showMark: true, // Show a marker for the predicted point
-            });
-          }
+  const nextWeek = xData[xData.length - 1] + 1;
+  finalXData = [...xData, nextWeek];
+  
+  // Combine historical and predicted data
+  const combinedData = [...yData, predictedData.predicted_active_time];
+  
+  // Create segments for different styling
+  const historicalSegment = {
+    data: [...yData, null], // Add null to separate from prediction
+    label: 'Historical Active Time (mins)',
+    color: theme.palette.primary.main,
+  };
+  
+  const predictionSegment = {
+    data: [
+      ...Array(xData.length - 1).fill(null),
+      yData[yData.length - 1], // Connect from last historical point
+      predictedData.predicted_active_time
+    ],
+    label: 'Predicted Active Time (mins)',
+    color: '#d32f2f',
+    strokeDasharray: '8 4', // Dashed line for prediction
+    showMark: true,
+  };
+  
+  series = [historicalSegment, predictionSegment];
+}
 
           const newChartData = {
             xAxisData: finalXData,

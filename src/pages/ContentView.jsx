@@ -29,7 +29,7 @@ const ContentView = () => {
     if (!passedContentData) {
       const fetchContent = async () => {
         try {
-          const metaResponse = await fetch(`http://localhost:8002/api/content/${contentId}`);
+          const metaResponse = await fetch(`http://localhost:8000/api/content/${contentId}`);
           if (!metaResponse.ok) throw new Error(`HTTP error! status: ${metaResponse.status}`);
           
           const data = await metaResponse.json();
@@ -57,7 +57,7 @@ const ContentView = () => {
       return `https://drive.google.com/file/d/${contentData.content_file_id}/preview`;
     } else if (contentData?.file_path) {
       // Local file (fallback)
-      return `http://localhost:8002/api/content/file/${contentId}`;
+      return `http://localhost:8000/api/content/file/${contentId}`;
     }
     return null;
   };
@@ -76,7 +76,7 @@ const ContentView = () => {
       formData.append('student_id', 'STU001');
       formData.append('content_id', contentId);
 
-      await fetch('http://127.0.0.1:8002/api/closeContentAccess', {
+      await fetch('http://127.0.0.1:8000/api/closeContentAccess', {
         method: 'POST',
         body: formData,
       });
@@ -90,7 +90,7 @@ const ContentView = () => {
 
   const handleMarkAsDone = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8002/api/content/${contentId}/mark-done`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/content/${contentId}/mark-done`, {
         method: 'POST',
       });
 
