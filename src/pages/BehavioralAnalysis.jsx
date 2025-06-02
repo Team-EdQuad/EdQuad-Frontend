@@ -24,7 +24,7 @@ const BehavioralAnalysis = () => {
   const theme = useTheme();
   const teacher_id = "TCH001";
   const API_BASE_URL = 'http://127.0.0.1:8000/api';
-  const BEHAVIORAL_API_BASE_URL = 'http://127.0.0.1:8005/api';
+  const BEHAVIORAL_API_BASE_URL = 'http://127.0.0.1:8005';
 
   // State declarations
   const [subject, setSubject] = useState('');
@@ -123,7 +123,7 @@ const BehavioralAnalysis = () => {
   const fetchVisualizationData = async (subject_id, class_id) => {
     try {
       setChartLoading(true);
-      const url = `${BEHAVIORAL_API_BASE_URL}/visualize_data/${subject_id}/${class_id}`;
+      const url = `${BEHAVIORAL_API_BASE_URL}/api/visualize_data/${subject_id}/${class_id}`;
       console.log('Fetching data from:', url);
       const response = await axios.get(url);
       console.log('API Response:', response.data);
@@ -235,7 +235,7 @@ const BehavioralAnalysis = () => {
         axios.get(`${API_BASE_URL}/SiteAverageActiveTime/${class_id}`),
         axios.get(`${API_BASE_URL}/ResourceAccessFrequency/${subject_id}/${class_id}`),
         // Fetch predicted active time
-        axios.post(`${BEHAVIORAL_API_BASE_URL}/predict_active_time`, {
+        axios.post(`${BEHAVIORAL_API_BASE_URL}/api/predict_active_time`, {
           Weeknumber: 121, // Predict for next week
           SpecialEventThisWeek: assignmentAvailable === 'Yes' ? 1 : 0,
           ResourcesUploadedThisWeek: Number(expectedContentCount),
