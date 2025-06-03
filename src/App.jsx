@@ -32,6 +32,7 @@ import AssignmentFileView from "./pages/AssignmentFileView";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminDashboard from "./pages/AdminDasboard"
 import SubmissionView from "./pages/SubmissionView";
+import ReviewAutoGradedAssignments from "./pages/ReviewAutoGradedAssignments";
 
 import TeacherAnalysis from "./pages/Attendance-Module/Teacher-Analysis";
 import StudentAnalysis from "./pages/Attendance-Module/Student-Analysis";
@@ -90,6 +91,8 @@ function App() {
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="/behavioural-analysis" element={<BehavioralAnalysis />} />
       <Route path="/submission/view/:submissionId" element={<SubmissionView />} />
+      <Route path="check-auto-graded" element={<ReviewAutoGradedAssignments />} />
+
       <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
       <Route path="/login" element={<Login />} />
 

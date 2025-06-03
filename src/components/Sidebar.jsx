@@ -548,6 +548,16 @@ const AppSidebar = () => {
               </MenuItem>
 
               <MenuItem
+                active={selected === "Review AI-Graded Assignments"}
+                onClick={() => setSelected("Review AI-Graded Assignments")}
+                icon={<EditNoteOutlined />}
+                component={<Link to="/check-auto-graded" />}
+              >
+                <Typography>Review AI-Graded Assignments</Typography>
+              </MenuItem>
+
+
+              <MenuItem
                 active={selected === "Enter term-test marks"}
                 onClick={() => setSelected("Enter term-test marks")}
                 icon={<EditNoteOutlined />}
