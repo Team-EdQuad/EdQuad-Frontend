@@ -24,8 +24,7 @@ const BehavioralAnalysis = () => {
   const theme = useTheme();
   const teacher_id = "TCH001";
   const API_BASE_URL = 'http://127.0.0.1:8000/api';
-  const BEHAVIORAL_API_BASE_URL = 'http://127.0.0.1:8005';
-
+  
   // State declarations
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState('');
@@ -45,7 +44,7 @@ const BehavioralAnalysis = () => {
     xAxisData: [],
     series: [],
   });
-  const [predictedData, setPredictedData] = useState(null); // New state for predicted value
+  const [predictedData, setPredictedData] = useState(null);
 
   // Fetch subjects and grades on component mount
   useEffect(() => {
@@ -123,7 +122,7 @@ const BehavioralAnalysis = () => {
   const fetchVisualizationData = async (subject_id, class_id) => {
     try {
       setChartLoading(true);
-      const url = `${BEHAVIORAL_API_BASE_URL}/api/visualize_data/${subject_id}/${class_id}`;
+      const url = `${API_BASE_URL}/visualize_data/${subject_id}/${class_id}`;
       console.log('Fetching data from:', url);
       const response = await axios.get(url);
       console.log('API Response:', response.data);
@@ -147,7 +146,7 @@ const BehavioralAnalysis = () => {
           const historicalSeries = {
             data: yData,
             label: 'Historical Active Time (mins)',
-            color: theme.palette.primary.main, // Blue for historical data
+            color: theme.palette.primary.main,
           };
 
           // Prepare predicted series if predictedData exists
@@ -155,33 +154,30 @@ const BehavioralAnalysis = () => {
           let finalXData = [...xData];
 
           if (predictedData) {
-  const nextWeek = xData[xData.length - 1] + 1;
-  finalXData = [...xData, nextWeek];
-  
-  // Combine historical and predicted data
-  const combinedData = [...yData, predictedData.predicted_active_time];
-  
-  // Create segments for different styling
-  const historicalSegment = {
-    data: [...yData, null], // Add null to separate from prediction
-    label: 'Historical Active Time (mins)',
-    color: theme.palette.primary.main,
-  };
-  
-  const predictionSegment = {
-    data: [
-      ...Array(xData.length - 1).fill(null),
-      yData[yData.length - 1], // Connect from last historical point
-      predictedData.predicted_active_time
-    ],
-    label: 'Predicted Active Time (mins)',
-    color: '#d32f2f',
-    strokeDasharray: '8 4', // Dashed line for prediction
-    showMark: true,
-  };
-  
-  series = [historicalSegment, predictionSegment];
-}
+            const nextWeek = xData[xData.length - 1] + 1;
+            finalXData = [...xData, nextWeek];
+            
+            // Create segments for different styling
+            const historicalSegment = {
+              data: [...yData, null],
+              label: 'Historical Active Time (mins)',
+              color: theme.palette.primary.main,
+            };
+            
+            const predictionSegment = {
+              data: [
+                ...Array(xData.length - 1).fill(null),
+                yData[yData.length - 1],
+                predictedData.predicted_active_time
+              ],
+              label: 'Predicted Active Time (mins)',
+              color: '#d32f2f',
+              strokeDasharray: '8 4',
+              showMark: true,
+            };
+            
+            series = [historicalSegment, predictionSegment];
+          }
 
           const newChartData = {
             xAxisData: finalXData,
@@ -206,7 +202,7 @@ const BehavioralAnalysis = () => {
     }
   };
 
-  // Handle form submission
+  // Handle form submission with fixed form data for predict_active_time
   const handleSubmit = async () => {
     const selectedSubject = subjectsGrades.find((item) => item.subject_name === subject);
     const selectedGrade = selectedSubject?.classes.find((cls) => cls.class_name === grade);
@@ -225,34 +221,68 @@ const BehavioralAnalysis = () => {
       return;
     }
 
+    // Validate expectedContentCount is a positive number
+    const contentCount = Number(expectedContentCount);
+    if (isNaN(contentCount) || contentCount <= 0) {
+      setError('Expected Content Count must be a valid positive number.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      // Fetch historical data and other metrics
-      const [timeSpentResponse, activeTimeResponse, accessFrequencyResponse, predictResponse] = await Promise.all([
+      // Fetch GET requests first
+      const [timeSpentResponse, activeTimeResponse, accessFrequencyResponse] = await Promise.all([
         axios.get(`${API_BASE_URL}/TimeSpendOnResources/${subject_id}/${class_id}`),
         axios.get(`${API_BASE_URL}/SiteAverageActiveTime/${class_id}`),
-        axios.get(`${API_BASE_URL}/ResourceAccessFrequency/${subject_id}/${class_id}`),
-        // Fetch predicted active time
-        axios.post(`${BEHAVIORAL_API_BASE_URL}/api/predict_active_time`, {
-          Weeknumber: 121, // Predict for next week
-          SpecialEventThisWeek: assignmentAvailable === 'Yes' ? 1 : 0,
-          ResourcesUploadedThisWeek: Number(expectedContentCount),
-        }),
+        axios.get(`${API_BASE_URL}/ResourceAccessFrequency/${subject_id}/${class_id}`)
       ]);
 
+      // Prepare form data for predict_active_time POST request
+      const params = new URLSearchParams();
+      params.append('Weeknumber', '121');
+      params.append('SpecialEventThisWeek', assignmentAvailable === 'Yes' ? '1' : '0');
+      params.append('ResourcesUploadedThisWeek', contentCount.toString());
+
+      console.log('Sending predict request with form data:', {
+        Weeknumber: 121,
+        SpecialEventThisWeek: assignmentAvailable === 'Yes' ? 1 : 0,
+        ResourcesUploadedThisWeek: contentCount
+      });
+
+      // Make the POST request with form data
+      const predictResponse = await axios.post(
+        `${API_BASE_URL}/predict_active_time/`,
+        params,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }
+      );
+
+      // Process all responses
       setAvgTimeSpent(timeSpentResponse.data.avgTimeSpentPerStudent || 0);
       setAvgActiveTime(activeTimeResponse.data.siteAverageActiveTimePerStudent || 0);
       setAvgAccessFrequency(accessFrequencyResponse.data.avgAccessPerStudentInClass || 0);
-      setPredictedData(predictResponse.data); // Store predicted value
+      setPredictedData(predictResponse.data);
       console.log('Predicted Active Time:', predictResponse.data);
 
-      await fetchVisualizationData(subject_id, class_id); // Fetch historical data
+      // Fetch historical data for chart
+      await fetchVisualizationData(subject_id, class_id);
+      
     } catch (error) {
       console.error('Error in handleSubmit:', error);
-      setError('Failed to fetch data or predict active time. Please try again.');
-      setPredictedData(null); // Clear predicted data on error
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      if (error.response?.status === 422) {
+        setError(`Validation Error: ${JSON.stringify(error.response.data.detail || 'Invalid input data')}`);
+      } else {
+        setError('Failed to fetch data or predict active time. Please try again.');
+      }
+      setPredictedData(null);
     } finally {
       setLoading(false);
     }
@@ -359,7 +389,6 @@ const BehavioralAnalysis = () => {
               <MenuItem value={8}>Last 8 weeks (2 months)</MenuItem>
               <MenuItem value={12}>Last 12 weeks (3 months)</MenuItem>
               <MenuItem value={24}>Last 24 weeks (6 months)</MenuItem>
-              <MenuItem value={52}>Last 52 weeks (1 year)</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -470,7 +499,7 @@ const BehavioralAnalysis = () => {
               {' '}
               (Last {chartData.xAxisData.length - (predictedData ? 1 : 0)} weeks
               {predictedData && ', including predicted week'}:{' '}
-              {Math.min(...chartData.xAxisData)} - {Math.max(...chartData.xAxisData)}))
+              {Math.min(...chartData.xAxisData)} - {Math.max(...chartData.xAxisData)})
             </Typography>
           )}
         </Typography>

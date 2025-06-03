@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 const TeacherSubject = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const teacher_id = "TCH002";
+  const teacher_id = "TCH001";
 
   // State
   const [subject, setSubject] = useState('');
