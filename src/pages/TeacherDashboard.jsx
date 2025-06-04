@@ -20,7 +20,7 @@ const TeacherDashboard = () => {
   // const studentId = 'STU009';
 //   const classId = 'CLS001';
   const location = useLocation();
-  const { id: studentId } = useContext(StoreContext);
+  const { id: teacherId } = useContext(StoreContext);
   // const { id: studentId, classId } = useContext(StoreContext);
 
   console.log("Dashboard is rendering...");
@@ -38,7 +38,7 @@ const TeacherDashboard = () => {
     <div className="p-6 space-y-8" >
       <section id="material-progress">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <CourseMatProgress teacherId="TCH001" />
+          <CourseMatProgress teacherId={teacherId}/>
           <AttendanceAlertBox />
         </div>
     </section>

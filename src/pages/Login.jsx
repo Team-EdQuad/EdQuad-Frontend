@@ -17,6 +17,24 @@ import { StoreContext } from "../context/StoreContext";
 import Footer from "../components/Footer";
 import { tokens } from "../theme";
 import bgImage from "../assets/login-bg.png";
+import { useNavigate } from "react-router-dom";
+
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
+
 
 const Login = () => {
   const theme = useTheme();
@@ -24,6 +42,8 @@ const Login = () => {
   const { setRole } = useContext(StoreContext);
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useContext(StoreContext);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -33,14 +53,68 @@ const Login = () => {
   };
 
   //Login fastApi
+  // const handleLogin = async () => {
+  //   try {
+  //     const response = await fetch("http://localhost:8000/api/user-management/login/", {
+  //      method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/x-www-form-urlencoded",
+  //       },
+  //       body: new URLSearchParams({
+  //         username: formData.username,
+  //         password: formData.password,
+  //       }),
+  //     });
+
+  //     const profileResponse = await fetch("http://localhost:8000/api/user-management/profile", {
+  //       headers: { Authorization: `Bearer ${data.access_token}` },
+  //     });
+  //     const profile = await profileResponse.json();
+
+  //     login({
+  //       token: data.access_token,
+  //       role: profile.role,
+  //       id: profile.user_id,
+  //       name: profile.full_name,
+  //       classId: profile.class_id, // for students
+  //     });
+
+
+  //     if (!response.ok) {
+  //       throw new Error("Invalid credentials");
+  //     }
+
+  //     const data = await response.json();
+  //     const decoded = parseJwt(data.access_token);
+  //     const userRole = decoded.role; // assuming your JWT includes `role` claim
+  //     const userId = decoded.sub;    // usually the user id
+  //     const userName = decoded.name || ""; // if available
+
+  //     if (["admin", "teacher", "student"].includes(userRole.toLowerCase())) {
+  //       login({
+  //         token: data.access_token,
+  //         role: userRole.charAt(0).toUpperCase() + userRole.slice(1),
+  //         id: userId,
+  //         name: userName,
+  //       });
+  //       navigate("/dashboard");
+  //     } else {
+  //       throw new Error("Unknown role");
+  //     }
+      
+  //   } catch (err) {
+  //     alert(err.message || "Login failed");
+  //   }
+  // };
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/login", {
+      // 1. Login request
+      const response = await fetch("http://localhost:8000/api/user-management/login/", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify({
+        body: new URLSearchParams({
           username: formData.username,
           password: formData.password,
         }),
@@ -52,16 +126,35 @@ const Login = () => {
 
       const data = await response.json();
 
-      // Assuming your FastAPI returns { role: "Student" | "Teacher" | "Admin" }
-      if (["Student", "Teacher", "Admin"].includes(data.role)) {
-        setRole(data.role);
-      } else {
-        throw new Error("Unknown role");
+      // 2. Fetch profile using token from login response
+      const profileResponse = await fetch("http://localhost:8000/api/user-management/profile", {
+        headers: { Authorization: `Bearer ${data.access_token}` },
+      });
+
+      if (!profileResponse.ok) {
+        throw new Error("Failed to fetch profile");
       }
+
+      const profile = await profileResponse.json();
+
+      // 3. Store token and profile data in context and localStorage
+      const loginData = {
+        token: data.access_token,
+        role: profile.role,
+        id: profile.user_id|| profile.teacher_id || profile.student_id || profile.admin_id ,
+        name: profile.full_name || profile.name || "",
+        classId: profile.class_id || null, // add this to StoreContext
+      };
+
+      console.log("Login data:", loginData);
+      login(loginData);
+
+      navigate("/dashboard");
     } catch (err) {
       alert(err.message || "Login failed");
     }
   };
+
 
   return (
     <Box
@@ -97,7 +190,7 @@ const Login = () => {
             opacity: 1,
           }}
         >
-          <Typography
+          {/* <Typography
             variant="h6"
             fontWeight="bold"
             color="text.secondary"
@@ -109,8 +202,12 @@ const Login = () => {
             }}
           >
             EdQuad
+          </Typography> */}
+          <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text }}>
+            Ed<span style={{ color: 'blue' }}>Q</span>uad
           </Typography>
-          <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 }}>
+
+          <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 , textAlign: "center" }}>
             Login
           </Typography>
 
@@ -185,7 +282,7 @@ const Login = () => {
         </Paper>
       </Box>
 
-      <Footer />
+      {/* <Footer /> */}
     </Box>
   );
 };

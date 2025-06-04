@@ -3,6 +3,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { StoreContext } from "./context/StoreContext";
 import { useContext } from "react";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
@@ -14,6 +15,10 @@ import ForgotPassword from "./pages/ForgotPassword";
 import MyProfile from "./pages/MyProfile";
 import AddTeacher from "./pages/AddTeacher";
 import AddStudent from "./pages/AddStudent";
+import UpdateUser from "./pages/UpdateUser";
+import DeleteUser from "./pages/DeleteUser";
+import StudentCalendar from "./pages/StudentCalendar";
+import Calendar from "./pages/Calendar";
 import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminDashboard from "./pages/AdminDasboard";
@@ -54,6 +59,7 @@ function Layout() {
       <Route path="/my-profile" element={<MyProfile />} />
       <Route path="/sports" element={<Sports />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
+      <Route path="/calender" element={<StudentCalendar />} />
       <Route path="/termtestmarks" element={<TermTestMarks />} />
       <Route path="/mysubject" element={<MySubject />} />
       <Route path="/assigmentsmarks" element={<AssignmentMarks />} />
@@ -86,6 +92,7 @@ function Layout() {
       <Route path="/my-profile" element={<MyProfile />} />
       <Route path="/sports" element={<Sports />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
+      <Route path="/calender" element={<Calendar />} />
       <Route path="/academic" element={<TeacherSubject />} />
       <Route path="/teacher-content" element={<TeacherContent />} />
       <Route path="/assignment-create" element={<AssignmentCreate />} />
@@ -109,6 +116,10 @@ function Layout() {
       <Route path="/dashboard" element={<AdminDashboard />} />
       <Route path="/add-teacher" element={<AddTeacher />} />
       <Route path="/add-student" element={<AddStudent />} />
+      <Route path="/update-user" element={<UpdateUser />} />
+      <Route path="/delete-user" element={<DeleteUser />} />
+      <Route path="/my-profile" element={<MyProfile />} />
+      <Route path="/calender" element={<Calendar />} />
       <Route path="/sports" element={<Sports />} />
       <Route path="/academic" element={<TeacherSubject />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
@@ -117,23 +128,40 @@ function Layout() {
     </>
   );
 
+  // const getRoutes = () => {
+  //   switch (userRole) {
+  //     case "Student":
+  //       return studentRoutes;
+  //     case "Teacher":
+  //       return teacherRoutes;
+  //     case "Admin":
+  //       return adminRoutes;
+  //     default:
+  //       return (
+  //         <Routes>
+  //           <Route path="/" element={<Login />} />
+  //           <Route path="*" element={<Navigate to="/" />} />
+  //         </Routes>
+  //       );
+  //   }
+  // };
+
   const getRoutes = () => {
-    switch (userRole) {
-      case "Student":
-        return studentRoutes;
-      case "Teacher":
-        return teacherRoutes;
-      case "Admin":
-        return adminRoutes;
-      default:
-        return (
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        );
-    }
-  };
+  switch (userRole) {
+    case "student":
+      return studentRoutes; // array of <Route> elements
+    case "teacher":
+      return teacherRoutes;
+    case "admin":
+      return adminRoutes;
+    default:
+      return [
+        <Route key="login" path="/" element={<Login />} />,
+        <Route key="notfound" path="*" element={<Navigate to="/" />} />
+      ];
+  }
+};
+
 
   return (
     <>
@@ -190,10 +218,22 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Routes>
+        {/* <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/*" element={<Layout />} />
+        </Routes> */}
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </ThemeProvider>
     </ColorModeContext.Provider>

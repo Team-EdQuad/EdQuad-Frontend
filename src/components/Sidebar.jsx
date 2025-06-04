@@ -189,7 +189,7 @@ const AppSidebar = () => {
           )}
 
           {/* MENU ITEMS */}
-          {role === "Student" && (
+          {role === "student" && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
               {/* Dashborad */}
@@ -364,7 +364,7 @@ const AppSidebar = () => {
               </MenuItem>
             </Box>
           )}
-          {role === 'Teacher' && (
+          {role === 'teacher' && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
               {/* Dashborad */}
@@ -568,7 +568,7 @@ const AppSidebar = () => {
 
             </Box>
           )}
-          {role === 'Admin' && (
+          {role === 'admin' && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
               {/* Dashborad */}
