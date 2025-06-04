@@ -26,7 +26,7 @@ const Footer = () => {
           <Grid item xs={12} sm={6} md={4} sx={{ display: 'flex', flexDirection: 'column', maxWidth: '400px',  }}>
             <Box sx={{ wordWrap: 'break-word', overflowWrap: 'break-word', hyphens: 'auto', maxWidth: '100%' }}>
               <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text }}>
-                Ed<span style={{ color: 'blue' }}>Q</span>urd
+                Ed<span style={{ color: 'blue' }}>Q</span>uad
               </Typography>
               <Typography mt={2}>
                 Welcome to Sri Lanka's first inspirational global experience in online grocery retailing.
@@ -83,7 +83,7 @@ const Footer = () => {
             </Box>
           </Grid>
         </Grid>
-        <Box mt={10} textAlign="center">
+        <Box mt={2} textAlign="center">
           <hr />
           <Typography variant="caption">
             Copyright &copy; 2025 EdQuad

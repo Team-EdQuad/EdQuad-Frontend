@@ -189,7 +189,7 @@ const AppSidebar = () => {
           )}
 
           {/* MENU ITEMS */}
-          {role === "Student" && (
+          {role === "student" && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
               {/* Dashborad */}
@@ -279,7 +279,7 @@ const AppSidebar = () => {
                 active={selected === "My Profile"}
                 onClick={() => setSelected("My Profile")}
                 icon={<ContactsOutlined />}
-                component={<Link to="/myprofile" />}
+                component={<Link to="/my-profile" />}
               >
                 <Typography>My Profile</Typography>
               </MenuItem>
@@ -364,7 +364,7 @@ const AppSidebar = () => {
               </MenuItem>
             </Box>
           )}
-          {role === 'Teacher' && (
+          {role === 'teacher' && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
               {/* Dashborad */}
@@ -440,7 +440,7 @@ const AppSidebar = () => {
                 active={selected === "My Profile"}
                 onClick={() => setSelected("My Profile")}
                 icon={<ContactsOutlined />}
-                component={<Link to="/myprofile" />}
+                component={<Link to="/my-profile" />}
               >
                 <Typography>My Profile</Typography>
               </MenuItem>
@@ -568,7 +568,7 @@ const AppSidebar = () => {
 
             </Box>
           )}
-          {role === 'Admin' && (
+          {role === 'admin' && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
               {/* Dashborad */}
@@ -634,7 +634,7 @@ const AppSidebar = () => {
                 active={selected === "My Profile"}
                 onClick={() => setSelected("My Profile")}
                 icon={<ContactsOutlined />}
-                component={<Link to="/myprofile" />}
+                component={<Link to="/my-profile" />}
               >
                 <Typography>My Profile</Typography>
               </MenuItem>

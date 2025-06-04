@@ -17,12 +17,12 @@ import { StoreContext } from "../context/StoreContext";
 const StudentDashboard = () => {
 
   // const studentId = 'STU009';
-  const classId = 'CLS001';
+  // const classId = 'CLS001';
   const location = useLocation();
   // const { id: studentId } = useContext(StoreContext);
-  // const { id: studentId, classId } = useContext(StoreContext);
+const { id: studentId, classId } = useContext(StoreContext);
 
-  const studentId = 'STU001';
+  // const studentId = 'STU001';
   console.log("Dashboard is rendering...");
 
   useEffect(() => {
@@ -45,7 +45,7 @@ const StudentDashboard = () => {
     </section>
 
     <section id="attendance">
-      <AttendanceOverview studentId="STU030" classId="CLS013" />
+      <AttendanceOverview studentId={studentId} classId={classId} />
     </section>
 
     <section id="academic-performance">

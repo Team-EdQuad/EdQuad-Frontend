@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   IconButton,
@@ -14,6 +14,8 @@ import HomeOutlined from "@mui/icons-material/HomeOutlined";
 import { ColorModeContext, tokens } from "../theme";
 import Sidebar from "./Sidebar"; 
 import { StoreContext } from '../context/StoreContext'
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 
 const Topbar = () => {
@@ -22,7 +24,26 @@ const Topbar = () => {
   const colorMode = useContext(ColorModeContext);
 
   const { isMobile, isTablet, drawerOpen, toggleDrawer, id, name } = useContext(StoreContext)
+  const { logout } = useContext(StoreContext);
 
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleUserIconClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleMenuClose();
+    // Optionally, redirect to login page
+    window.location.href = "/login";
+  };
+  
   const navItems = [
     { label: "Dashboard", icon: <HomeOutlined />, path: "/" },
     { label: "Profile", icon: <PersonOutlined />, path: "/profile" },
@@ -92,8 +113,31 @@ const Topbar = () => {
         <IconButton onClick={colorMode.toggleColorMode}>
           {colorMode.mode === "dark" ? <LightModeOutlined /> : <DarkModeOutlined />}
         </IconButton>
+        
+        <Menu
+          id="user-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          keepMounted
+        >
+          <MenuItem onClick={handleLogout}>Logout</MenuItem>
+        </Menu>
 
-        <IconButton>
+        <IconButton
+          onClick={handleUserIconClick}
+          aria-controls={open ? "user-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
+        >
           <PersonOutlined />
         </IconButton>
       </Box>

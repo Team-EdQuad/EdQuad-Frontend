@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import {
   Box,
   Button,
@@ -11,6 +11,8 @@ import {
   useTheme,
 } from '@mui/material';
 
+import { StoreContext } from '../context/StoreContext';
+
 const SubjectContent = () => {
   const navigate = useNavigate();
   const [groupedItems, setGroupedItems] = useState({});
@@ -18,8 +20,8 @@ const SubjectContent = () => {
   const [error, setError] = useState(null);
   const theme = useTheme();
   const { subjectId } = useParams();
-
-  const studentId = 'STU001'; // ✅ Global declaration
+  const { id: studentId } = useContext(StoreContext);
+  // const studentId = 'STU001'; // ✅ Global declaration
 
   const getIconForItem = (item) => {
     if (item.type === 'assignment') return '📝';
