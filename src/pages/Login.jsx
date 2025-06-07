@@ -19,6 +19,8 @@ import { tokens } from "../theme";
 import bgImage from "../assets/login-bg.png";
 import { useNavigate } from "react-router-dom";
 
+const user_managemnent  = '167.71.225.152:8000';
+
 function parseJwt(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -109,8 +111,9 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       // 1. Login request
-      const response = await fetch("http://localhost:8000/api/user-management/login/", {
-        method: "POST",
+      // const response = await fetch("http://"+{user_managemnent}+"/api/user-management/login/", {
+      const response = await fetch(`http://${user_managemnent}/api/user-management/login/`, {
+      method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -127,7 +130,9 @@ const Login = () => {
       const data = await response.json();
 
       // 2. Fetch profile using token from login response
-      const profileResponse = await fetch("http://localhost:8000/api/user-management/profile", {
+      // const profileResponse = await fetch("http://localhost:8000/api/user-management/profile", {
+      const profileResponse = await fetch(`http://${user_managemnent}/api/user-management/profile`, {
+      
         headers: { Authorization: `Bearer ${data.access_token}` },
       });
 

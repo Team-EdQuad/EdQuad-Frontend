@@ -12,10 +12,12 @@ import {
   CircularProgress,
 } from '@mui/material';
 import axios from 'axios';
+import { StoreContext } from '../context/StoreContext';
 
 const AddExamMarks = () => {
   const theme = useTheme();
-  const teacher_id = 'TCH001'; // Matches provided API response
+  // const teacher_id = 'TCH001'; // Matches provided API response
+  const { id: teacher_id } = useContext(StoreContext);
 
   // State variables
   const [subjectsClasses, setSubjectsClasses] = useState([]);
