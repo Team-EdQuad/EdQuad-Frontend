@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Grid, Paper, CircularProgress, useTheme } from '@mui/material';
-import { MenuBook } from '@mui/icons-material';
+import { StoreContext } from '../context/StoreContext';
 
 const MySubject = () => {
   const theme = useTheme();
@@ -12,7 +12,8 @@ const MySubject = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const studentId = "STU001";
+  const { id: studentId } = useContext(StoreContext);
+  // const studentId = "STU001"; // Replace with real student ID (from auth or context)
 
   useEffect(() => {
     axios

@@ -73,7 +73,7 @@ const Sports = () => {
         Sports Activities
       </Typography>
 
-      <Box display="flex" gap={2} mb={4}>
+      {/* <Box display="flex" gap={2} mb={4}>
         <Select defaultValue="All Sports">
           <MenuItem value="All Sports">All Sports</MenuItem>
           <MenuItem value="Indoor Sports">Indoor Sports</MenuItem>
@@ -83,7 +83,7 @@ const Sports = () => {
           <MenuItem value="Team Sports">Team Sports</MenuItem>
           <MenuItem value="Individual Sports">Individual Sports</MenuItem>
         </Select>
-      </Box>
+      </Box> */}
 
       <Grid container spacing={3}>
         {sportsData.map((sport, index) => (
