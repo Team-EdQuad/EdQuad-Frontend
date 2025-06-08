@@ -4,6 +4,8 @@ import {
   Box, Typography, useTheme, MenuItem, Select, FormControl, InputLabel,
 } from '@mui/material';
 import axios from 'axios';
+const Url = import.meta.env.VITE_BACKEND_URL;
+
 
 const TermTestMarks = () => {
   const theme = useTheme();
@@ -13,7 +15,7 @@ const TermTestMarks = () => {
 
   useEffect(() => {
     // Fetch marks from the backend
-    axios.get('http://127.0.0.1:8000/api/exammarks/STU001')
+    axios.get(`${Url}/api/exammarks/STU001`)
       .then((res) => {
         setData(res.data);
         const years = [...new Set(res.data.map(entry => entry.exam_year))];

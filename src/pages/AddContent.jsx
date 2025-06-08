@@ -9,6 +9,10 @@ import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
 
+
+const Url = import.meta.env.VITE_BACKEND_URL;
+
+
 const AddContent = () => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -44,7 +48,7 @@ const AddContent = () => {
 
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/contentupload/${class_id}/${subject_id}`,
+        `${Url}/api/contentupload/${class_id}/${subject_id}`,
         formData,
         {
           headers: {

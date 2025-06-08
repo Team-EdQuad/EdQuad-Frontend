@@ -11,6 +11,8 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
+const Url = import.meta.env.VITE_BACKEND_URL;
+
 
 const ContentView = () => {
   const theme = useTheme();
@@ -26,14 +28,14 @@ const ContentView = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const metaResponse = await fetch(`http://localhost:8000/api/content/${contentId}`);
+        const metaResponse = await fetch(`${Url}/api/content/${contentId}`);
         if (!metaResponse.ok) throw new Error(`HTTP error! status: ${metaResponse.status}`);
         const data = await metaResponse.json();
         if (!data.file_path) throw new Error('File path missing in response');
         setContentData(data);
 
         if (data.file_path.toLowerCase().endsWith('.txt')) {
-          const fileResponse = await fetch(`http://localhost:8000/api/content/file/${contentId}`);
+          const fileResponse = await fetch(`${Url}/api/content/file/${contentId}`);
           const text = await fileResponse.text();
           setTextContent(text);
         }
@@ -59,7 +61,7 @@ const ContentView = () => {
       formData.append('student_id', 'STU001'); // Replace with dynamic ID if needed
       formData.append('content_id', contentId);
 
-      await fetch('http://127.0.0.1:8000/api/closeContentAccess', {
+      await fetch(`${Url}/api/closeContentAccess`, {
         method: 'POST',
         body: formData,
       });
@@ -72,7 +74,7 @@ const ContentView = () => {
 
   const handleMarkAsDone = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/content/${contentId}`, {
+      const response = await fetch(`${Url}/api/content/${contentId}`, {
         method: 'POST',
       });
 

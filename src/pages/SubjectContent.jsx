@@ -21,6 +21,8 @@ const SubjectContent = () => {
   const theme = useTheme();
   const { subjectId } = useParams();
   const { id: studentId } = useContext(StoreContext);
+  const Url = import.meta.env.VITE_BACKEND_URL;
+
   // const studentId = 'STU001'; // ✅ Global declaration
 
   const getIconForItem = (item) => {
@@ -50,7 +52,7 @@ const SubjectContent = () => {
         formData.append('student_id', studentId);
         formData.append('content_id', item.id);
 
-        await fetch('http://127.0.0.1:8000/api/startContentAccess', {
+        await fetch(`${Url}/api/startContentAccess`, {
           method: 'POST',
           body: formData,
         });

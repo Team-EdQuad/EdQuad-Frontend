@@ -13,6 +13,8 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { StoreContext } from '../context/StoreContext';
+const Url = import.meta.env.VITE_BACKEND_URL;
+
 
 const AddExamMarks = () => {
   const theme = useTheme();
@@ -40,7 +42,7 @@ const AddExamMarks = () => {
     const fetchSubjectsClasses = async () => {
       setIsLoadingSubjects(true);
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/subjectNclass/${teacher_id}`);
+        const response = await axios.get(`${Url}/api/subjectNclass/${teacher_id}`);
         setSubjectsClasses(response.data.subjects_classes); // [{ subject_id, subject_name, classes: [{ class_id, class_name }] }]
         setSubjects(response.data.subjects_classes); // Use directly since subject_id and subject_name are included
       } catch (err) {
@@ -82,7 +84,7 @@ const AddExamMarks = () => {
           const fetchStudents = async () => {
             try {
               const response = await axios.get(
-                `http://127.0.0.1:8000/api/studentlist/${selectedClass.class_id}/${selectedSubject.subject_id}`
+                `${Url}/api/studentlist/${selectedClass.class_id}/${selectedSubject.subject_id}`
               );
               setStudents(response.data.students); // [{ student_id, full_name }]
             } catch (err) {
@@ -139,7 +141,7 @@ const AddExamMarks = () => {
 
     axios
       .post(
-        'http://127.0.0.1:8000/api/update_exam_marks',
+        `${Url}/api/update_exam_marks`,
         formData,
         {
           headers: {

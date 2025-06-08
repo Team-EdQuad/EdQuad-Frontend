@@ -10,6 +10,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Radio, RadioGroup, FormLabel } from '@mui/material';
+const Url = import.meta.env.VITE_BACKEND_URL;
 
 
 const AssignmentCreate = () => {
@@ -50,7 +51,7 @@ const AssignmentCreate = () => {
 
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/assignmentcreate/${class_id}/${subject_id}/${teacher_id}`,
+        `${Url}/api/assignmentcreate/${class_id}/${subject_id}/${teacher_id}`,
         formData,
         {
           headers: {

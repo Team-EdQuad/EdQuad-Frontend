@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, useTheme } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+const Url = import.meta.env.VITE_BACKEND_URL;
+
 
 const AssignmentView = () => {
   const { assignmentId } = useParams();
@@ -13,7 +15,7 @@ const AssignmentView = () => {
   useEffect(() => {
     const fetchAssignment = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/assignment/${assignmentId}`);
+        const response = await fetch(`${Url}/api/assignment/${assignmentId}`);
         const data = await response.json();
         setAssignment(data);
       } catch (error) {
@@ -32,7 +34,7 @@ const AssignmentView = () => {
   
   const handleView = () => {
     const fileName = assignment.assignment_file_path.split(/[\\/]/).pop();
-    const fileUrl = `http://127.0.0.1:8000/api/assignment/file/${assignment.assignment_id}`;
+    const fileUrl = `${Url}/api/assignment/file/${assignment.assignment_id}`;
     navigate('/assignment-file-view', {
       state: {
         assignmentFileUrl: fileUrl,

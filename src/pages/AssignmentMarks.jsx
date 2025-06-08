@@ -13,6 +13,8 @@ import {
   Typography,
 } from '@mui/material';
 import { Assignment } from '@mui/icons-material';
+const Url = import.meta.env.VITE_BACKEND_URL;
+
 
 const AssignmentMarks = () => {
   const theme = useTheme();
@@ -22,7 +24,7 @@ const AssignmentMarks = () => {
   useEffect(() => {
     const fetchAssignmentMarks = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/assignmentmarks/${studentId}`);
+        const response = await axios.get(`${Url}/api/assignmentmarks/${studentId}`);
         setAssignments(response.data);
       } catch (error) {
         console.error('Error fetching assignment marks:', error);

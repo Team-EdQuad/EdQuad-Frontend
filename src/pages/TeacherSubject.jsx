@@ -5,6 +5,8 @@ import {
   FormControl, InputLabel, useTheme
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+const Url = import.meta.env.VITE_BACKEND_URL;
+
 
 const TeacherSubject = () => {
   const theme = useTheme();
@@ -19,7 +21,7 @@ const TeacherSubject = () => {
 
   // Fetch data from API
   useEffect(() => {
-    axios.get(`http://127.0.0.1:8000/api/subjectNclass/${teacher_id}`)
+    axios.get(`${Url}/api/subjectNclass/${teacher_id}`)
       .then((response) => {
         setSubjectsClasses(response.data.subjects_classes);
       })

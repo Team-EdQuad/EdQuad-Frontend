@@ -16,6 +16,8 @@ import {
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+const Url = import.meta.env.VITE_BACKEND_URL;
+
 
 const CheckAssignment = () => {
   const theme = useTheme();
@@ -27,7 +29,7 @@ const CheckAssignment = () => {
 
   useEffect(() => {
     axios
-      .get(`http://127.0.0.1:8000/api/submission_view/${teacher_id}`)
+      .get(`${Url}/api/submission_view/${teacher_id}`)
       .then(({ data }) => {
         setSubmissions(data);
       })
@@ -55,7 +57,7 @@ const CheckAssignment = () => {
 
     axios
       .post(
-        `http://127.0.0.1:8000/api/update_submission_marks/${teacher_id}`,
+        `${Url}/api/update_submission_marks/${teacher_id}`,
         formData,
         {
           headers: {
