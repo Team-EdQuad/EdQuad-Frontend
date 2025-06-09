@@ -111,7 +111,7 @@ const Login = () => {
     try {
       // 1. Login request
       // const response = await fetch("http://"+{user_managemnent}+"/api/user-management/login/", {
-      const response = await fetch(`http://${Url}/api/user-management/login/`, {
+      const response = await fetch(`${Url}/api/user-management/login/`, {
       method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
