@@ -12,11 +12,14 @@ import {
   CircularProgress,
 } from '@mui/material';
 import axios from 'axios';
+import { StoreContext } from '../context/StoreContext';
 
 const AddExamMarks = () => {
   const theme = useTheme();
-  const teacher_id = 'TCH001'; // Matches provided API response
 
+  
+  const { id:teacher_id } = useContext(StoreContext);
+  
   // State variables
   const [subjectsClasses, setSubjectsClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -40,7 +43,7 @@ const AddExamMarks = () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/subjectNclass/${teacher_id}`);
         setSubjectsClasses(response.data.subjects_classes); // [{ subject_id, subject_name, classes: [{ class_id, class_name }] }]
-        setSubjects(response.data.subjects_classes); // Use directly since subject_id and subject_name are included
+        setSubjects(response.data.subjects_classes); 
       } catch (err) {
         console.error('Error fetching subjects and classes:', err.response?.data || err.message);
         alert('Failed to load subjects');

@@ -19,10 +19,12 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { LineChart } from '@mui/x-charts/LineChart';
+import { StoreContext } from '../context/StoreContext';
+
 
 const BehavioralAnalysis = () => {
-  const theme = useTheme();
-  const teacher_id = "TCH001";
+  const theme = useTheme();  
+  const { id: teacher_id } = useContext(StoreContext);
   const API_BASE_URL = 'http://127.0.0.1:8000/api';
   
   // State declarations

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext} from 'react';
 import axios from 'axios';
 import {
   Table,
@@ -13,11 +13,17 @@ import {
   Typography,
 } from '@mui/material';
 import { Assignment } from '@mui/icons-material';
+import { StoreContext } from '../context/StoreContext';
+
 
 const AssignmentMarks = () => {
   const theme = useTheme();
   const [assignments, setAssignments] = useState([]);
-  const studentId = "STU001";
+
+
+  
+  const { id: studentId } = useContext(StoreContext);
+  //const studentId = "STU001";
 
   useEffect(() => {
     const fetchAssignmentMarks = async () => {
