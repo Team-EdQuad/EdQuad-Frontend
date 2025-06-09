@@ -53,60 +53,6 @@ const Login = () => {
     }));
   };
 
-  //Login fastApi
-  // const handleLogin = async () => {
-  //   try {
-  //     const response = await fetch("http://localhost:8000/api/user-management/login/", {
-  //      method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/x-www-form-urlencoded",
-  //       },
-  //       body: new URLSearchParams({
-  //         username: formData.username,
-  //         password: formData.password,
-  //       }),
-  //     });
-
-  //     const profileResponse = await fetch("http://localhost:8000/api/user-management/profile", {
-  //       headers: { Authorization: `Bearer ${data.access_token}` },
-  //     });
-  //     const profile = await profileResponse.json();
-
-  //     login({
-  //       token: data.access_token,
-  //       role: profile.role,
-  //       id: profile.user_id,
-  //       name: profile.full_name,
-  //       classId: profile.class_id, // for students
-  //     });
-
-
-  //     if (!response.ok) {
-  //       throw new Error("Invalid credentials");
-  //     }
-
-  //     const data = await response.json();
-  //     const decoded = parseJwt(data.access_token);
-  //     const userRole = decoded.role; // assuming your JWT includes `role` claim
-  //     const userId = decoded.sub;    // usually the user id
-  //     const userName = decoded.name || ""; // if available
-
-  //     if (["admin", "teacher", "student"].includes(userRole.toLowerCase())) {
-  //       login({
-  //         token: data.access_token,
-  //         role: userRole.charAt(0).toUpperCase() + userRole.slice(1),
-  //         id: userId,
-  //         name: userName,
-  //       });
-  //       navigate("/dashboard");
-  //     } else {
-  //       throw new Error("Unknown role");
-  //     }
-      
-  //   } catch (err) {
-  //     alert(err.message || "Login failed");
-  //   }
-  // };
   const handleLogin = async () => {
     try {
       // 1. Login request
@@ -233,7 +179,7 @@ const Login = () => {
             value={formData.password}
             onChange={handleChange}
             autoComplete="off"
-            inputProps={{
+            InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton

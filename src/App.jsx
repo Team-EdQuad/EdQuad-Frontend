@@ -42,6 +42,7 @@ import ContentView from "./pages/ContentView";
 import BehavioralAnalysis from "./pages/BehavioralAnalysis";
 import AssignmentFileView from "./pages/AssignmentFileView";
 import SubmissionView from "./pages/SubmissionView";
+import ReviewAutoGradedAssignments from "./pages/ReviewAutoGradedAssignments";
 
 import TeacherAnalysis from "./pages/Attendance-Module/Teacher-Analysis";
 import StudentAnalysis from "./pages/Attendance-Module/Student-Analysis";
@@ -106,6 +107,7 @@ function Layout() {
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="/behavioural-analysis" element={<BehavioralAnalysis />} />
       <Route path="/submission/view/:submissionId" element={<SubmissionView />} />  
+      <Route path="check-auto-graded" element={<ReviewAutoGradedAssignments />} />
       <Route path="*" element={<Navigate to="/uc" />} />
     </>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -17,48 +17,67 @@ const Url = import.meta.env.VITE_BACKEND_URL;
 const ContentView = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const { contentId } = useParams();
-  const [contentData, setContentData] = useState(null);
-  const [textContent, setTextContent] = useState('');
-  const [loading, setLoading] = useState(true);
+  
+  // ✅ Get content data from navigation state
+  const passedContentData = location.state?.contentData;
+  
+  const [contentData, setContentData] = useState(passedContentData || null);
+  const [loading, setLoading] = useState(!passedContentData); // Only load if no data passed
   const [error, setError] = useState(null);
   const [done, setDone] = useState(false);
 
-
   useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const metaResponse = await fetch(`${Url}/api/content/${contentId}`);
-        if (!metaResponse.ok) throw new Error(`HTTP error! status: ${metaResponse.status}`);
-        const data = await metaResponse.json();
-        if (!data.file_path) throw new Error('File path missing in response');
-        setContentData(data);
-
-        if (data.file_path.toLowerCase().endsWith('.txt')) {
-          const fileResponse = await fetch(`${Url}/api/content/file/${contentId}`);
-          const text = await fileResponse.text();
-          setTextContent(text);
+    // ✅ Only fetch if no data was passed through navigation
+    if (!passedContentData) {
+      const fetchContent = async () => {
+        try {
+          const metaResponse = await fetch(`${Url}/api/content/${contentId}`);
+          if (!metaResponse.ok) throw new Error(`HTTP error! status: ${metaResponse.status}`);
+          
+          const data = await metaResponse.json();
+          console.log('Fetched content data:', data);
+          
+          setContentData(data);
+        } catch (err) {
+          console.error('Error fetching content:', err);
+          setError(err.message);
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    fetchContent();
-  }, [contentId]);
+      fetchContent();
+    } else {
+      console.log('Using passed content data:', passedContentData);
+    }
+  }, [contentId, passedContentData]);
 
-  const fileUrl = contentData?.file_path
-    ? `http://localhost:8000/api/content/file/${contentId}`
-    : null;
+  // ✅ Handle both Google Drive and local files
+  const getFileUrl = () => {
+    if (contentData?.content_file_id) {
+      // Google Drive file
+      return `https://drive.google.com/file/d/${contentData.content_file_id}/preview`;
+    } else if (contentData?.file_path) {
+      // Local file (fallback)
+      return `${Url}/api/content/file/${contentId}`;
+    }
+    return null;
+  };
 
-  const fileType = contentData?.file_path?.split('.').pop()?.toLowerCase();
+  const fileUrl = getFileUrl();
+  
+  const fileType = contentData?.file_type || 
+                   contentData?.content_name?.split('.').pop()?.toLowerCase() || 
+                   'pdf';
+
+  const isGoogleDriveFile = contentData?.content_file_id ? true : false;
 
   const handleClose = async () => {
     try {
       const formData = new FormData();
-      formData.append('student_id', 'STU001'); // Replace with dynamic ID if needed
+      formData.append('student_id', 'STU001');
       formData.append('content_id', contentId);
 
       await fetch(`${Url}/api/closeContentAccess`, {
@@ -69,12 +88,13 @@ const ContentView = () => {
       navigate(-1);
     } catch (error) {
       console.error('Error closing content access:', error);
+      navigate(-1);
     }
   };
 
   const handleMarkAsDone = async () => {
     try {
-      const response = await fetch(`${Url}/api/content/${contentId}`, {
+      const response = await fetch(`${Url}/api/content/${contentId}/mark-done`, {
         method: 'POST',
       });
 
@@ -83,7 +103,6 @@ const ContentView = () => {
       }
 
       setDone(true);
-      
     } catch (error) {
       console.error('Failed to mark as done:', error);
       alert('Error: Could not mark as done');
@@ -92,7 +111,7 @@ const ContentView = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" mt={4}>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
         <CircularProgress />
         <Typography variant="body1" ml={2}>Loading content...</Typography>
       </Box>
@@ -114,6 +133,9 @@ const ContentView = () => {
     return (
       <Box textAlign="center" mt={4}>
         <Typography variant="h6">No content data available</Typography>
+        <Button onClick={() => navigate(-1)} variant="contained" sx={{ mt: 2 }}>
+          Go Back
+        </Button>
       </Box>
     );
   }
@@ -138,11 +160,30 @@ const ContentView = () => {
           boxShadow: 1,
         }}
       >
-        <Typography variant="h6">
-          {contentData.content_name || 'Untitled Content'}
-        </Typography>
+        <Box>
+          <Typography variant="h6">
+            {contentData.content_name || 'Untitled Content'}
+          </Typography>
+          {contentData.description && (
+            <Typography variant="body2" color="text.secondary">
+              {contentData.description}
+            </Typography>
+          )}
+        </Box>
 
         <Box sx={{ display: 'flex', gap: 2 }}>
+          {isGoogleDriveFile && (
+            <Button
+              variant="outlined"
+              onClick={() => window.open(
+                `https://drive.google.com/file/d/${contentData.content_file_id}/view`,
+                '_blank'
+              )}
+            >
+              Open in Drive
+            </Button>
+          )}
+
           <Button
             variant="contained"
             onClick={handleMarkAsDone}
@@ -158,7 +199,6 @@ const ContentView = () => {
           >
             {done ? 'Marked as Done' : 'Mark as Done'}
           </Button>
-
 
           <IconButton onClick={handleClose}>
             <CloseIcon />
@@ -177,64 +217,37 @@ const ContentView = () => {
         }}
       >
         {!fileUrl ? (
-          <Typography variant="body1">No file available for this content</Typography>
-        ) : fileType === 'pdf' ? (
-          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-            <div
-              style={{
-                width: '80%',
-                height: '90vh',
-                border: `1px solid ${theme.palette.divider}`,
-                borderRadius: '4px',
-              }}
-            >
-              <Viewer fileUrl={fileUrl} />
-            </div>
-          </Worker>
-        ) : fileType === 'txt' ? (
-          <Box
-            sx={{
-              width: '80%',
-              p: 3,
-              bgcolor: theme.palette.background.paper,
-              borderRadius: 2,
-              whiteSpace: 'pre-wrap',
-              border: `1px solid ${theme.palette.divider}`,
-            }}
-          >
-            <Typography variant="body1">
-              {textContent || 'No text content available'}
+          <Box textAlign="center">
+            <Typography variant="body1" gutterBottom>
+              No file available for this content
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Content ID: {contentData.content_id}
             </Typography>
           </Box>
-        ) : fileType === 'mp4' ? (
-          <video
-            src={fileUrl}
-            controls
-            style={{
-              width: '80%',
-              borderRadius: '8px',
-              border: `1px solid ${theme.palette.divider}`,
-            }}
-          />
-        ) : fileType === 'mp3' ? (
+        ) : isGoogleDriveFile ? (
           <Box
             sx={{
-              p: 2,
-              bgcolor: theme.palette.background.paper,
-              borderRadius: 2,
+              width: '90%',
+              height: '80vh',
               border: `1px solid ${theme.palette.divider}`,
-              width: '80%',
+              borderRadius: '4px',
+              overflow: 'hidden',
             }}
           >
-            <audio controls style={{ width: '100%' }}>
-              <source src={fileUrl} type="audio/mpeg" />
-              Your browser does not support the audio element.
-            </audio>
+            <iframe
+              src={fileUrl}
+              width="100%"
+              height="100%"
+              frameBorder="0"
+              title={contentData.content_name || 'Content'}
+              style={{ borderRadius: '4px' }}
+            />
           </Box>
         ) : (
           <Box textAlign="center">
             <Typography variant="body1">
-              Unsupported file type: .{fileType || 'unknown'}
+              Local file support not implemented yet
             </Typography>
             <Button
               variant="contained"

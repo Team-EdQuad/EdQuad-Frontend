@@ -4,7 +4,6 @@ import {
   Box, Typography, useTheme, MenuItem, Select, FormControl, InputLabel,
 } from '@mui/material';
 import axios from 'axios';
-const Url = import.meta.env.VITE_BACKEND_URL;
 
 
 const TermTestMarks = () => {
