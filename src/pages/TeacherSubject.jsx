@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import {
   Box, Typography, Button, MenuItem, Select,
@@ -9,7 +9,8 @@ import { useNavigate } from 'react-router-dom';
 const TeacherSubject = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const teacher_id = "TCH001";
+
+  //const teacher_id = "TCH001";
 
   // State
   const [subject, setSubject] = useState('');

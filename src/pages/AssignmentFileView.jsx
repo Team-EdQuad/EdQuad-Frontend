@@ -25,7 +25,7 @@ const AssignmentFileView = () => {
 
   const fileType = assignmentFileName?.split('.').pop()?.toLowerCase() || 'pdf';
 
-  // ✅ Check if it's a Google Drive file
+  //  Check if it's a Google Drive file
   const isGoogleDriveFile = assignmentFileUrl?.includes('drive.google.com') || fileId;
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const AssignmentFileView = () => {
           throw new Error('No file URL or file ID provided');
         }
 
-        // ✅ Handle Google Drive files differently
+        //  Handle Google Drive files differently
         if (isGoogleDriveFile) {
           // For Google Drive, we don't fetch content directly due to CORS
           // We'll handle it in the render section
@@ -43,7 +43,7 @@ const AssignmentFileView = () => {
           return;
         }
 
-        // ✅ Handle local files
+        //  Handle local files
         if (fileType === 'txt') {
           const response = await fetch(assignmentFileUrl);
           if (!response.ok) {

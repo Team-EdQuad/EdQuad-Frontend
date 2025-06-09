@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import {
   Box,
@@ -290,26 +290,6 @@ const BehavioralAnalysis = () => {
     }
   };
 
-  // Test chart with static data
-  const handleTestChart = () => {
-    const testData = {
-      xAxisData: [1, 2, 3, 4, 5, 6],
-      series: [
-        {
-          data: [100, 150, 200, 175, 225, null],
-          label: 'Test Historical Data',
-          color: theme.palette.primary.main,
-        },
-        {
-          data: [null, null, null, null, null, 250],
-          label: 'Test Predicted Data',
-          color: '#d32f2f',
-          showMark: true,
-        },
-      ],
-    };
-    setChartData(testData);
-  };
 
   // Initial loading state
   if (initialLoading) {
@@ -438,9 +418,7 @@ const BehavioralAnalysis = () => {
             {loading ? 'Analyzing...' : 'Analyze Behavior'}
           </Button>
 
-          <Button variant="outlined" onClick={handleTestChart} sx={{ px: 3, py: 1.5 }}>
-            Test Chart
-          </Button>
+         
         </Box>
       </Card>
 

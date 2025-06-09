@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import {
   Box,
   Typography,
@@ -16,11 +16,15 @@ import {
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { StoreContext } from '../context/StoreContext';
 
 const CheckAssignment = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const teacher_id = 'TCH001';
+
+  
+  const { id:teacher_id } = useContext(StoreContext);
+  //const teacher_id = 'TCH001';
 
   const [submissions, setSubmissions] = useState([]);
   const [marksInput, setMarksInput] = useState({});
