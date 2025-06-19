@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import {
   Box,
@@ -19,12 +19,16 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { LineChart } from '@mui/x-charts/LineChart';
+import { StoreContext } from '../context/StoreContext';
+
 const Url = import.meta.env.VITE_BACKEND_URL;
 
 
 const BehavioralAnalysis = () => {
   const theme = useTheme();
-  const teacher_id = "TCH001";
+  // const teacher_id = "TCH001";
+    const { id: teacher_id } = useContext(StoreContext);
+
   // const API_BASE_URL = 'http://127.0.0.1:8000/api';
   const API_BASE_URL = `${Url}/api`;
   
@@ -291,26 +295,6 @@ const BehavioralAnalysis = () => {
     }
   };
 
-  // Test chart with static data
-  const handleTestChart = () => {
-    const testData = {
-      xAxisData: [1, 2, 3, 4, 5, 6],
-      series: [
-        {
-          data: [100, 150, 200, 175, 225, null],
-          label: 'Test Historical Data',
-          color: theme.palette.primary.main,
-        },
-        {
-          data: [null, null, null, null, null, 250],
-          label: 'Test Predicted Data',
-          color: '#d32f2f',
-          showMark: true,
-        },
-      ],
-    };
-    setChartData(testData);
-  };
 
   // Initial loading state
   if (initialLoading) {
@@ -439,9 +423,7 @@ const BehavioralAnalysis = () => {
             {loading ? 'Analyzing...' : 'Analyze Behavior'}
           </Button>
 
-          <Button variant="outlined" onClick={handleTestChart} sx={{ px: 3, py: 1.5 }}>
-            Test Chart
-          </Button>
+         
         </Box>
       </Card>
 
