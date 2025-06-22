@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import {
   Box, Typography, Button, MenuItem, Select,
   FormControl, InputLabel, useTheme
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { StoreContext } from '../context/StoreContext';
 const Url = import.meta.env.VITE_BACKEND_URL;
 
 
 const TeacherSubject = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const teacher_id = "TCH001";
+
+  //const teacher_id = "TCH001";
 
   // State
   const [subject, setSubject] = useState('');
@@ -19,6 +21,7 @@ const TeacherSubject = () => {
   const [subjectsClasses, setSubjectsClasses] = useState([]);
   const [filteredClasses, setFilteredClasses] = useState([]);
 
+  const { id: teacher_id } = useContext(StoreContext);
   // Fetch data from API
   useEffect(() => {
     axios.get(`${Url}/api/subjectNclass/${teacher_id}`)

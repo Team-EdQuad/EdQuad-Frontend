@@ -18,7 +18,7 @@ import Footer from "../components/Footer";
 import { tokens } from "../theme";
 import bgImage from "../assets/login-bg.png";
 import { useNavigate } from "react-router-dom";
-const Url = import.meta.env.VITE_BACKEND_URL;
+const Url = import.meta.env.VITE_BACKEND_URL
 
 function parseJwt(token) {
   try {
@@ -57,6 +57,7 @@ const Login = () => {
     try {
       // 1. Login request
       // const response = await fetch("http://"+{user_managemnent}+"/api/user-management/login/", {
+
       const response = await fetch(`${Url}/api/user-management/login/`, {
       method: "POST",
         headers: {

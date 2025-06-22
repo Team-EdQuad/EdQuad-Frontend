@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import {
   Box,
   Typography,
@@ -19,8 +19,9 @@ const Url = import.meta.env.VITE_BACKEND_URL;
 const AddExamMarks = () => {
   const theme = useTheme();
   // const teacher_id = 'TCH001'; // Matches provided API response
-  const { id: teacher_id } = useContext(StoreContext);
-
+  
+  const { id:teacher_id } = useContext(StoreContext);
+  
   // State variables
   const [subjectsClasses, setSubjectsClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -44,7 +45,7 @@ const AddExamMarks = () => {
       try {
         const response = await axios.get(`${Url}/api/subjectNclass/${teacher_id}`);
         setSubjectsClasses(response.data.subjects_classes); // [{ subject_id, subject_name, classes: [{ class_id, class_name }] }]
-        setSubjects(response.data.subjects_classes); // Use directly since subject_id and subject_name are included
+        setSubjects(response.data.subjects_classes); 
       } catch (err) {
         console.error('Error fetching subjects and classes:', err.response?.data || err.message);
         alert('Failed to load subjects');
