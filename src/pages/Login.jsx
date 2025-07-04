@@ -17,6 +17,7 @@ import { StoreContext } from "../context/StoreContext";
 import Footer from "../components/Footer";
 import { tokens } from "../theme";
 import bgImage from "../assets/login-bg.png";
+import loginImage from "../assets/login.gif"; 
 import { useNavigate } from "react-router-dom";
 const Url = import.meta.env.VITE_BACKEND_URL
 

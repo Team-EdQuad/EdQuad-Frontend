@@ -8,6 +8,7 @@ import basketballImg from "../assets/basketball.png";
 import badmintonImg from "../assets/badminton.png";
 import swimmingImg from "../assets/swimming.png";
 import tennisImg from "../assets/tennis.png";
+import sportwallpaper from "../assets/sportswall.jpg"
 
 const sportsData = [
   {
@@ -68,8 +69,15 @@ const sportsData = [
 
 const Sports = () => {
   return (
-    <Box p={4} sx={{ backgroundColor: "#e6f0ff", minHeight: "100vh" }}>
-      <Typography variant="h2" fontWeight="bold" mb={3} align="center">
+    <Box p={4} sx={{
+    minHeight: "100vh",
+    // backgroundImage: `url(${sportwallpaper})`, 
+    // backgroundSize: "cover",
+    // backgroundPosition: "center",
+    // backgroundRepeat: "no-repeat",
+    backgroundColor: "#e6f0ff", 
+  }}>
+      <Typography variant="h2" fontWeight="bold" mb={3} align="center" >
         Sports Activities
       </Typography>
 
