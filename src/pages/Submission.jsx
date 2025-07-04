@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, useTheme, List, ListItem, ListItemText, Divider } from '@mui/material';
+import {
+  Box, Typography, Button, useTheme, List, ListItem,
+  ListItemText, Divider, LinearProgress, Snackbar, Alert, IconButton
+} from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
+import axios from 'axios';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const Submission = () => {
-  const theme = useTheme(); 
-  const { assignment_id } = useParams(); // Get the assignment ID from the URL
+  const theme = useTheme();
+  const { assignment_id } = useParams();
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const student_id = "STU001";
+
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     if (!assignment_id) {
@@ -18,65 +27,71 @@ const Submission = () => {
   }, [assignment_id, navigate]);
 
   const onDrop = (acceptedFiles) => {
-    setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
+    if (acceptedFiles.length > 0) {
+      setFiles([acceptedFiles[0]]); // Allow only 1 file
+    }
   };
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    maxFiles: 1,
+    multiple: false,
+  });
 
   const handleSave = async () => {
-    if (files.length === 0) return alert('Please select a file to upload');
-    if (!assignment_id) return alert('Invalid assignment');
+    if (files.length === 0) {
+      setSnackbar({ open: true, message: 'Please select a file to upload', severity: 'warning' });
+      return;
+    }
 
     const formData = new FormData();
     formData.append('file', files[0]);
- 
+
     try {
-      const response = await fetch(
+      setUploading(true);
+      setProgress(0);
+
+      const response = await axios.post(
         `http://localhost:8000/api/submission/${student_id}/${assignment_id}`,
+        formData,
         {
-          method: 'POST',
-          body: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: (event) => {
+            if (event.total) {
+              const percent = Math.round((event.loaded * 100) / event.total);
+              setProgress(percent);
+            }
+          },
         }
       );
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || 'Submission failed');
-      }
-      alert('Submission successful!');
-      navigate(-1);
+      setSnackbar({ open: true, message: 'Submission successful!', severity: 'success' });
+      setTimeout(() => navigate(-1), 1500);
     } catch (error) {
       console.error('Submission error:', error);
-      alert(`Submission failed: ${error.message}`);
+      const msg = error.response?.data?.detail || error.message || 'Upload failed';
+      setSnackbar({ open: true, message: `Submission failed: ${msg}`, severity: 'error' });
+    } finally {
+      setUploading(false);
     }
   };
-     
+
   const handleCancel = () => {
-    navigate(-1); // Navigate back to the previous page
+    navigate(-1);
+  };
+
+  const handleRemoveFile = () => {
+    setFiles([]);
   };
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      bgcolor={theme.palette.background.default}
-      minHeight="100vh"
-      p={3}
-    >
-      <Typography
-        variant="h5"
-        fontWeight="bold"
-        mb={3}
-        sx={{
-          color: theme.palette.text.primary,
-        }}
-      >
-        File Submissions
+    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" bgcolor={theme.palette.background.default} minHeight="100vh" p={3}>
+      <Typography variant="h5" fontWeight="bold" mb={3} color={theme.palette.text.primary}>
+        File Submission
       </Typography>
 
-      {/* Drag-and-Drop Area */}
       <Box
         {...getRootProps()}
         sx={{
@@ -94,68 +109,53 @@ const Submission = () => {
         }}
       >
         <input {...getInputProps()} />
-        <Typography
-          variant="body1"
-          sx={{
-            color: theme.palette.text.secondary,
-          }}
-        >
-          Drop file or select file
+        <Typography variant="body1" color={theme.palette.text.secondary}>
+          Drag and drop or click to select a file (only 1 allowed)
         </Typography>
       </Box>
 
-      {/* File List */}
-      <Box
-        width="100%"
-        maxWidth="600px"
-        bgcolor={theme.palette.background.paper}
-        borderRadius="8px"
-        boxShadow={1}
-        p={2}
-        mb={3}
-      >
-        <Typography
-          variant="h6"
-          fontWeight="bold"
-          mb={2}
-          sx={{
-            color: theme.palette.text.primary,
-          }}
-        >
-          Uploaded Files
-        </Typography>
-        <List>
-          {files.map((file, index) => (
-            <React.Fragment key={index}>
-              <ListItem>
-                <ListItemText
-                  primary={file.name}
-                  secondary={`${(file.size / 1024).toFixed(2)} KB`}
-                  sx={{
-                    color: theme.palette.text.primary,
-                  }}
-                />
-              </ListItem>
-              {index < files.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
-        </List>
-      </Box>
+      {files.length > 0 && (
+        <Box width="100%" maxWidth="600px" bgcolor={theme.palette.background.paper} borderRadius="8px" boxShadow={1} p={2} mb={3}>
+          <Typography variant="h6" fontWeight="bold" mb={2} color={theme.palette.text.primary}>
+            Selected File
+          </Typography>
+          <List>
+            <ListItem
+              secondaryAction={
+                <IconButton edge="end" aria-label="delete" onClick={handleRemoveFile}>
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemText
+                primary={files[0].name}
+                secondary={`${(files[0].size / 1024).toFixed(2)} KB`}
+                sx={{ color: theme.palette.text.primary }}
+              />
+            </ListItem>
+          </List>
+        </Box>
+      )}
 
-      {/* Action Buttons */}
+      {uploading && (
+        <Box width="100%" maxWidth="600px" mb={2}>
+          <LinearProgress variant="determinate" value={progress} />
+          <Typography variant="caption">{progress}%</Typography>
+        </Box>
+      )}
+
       <Box display="flex" justifyContent="center" gap={2}>
         <Button
           variant="contained"
           onClick={handleSave}
+          disabled={uploading}
           sx={{
             backgroundColor: theme.palette.primary.main,
             color: theme.palette.primary.contrastText,
-            '&:hover': {
-              backgroundColor: theme.palette.primary.dark,
-            },
+            '&:hover': { backgroundColor: theme.palette.primary.dark },
           }}
         >
-          Save Changes
+          {uploading ? 'Uploading...' : 'Submit'}
         </Button>
         <Button
           variant="outlined"
@@ -163,14 +163,26 @@ const Submission = () => {
           sx={{
             color: theme.palette.text.primary,
             borderColor: theme.palette.divider,
-            '&:hover': {
-              borderColor: theme.palette.text.primary,
-            },
+            '&:hover': { borderColor: theme.palette.text.primary },
           }}
         >
           Cancel
         </Button>
       </Box>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={5000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
