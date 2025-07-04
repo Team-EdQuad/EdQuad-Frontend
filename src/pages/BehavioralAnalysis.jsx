@@ -232,6 +232,37 @@ const BehavioralAnalysis = () => {
     }
   };
 
+  const handleTrainModel = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      // Get selected subject and class IDs
+      const selectedSubjectObj = subjectsGrades.find((item) => item.subject_name === subject);
+      const selectedGradeObj = selectedSubjectObj?.classes.find((cls) => cls.class_name === grade);
+      const subject_id = selectedSubjectObj?.subject_id;
+      const class_id = selectedGradeObj?.class_id;
+
+      if (!subject_id || !class_id) {
+        setError('Please select a subject and grade before training.');
+        setLoading(false);
+        return;
+      }
+
+      // 1. Update collection
+      await axios.post(`${API_BASE_URL}/update_collection/${subject_id}/${class_id}`);
+
+      // 2. Train model
+      const trainRes = await axios.post(`${API_BASE_URL}/train/${subject_id}/${class_id}`);
+
+      alert(trainRes.data.message || 'Model training completed!');
+      setError('');
+    } catch (err) {
+      setError('Failed to update data or train model.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (initialLoading) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /><Typography sx={{ml: 2}}>Loading dashboard...</Typography></Box>;
   }
@@ -277,7 +308,15 @@ const BehavioralAnalysis = () => {
                     </Select>
                 </FormControl>
           </Box>
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleTrainModel}
+              disabled={loading}
+            >
+              Train Model
+            </Button>
             <Button
               variant="contained"
               onClick={handleSubmit}

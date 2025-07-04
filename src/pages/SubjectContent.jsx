@@ -25,7 +25,6 @@ const SubjectContent = () => {
   const { id: studentId } = useContext(StoreContext);
   const Url = import.meta.env.VITE_BACKEND_URL;
 
-  // const studentId = 'STU001'; // ✅ Global declaration
 
   const getIconForItem = (item) => {
     if (item.type === 'assignment') return '📝';
@@ -54,12 +53,22 @@ const handleClick = async (item) => {
       formData.append('student_id', studentId);
       formData.append('content_id', item.id);
 
-        await fetch(`${Url}/api/startContentAccess`, {
-          method: 'POST',
-          body: formData,
-        });
+      // Notify backend of content access
+      await fetch(`${Url}/api/startContentAccess`, {
+        method: 'POST',
+        body: formData,
+      });
 
-      // ✅ Pass the content data through navigation state
+      // Mark content as complete
+      await fetch(`${Url}/api/content/${item.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ student_id: studentId }),
+      });
+
+      // Pass the content data through navigation state
       navigate(`/content-view/${item.id}`, {
         state: {
           contentData: {
@@ -68,16 +77,15 @@ const handleClick = async (item) => {
             content_file_id: item.fileId,
             description: item.description,
             Date: item.date,
-            file_type: item.fileId ? 'pdf' : 'unknown' // Default to PDF for Google Drive
+            file_type: item.fileId ? 'pdf' : 'unknown', // Default to PDF for Google Drive
           }
         }
       });
     } catch (err) {
-      console.error('Failed to notify backend of content access', err);
+      console.error('Failed to notify backend of content access or mark as complete', err);
     }
   }
 };
-
 
 
 
