@@ -14,22 +14,25 @@ const StoreContextProvider = (props) => {
   const [id, setId] = useState(() => localStorage.getItem("id") || null);
   const [name, setName] = useState(() => localStorage.getItem("name") || null);
   const [classId, setClassId] = useState(() => localStorage.getItem("classId") || null);
+  const [email, setEmail] = useState(() => localStorage.getItem("email") || null);
 
   const [selected, setSelected] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const toggleDrawer = () => setDrawerOpen((open) => !open);
 
   // Login: set state and localStorage
-    const login = ({ token, role, id, name, classId }) => {
+    const login = ({ token, role, id, name, classId, email }) => {
     setToken(token);
     setRole(role);
     setId(id);
     setName(name);
     setClassId(classId);
+    setEmail(email);
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
     localStorage.setItem("id", id);
     localStorage.setItem("name", name);
+    localStorage.setItem("email", email);
     if (classId) {
         localStorage.setItem("classId", classId);
     } else {
@@ -49,14 +52,10 @@ const StoreContextProvider = (props) => {
 //   localStorage.clear();
 // };
 
-console.log("Logging out:", { id, role, token });
+console.log("Logging out:", { id, role, token, name, email });
 
 
-// StoreContext.jsx
 const logout = async () => {
-  console.log("Executing logout function..."); // Keep this for clarity
-  console.trace(); // <--- THIS IS THE ABSOLUTELY CRUCIAL LINE FOR DEBUGGING THIS
-
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const id = localStorage.getItem("id");
@@ -75,7 +74,7 @@ const logout = async () => {
     });
 
     const data = await res.json();
-    console.log("Logout API response:", data);
+    console.log("Logout response:", data);
   } catch (e) {
     console.error("Logout API error", e);
   }
@@ -105,6 +104,8 @@ const logout = async () => {
       setId,
       name,
       setName,
+      email,
+      setEmail,
       selected,
       setSelected,
       token,

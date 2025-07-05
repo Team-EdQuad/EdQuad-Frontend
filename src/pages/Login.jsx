@@ -95,6 +95,7 @@ const Login = () => {
         id: profile.user_id|| profile.teacher_id || profile.student_id || profile.admin_id ,
         name: profile.full_name || profile.name || "",
         classId: profile.class_id || null, // add this to StoreContext
+        email: profile.email, 
       };
 
       console.log("Login data:", loginData);

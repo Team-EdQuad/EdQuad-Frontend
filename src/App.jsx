@@ -50,6 +50,7 @@ import TeacherAttendanceEntry from "./pages/Attendance-Module/Teacher-Attendance
 import StudentDocument from "./pages/Attendance-Module/Student-Document";
 import TeacherDocument from "./pages/Attendance-Module/Teacher-Document";
 import TeacherCalendar from "./pages/TeacherCalendar";
+import AdminAnomalyDashboard from "./pages/AdminAnomalyDashboard";
 
 function Layout() {
   const [theme, colorMode] = useMode();
@@ -127,7 +128,8 @@ function Layout() {
       <Route path="/sports" element={<Sports />} />
       <Route path="/academic" element={<TeacherSubject />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
-      <Route path="/uc" element={<UnderConstruction />} />
+      <Route path="/accesstracking" element={<AdminAnomalyDashboard/>}/>
+      {/* <Route path="/uc" element={<UnderConstruction />} /> */}
       <Route path="*" element={<Navigate to="/uc" />} />
     </>
   );
