@@ -23,7 +23,7 @@ const TeacherAttendanceEntry = () => {
     const isLargePaper = panelSize.width >= 840;
 
     const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-    const [classId, setClassId] = useState('CLS013');
+    const [classId, setClassId] = useState('CLS001');
     const [subjectType, setsubjectType] = useState('academic');
     const [sportsId, setSportsId] = useState('');
     const [clubsId, setClubsId] = useState('');
@@ -82,12 +82,29 @@ const TeacherAttendanceEntry = () => {
         setClubsId(e.target.value);
     };
 
+    // const classIdOptions = [
+    //     { label: 'CLS001', value: 'CLS001' },
+    //     { label: 'CLS002', value: 'CLS002' },
+    //     { label: 'CLS003', value: 'CLS003' },
+    //     { label: 'CLS013', value: 'CLS013' },
+    // ];
+
     const classIdOptions = [
-        { label: 'CLS001', value: 'CLS001' },
-        { label: 'CLS002', value: 'CLS002' },
-        { label: 'CLS003', value: 'CLS003' },
-        { label: 'CLS013', value: 'CLS013' },
+        { label: 'Grade 6A', value: 'CLS001' },
+        { label: 'Grade 6B', value: 'CLS002' },
+        { label: 'Grade 7A', value: 'CLS003' },
+        { label: 'Grade 7B', value: 'CLS004' },
+        { label: 'Grade 8A', value: 'CLS005' },
+        { label: 'Grade 8B', value: 'CLS006' },
+        { label: 'Grade 9A', value: 'CLS007' },
+        { label: 'Grade 9B', value: 'CLS008' },
+        { label: 'Grade 10A', value: 'CLS009' },
+        { label: 'Grade 10B', value: 'CLS010' },
+        { label: 'Grade 11A', value: 'CLS011' },
+        { label: 'Grade 11B', value: 'CLS012' }
+
     ];
+
     const subjectTypeOptions = [
         { label: 'Academic', value: 'academic' },
         { label: 'Sports', value: 'sport' },

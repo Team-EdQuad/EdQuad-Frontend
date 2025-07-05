@@ -9,8 +9,8 @@ const StoreContextProvider = (props) => {
     const isTablet = useMediaQuery("(max-width:900px)");
 
     // const [id, setId] = useState('STU031');
-    const [studentId, setStudentId] = useState('STU031');
-    const [classId, setClassId] = useState('CLS013');
+    const [studentId, setStudentId] = useState('STU001');
+    const [classId, setClassId] = useState('CLS001');
     const [name, setName] = useState('W.K.T.P.Kularathna');
 
     const [selected, setSelected] = useState("");

@@ -18,6 +18,8 @@ const StudentAnalysis = () => {
     const { studentId } = useContext(StoreContext);
     const [panelRef, panelSize] = useElementSize();
 
+    console.log(studentId);
+
     const isExtraSmallPaper = panelSize.width < 430;
     const isSmallPaper = panelSize.width < 650;
     const isMediumPaper = panelSize.width < 840;

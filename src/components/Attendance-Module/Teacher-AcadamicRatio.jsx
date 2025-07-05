@@ -19,7 +19,7 @@ const AcadamicRatio = ({classId}) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const [acadamicDataPeriod, setAcadamicDataPeriod] = useState('Monthly');
+    const [acadamicDataPeriod, setAcadamicDataPeriod] = useState('Yearly');
 
     const handleacadamicDataPeriodChange = (e) => {
         setAcadamicDataPeriod(e.target.value);
