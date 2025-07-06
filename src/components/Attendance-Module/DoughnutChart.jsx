@@ -1,38 +1,14 @@
-import React, { useState } from "react";
-import { Card, Typography, Select, MenuItem } from "@mui/material";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import CustomDropdown from './CustomDropdown';
+// import React, { useState } from "react";
+// import { Card, Typography, Select, MenuItem } from "@mui/material";
+// import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+// import CustomDropdown from './CustomDropdown';
 
-// const DoughnutChart = () => {
-
-//     const [period, setPeriod] = useState('Yearly');
-
-//     const handlePeriodChange = (e) => {
-//         setPeriod(e.target.value);
-//     };
-
-//     const periodOptions = [
-//         { label: 'Yearly', value: 'Yearly' },
-//         { label: 'Monthly', value: 'Monthly' },
-//         { label: 'Daily', value: 'Daily' },
-//     ];
-
-//     const data = [
-//         { name: "Present", value: 60, color: "#9C27B0" }, // Purple
-//         { name: "Absent", value: 40, color: "#F44336" },   // Red
-//     ];
+// const DoughnutChart = ({ data }) => { // Receive data as a prop
 
 //     return (
-//         <Card sx={{ width: 200, height: 210, p: 2, borderRadius: '10px', textAlign: "center", padding: 0, boxShadow: 'none'}}>
-//             <div style={{ marginBottom: '20px' }}>
-//                 <CustomDropdown
-//                     value={period}
-//                     onChange={handlePeriodChange}
-//                     menuItems={periodOptions}
-//                 />
-//             </div>
+//         <Card sx={{ width: 200, height: 150, p: 0, borderRadius: '10px', textAlign: "center", padding: 0, boxShadow: 'none' }}>
 
-//             <ResponsiveContainer width="100%" height="70%">
+//             <ResponsiveContainer width="100%" height="100%">
 //                 <PieChart>
 //                     <Pie
 //                         data={data}
@@ -40,8 +16,8 @@ import CustomDropdown from './CustomDropdown';
 //                         nameKey="name"
 //                         cx="50%"
 //                         cy="50%"
-//                         innerRadius={35}   // Make the hole smaller
-//                         outerRadius={70}   // Keep the outer edge
+//                         innerRadius={35}
+//                         outerRadius={70}
 //                         paddingAngle={0}
 //                     >
 //                         {data.map((entry, index) => (
@@ -51,41 +27,38 @@ import CustomDropdown from './CustomDropdown';
 //                 </PieChart>
 //             </ResponsiveContainer>
 
-//             {/* Legends inside the pie */}
-//             <div style={{ position: "relative", marginTop: "-100px", fontSize: "12px", height: "250px" }}>
-//                 {data.map((entry, index) => (
-//                     <div
-//                         key={index}
-//                         style={{
-//                             position: "absolute",
-//                             top: index === 0 ? "-10%" : "30%",     // move up and down
-//                             left: index === 0 ? "10%" : "90%",    // move left and right
-//                             transform: "translate(-50%, -50%)",   // center at that point
-//                             textAlign: "center",
-//                             color: entry.color,
-//                         }}
-//                     >
-//                         {entry.name}
-//                         <br />
-//                         {entry.value}%
-//                     </div>
-//                 ))}
-//             </div>
-
 //         </Card>
 //     );
 // };
 
+// export default DoughnutChart;
 
-const DoughnutChart = ({ data }) => { // Receive data as a prop
+
+
+
+
+
+import React from 'react';
+import { Card } from '@mui/material';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+
+const DoughnutChart = ({ data }) => {
+    const colorMap = {
+        Present: '#49C3FB',
+        Absent: '#BB109D'
+    };
+
+    const processedData = data.map(entry => ({
+        ...entry,
+        color: colorMap[entry.name] || '#ccc' // fallback color
+    }));
 
     return (
-        <Card sx={{ width: 200, height: 150, p: 0, borderRadius: '10px', textAlign: "center", padding: 0, boxShadow: 'none' }}>
-
+        <Card sx={{ width: 200, height: 150, p: 0, borderRadius: '10px', textAlign: "center", boxShadow: 'none' }}>
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
-                        data={data}
+                        data={processedData}
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
@@ -94,13 +67,12 @@ const DoughnutChart = ({ data }) => { // Receive data as a prop
                         outerRadius={70}
                         paddingAngle={0}
                     >
-                        {data.map((entry, index) => (
+                        {processedData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                     </Pie>
                 </PieChart>
             </ResponsiveContainer>
-
         </Card>
     );
 };

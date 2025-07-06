@@ -15,7 +15,8 @@ const History = ({classId}) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
-    const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+    // const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+    const [selectedDate, setSelectedDate] = useState('2025-01-06');
     const [attendanceType, setAttendanceType] = useState('academic');
     const [subjectType, setSubjectType] = useState('SUB001');
 

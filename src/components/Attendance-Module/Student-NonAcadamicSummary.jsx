@@ -130,16 +130,19 @@ const NonAcadamicSummary = ({ studentId }) => {
 
             if (summaryType === 'daily') {
                 const dailyData = Object.fromEntries(
-                    // Object.entries(data.data.result).map(([date, value]) => [date, (value * 100) + "%"])
-                    Object.entries(data.data.result).map(([date, value]) => [date, value.charAt(0).toUpperCase() + value.slice(1)])
+                    Object.entries(data.data.result).map(([date, value]) => [
+                        date,
+                        value === 100 ? "Present" : "Absent"
+                    ])
                 );
+                console.log("Daily Data:", dailyData);
                 setDailyData(dailyData);
 
             } else if (summaryType === 'weekly') {
-                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setWeeklyData(weeklyData);
             } else if (summaryType === 'monthly') {
-                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setMonthlyData(monthlyData);
             }
 
@@ -221,6 +224,7 @@ const NonAcadamicSummary = ({ studentId }) => {
                                     menuItems={monthOptions}
                                 />
                             </Box>
+                            {/* {console.log("Daily Data:", dailyData)} */}
                             <Calendar attendanceData={dailyData} month={month} />
                         </Box>
                     ) : null}

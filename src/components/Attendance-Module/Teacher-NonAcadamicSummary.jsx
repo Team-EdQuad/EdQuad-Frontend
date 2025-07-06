@@ -64,7 +64,7 @@ const NonAcadamicSummary = ({classId}) => {
     ];
 
 
-    const [month, setMonth] = useState('April');
+    const [month, setMonth] = useState('January');
 
     const monthOptions = [
         { label: 'January', value: 'January' },
@@ -100,15 +100,15 @@ const NonAcadamicSummary = ({classId}) => {
 
             if (summaryType === 'daily') {
                 const dailyData = Object.fromEntries(
-                    Object.entries(data.data.result).map(([date, value]) => [date, (value * 100) + "%"])
+                    Object.entries(data.data.result).map(([date, value]) => [date, (value) + "%"])
                 );
                 setDailyData(dailyData);
 
             } else if (summaryType === 'weekly') {
-                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setWeeklyData(weeklyData);
             } else if (summaryType === 'monthly') {
-                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setMonthlyData(monthlyData);
             }
 
