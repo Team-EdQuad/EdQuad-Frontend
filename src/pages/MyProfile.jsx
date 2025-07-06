@@ -246,6 +246,8 @@ import CancelIcon from "@mui/icons-material/Cancel"; // Cancel icon
 import { tokens } from "../theme";
 import { StoreContext } from "../context/StoreContext";
 
+const Url = import.meta.env.VITE_BACKEND_URL;
+
 const MyProfile = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -263,14 +265,13 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/user-management/profile", {
+        const response = await fetch(`${Url}/api/user-management/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) throw new Error("Failed to fetch profile");
         const data = await response.json();
         setProfileData(data);
         setTempData(data);
-        // Assuming your profile data might include a profile_picture URL
         if (data.profile_picture) {
           setProfileImageUrl(data.profile_picture);
         }
@@ -304,7 +305,7 @@ const MyProfile = () => {
       formData.append("profile_picture", profileImage);
 
       try {
-        const uploadResponse = await fetch("http://127.0.0.1:8000/api/user-management/upload-profile-picture", { // Adjust this API endpoint
+        const uploadResponse = await fetch(`${Url}/api/user-management/upload-profile-picture`, { // Adjust this API endpoint
           method: "POST", // Or PUT, depending on your backend
           headers: {
             Authorization: `Bearer ${token}`,
@@ -331,7 +332,7 @@ const MyProfile = () => {
 
     // Now save other profile data
     try {
-      const saveResponse = await fetch("http://127.0.0.1:8000/api/user-management/profile", { // Adjust this API endpoint for profile update
+      const saveResponse = await fetch(`${Url}/api/user-management/profile`, { // Adjust this API endpoint for profile update
         method: "PUT", // Or PATCH
         headers: {
           Authorization: `Bearer ${token}`,
