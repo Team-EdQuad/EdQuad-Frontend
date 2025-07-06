@@ -15,7 +15,7 @@ import NonAcadamicSummary from '../../components/Attendance-Module/Student-NonAc
 const StudentAnalysis = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { studentId } = useContext(StoreContext);
+    const { id:studentId } = useContext(StoreContext);
     const [panelRef, panelSize] = useElementSize();
 
     console.log(studentId);

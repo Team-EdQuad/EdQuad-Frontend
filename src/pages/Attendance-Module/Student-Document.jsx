@@ -11,7 +11,7 @@ const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const StudentDocument = () => {
 
-  const { studentId, classId } = useContext(StoreContext);
+  const { id:studentId, classId } = useContext(StoreContext);
 
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -167,7 +167,7 @@ const PerformancePrediction = ({ studentId, classId }) => {
           sx={{ mt: 1, opacity: 0.95, fontWeight: 600, fontSize: "1.1rem" }}
         >
           {trend ? (
-            <span style={{ color: white, fontWeight: "bold" }}>
+            <span style={{ color: "white", fontWeight: "bold" }}>
               {trend} Predicted performance based on recent activity
             </span>
           ) : (
