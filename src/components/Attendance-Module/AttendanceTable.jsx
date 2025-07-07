@@ -192,16 +192,16 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
 
 
     const handleSearch = (e) => {
-        const newQuery = e.target.value;
-        setSearchQuery(newQuery);
-        
-        // Filter based on the new query
+        setSearchQuery(e.target.value);
+    };
+
+    useEffect(() => {
         const filtered = students.filter(student =>
-            student.id.toString().toLowerCase().includes(newQuery.toLowerCase()) ||
-            student.name.toLowerCase().includes(newQuery.toLowerCase())
+            student.id.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+            student.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
         setFilteredData(filtered);
-    };
+    }, [students, searchQuery]);
 
     const fetchData = async () => {
         const responseData = await requestData(classId, subjectType, subjectId, selectedDate);
@@ -256,69 +256,6 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
     };
 
 
-    const filteredStudents = students.filter(
-        (student) =>
-            student.id.toLowerCase().includes(searchQuery) ||
-            student.name.toLowerCase().includes(searchQuery)
-    );
-
-    const Search = styled('div')(({ theme }) => ({
-        position: 'relative',
-        borderRadius: theme.shape.borderRadius,
-        backgroundColor: '#EFF3FF',
-        '&:hover': {
-            backgroundColor: '#EFF3FF',
-        },
-        marginBottom: 0,
-        width: '40%',
-        height: '33px',
-        display: 'flex',
-        alignItems: 'center',
-        border: `1px solid #D9D9D9`,
-        overflow: 'hidden',
-        '& .MuiInputBase-root': {
-            width: '100%',
-            height: '100%',
-        },
-        '& .MuiInputBase-input': {
-            width: '100%',
-            height: '100%',
-            paddingLeft: '45px',
-            paddingRight: '8px',
-            fontSize: '0.9rem',
-        }
-    }));
-
-    const SearchIconWrapper = styled('div')(({ theme }) => ({
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        height: '33px',
-        width: '33px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1,
-        pointerEvents: 'none',
-    }));
-
-
-    const StyledInputBase = styled(InputBase)(({ theme }) => ({
-        color: '#333',
-        width: '100%',
-        height: '100%',
-        '& .MuiInputBase-input': {
-            padding: theme.spacing(1, 1, 1, 4.5),
-            width: '100%',
-            height: '100%',
-            transition: theme.transitions.create('width'),
-            fontSize: '0.9rem',
-            '&:focus': {
-                width: '100%',
-            }
-        },
-    }));
-
     return (
         <Box sx={{
             width: '100%',
@@ -339,32 +276,48 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
                     mb: 2, 
                     gap: 2
                 }}>
-                    <Search sx={{ 
+                    <Box sx={{ 
+                        position: 'relative',
                         width: isExtraSmallPaper ? '100%' : '300px',
                         marginTop: isExtraSmallPaper ? 1 : 0,
-                        overflow: 'visible'
                     }}>
-                        <SearchIconWrapper>
-                            <SearchIcon sx={{
-                                backgroundColor: '#D9D9D9',
-                                color: '#000',
-                                padding: '5px',
-                                width: '33px',
-                                height: '33px',
-                                borderRadius: '5px 0px 0px 5px',
-                            }} />
-                        </SearchIconWrapper>
-                        <StyledInputBase
+                        <SearchIcon sx={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            height: '33px',
+                            width: '33px',
+                            backgroundColor: '#D9D9D9',
+                            color: '#000',
+                            padding: '5px',
+                            borderRadius: '5px 0px 0px 5px',
+                            zIndex: 1,
+                        }} />
+                        <InputBase
                             placeholder="Search by ID or Name"
                             inputProps={{ 
-                                'aria-label': 'search',
-                                style: { paddingLeft: '45px' }
+                                'aria-label': 'search'
                             }}
                             value={searchQuery}
                             onChange={handleSearch}
-                            fullWidth
+                            sx={{
+                                backgroundColor: '#EFF3FF',
+                                borderRadius: '5px',
+                                border: '1px solid #D9D9D9',
+                                height: '33px',
+                                width: '100%',
+                                fontSize: '0.9rem',
+                                '& .MuiInputBase-input': {
+                                    paddingLeft: '45px',
+                                    paddingRight: '8px',
+                                    height: '100%',
+                                },
+                                '&:hover': {
+                                    backgroundColor: '#EFF3FF',
+                                },
+                            }}
                         />
-                    </Search>
+                    </Box>
 
                     <FormControl sx={{ 
                         width: isExtraSmallPaper ? '100%' : '180px',
