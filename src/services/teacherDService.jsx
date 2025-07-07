@@ -61,13 +61,13 @@ export const getWeeklyAttendance = async (classId, year = new Date().getFullYear
 
 export const getLowAttendanceRiskStudents = async () => {
   const key = `lowAttendanceRiskStudents`;
-  const url = `${API_URL}/api/teacher/low-attendance-students`; // adjust to your actual endpoint
+  const url = `${API_URL}/api/teacher/dashboard/low-academic-attendance`; 
   return fetchWithCache(key, url);
 };
 
 export const getLowAttendanceRiskStudentsCount = async () => {
   const key = `lowAttendanceRiskStudents`;
-  const url = `${API_URL}/api/teacher/low-attendance-student-count`; // adjust to your actual endpoint
+  const url = `${API_URL}/api/teacher/dashboard/low-attendance-count`; 
   return fetchWithCache(key, url);
 };
 

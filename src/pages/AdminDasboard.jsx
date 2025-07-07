@@ -5,7 +5,7 @@ import ClassPerformance from "../components/ClassPerformance";
 import StudentProgressMonitoring from "../components/StudentProgressMonitoring"
 import ClassAttendanceAnalysis from "../components/ClassAttendanceAnalysis"
 import LowAttendanceRisk from "../components/LowAttendanceRisk";
-import Calendar from "../components/DashbboardCalendar";
+import Calendar from "../components/DashboardCalendar2";
 
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";

@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import axios from "axios";
+import { getLowAttendanceRiskStudentsCount } from "../services/teacherDService"; // <-- Make sure this exists
 
 const AttendanceAlertBox = () => {
   const [count, setCount] = useState(0);
 
-  // Replace this with your actual endpoint
   useEffect(() => {
-    axios.get("/api/attendance-risk-count")  // <-- your backend endpoint
-      .then(response => {
-        setCount(response.data.count);  // Adjust according to your response
-      })
-      .catch(error => {
+    const fetchCount = async () => {
+      try {
+        const response = await getLowAttendanceRiskStudentsCount();
+        setCount(response.low_attendance_student_count); // Adjusted to match actual backend response
+      } catch (error) {
         console.error("Failed to fetch attendance risk count", error);
-      });
+      }
+    };
+
+    fetchCount();
   }, []);
 
   return (
@@ -25,11 +27,11 @@ const AttendanceAlertBox = () => {
         padding: "40px",
         textAlign: "center",
         backgroundColor: "#fefefe",
-        width: '28%',
+        width: "28%",
         boxShadow: 3,
-        mr:2,
-        ml:2,
-        mt:8
+        mr: 2,
+        ml: 2,
+        mt: 8,
       }}
     >
       <Box display="flex" alignItems="center" justifyContent="center" mb={1}>
@@ -40,14 +42,18 @@ const AttendanceAlertBox = () => {
       </Box>
 
       <Typography variant="h1" sx={{ color: "red", fontWeight: "bold", m: 2 }}>
-        {3}
+        {count}
       </Typography>
 
       <Typography variant="body1" sx={{ fontWeight: "bold", mb: 2 }}>
         Students with Low Attendance Risk
       </Typography>
 
-      <Button variant="contained" color="primary" onClick={() => window.location.href = "/attendance/analysis"}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => window.location.href = "/attendance/analysis"}
+      >
         View Risk Details
       </Button>
     </Box>

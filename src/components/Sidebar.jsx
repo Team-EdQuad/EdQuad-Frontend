@@ -649,14 +649,14 @@ const AppSidebar = () => {
                 <Typography>My Profile</Typography>
               </MenuItem>
 
-              <MenuItem
+              {/* <MenuItem
                 active={selected === "Calender"}
                 onClick={() => setSelected("Calender")}
                 icon={<ReceiptOutlined />}
                 component={<Link to="/calender" />}
               >
                 <Typography>Calender</Typography>
-              </MenuItem>
+              </MenuItem> */}
 
               <MenuItem
                 active={selected === "Add Student"}
