@@ -8,6 +8,9 @@ const StoreContextProvider = (props) => {
   const isMobile = useMediaQuery("(max-width:600px)");
   const isTablet = useMediaQuery("(max-width:900px)");
 
+  // const [studentId, setStudentId] = useState('STU001');
+  // const [classId, setClassId] = useState('CLS001');
+  // const [name, setName] = useState('W.K.T.P.Kularathna');
   // Initialize from localStorage if available
   const [token, setToken] = useState(() => localStorage.getItem("token") || null);
   const [role, setRole] = useState(() => localStorage.getItem("role") || null);

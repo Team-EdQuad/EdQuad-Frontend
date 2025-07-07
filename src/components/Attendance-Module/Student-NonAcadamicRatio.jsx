@@ -48,8 +48,9 @@ const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange
             flexDirection: 'column', 
             justifyContent: 'center', 
             alignItems: 'center',
-            minWidth: '200px',
-            flex: 1
+            Width: '100px',
+            // flex: 1,
+            // backgroundColor: 'red',
         }}>
             <div style={{ marginBottom: '20px' }}>
                 <CustomDropdown
@@ -58,7 +59,7 @@ const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange
                     menuItems={PERIOD_OPTIONS}
                 />
             </div>
-            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+            <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <DoughnutChart data={subjectData} />
                 {renderPercentageLabels(subjectData)}
             </div>
@@ -105,7 +106,7 @@ const NonAcadamicRatio = ({ studentId }) => {
                 data = await response.json();
             }
 
-            const attendanceRatio = data.data.attendance_ratio * 100;
+            const attendanceRatio = data.data.attendance_ratio;
             setSubjectsData(prev => ({
                 ...prev,
                 [subject]: {

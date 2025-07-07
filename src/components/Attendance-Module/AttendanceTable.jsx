@@ -489,14 +489,14 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
                                 </TableCell>
                                 {!isSmallPaper && (
                                     <TableCell sx={{ fontSize: isExtraSmallPaper ? '0.8rem' : '0.9rem' }}>
-                                        Monthly Pres
+                                        Yearly Pres
                                     </TableCell>
                                 )}
-                                {!isExtraSmallPaper && (
+                                {/* {!isExtraSmallPaper && (
                                     <TableCell sx={{ fontSize: isExtraSmallPaper ? '0.8rem' : '0.9rem' }}>
                                         Trend Pres
                                     </TableCell>
-                                )}
+                                )} */}
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -575,7 +575,7 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
                                             {student.monthly}
                                         </TableCell>
                                     )}
-                                    {!isExtraSmallPaper && (
+                                    {/* {!isExtraSmallPaper && (
                                         <TableCell
                                             sx={{
                                                 color: student.attendance === 'present' ? '#000' : '#fff',
@@ -587,7 +587,7 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
                                         >
                                             {student.trend}
                                         </TableCell>
-                                    )}
+                                    )} */}
                                 </TableRow>
                             ))}
                             {filteredData.length === 0 && (

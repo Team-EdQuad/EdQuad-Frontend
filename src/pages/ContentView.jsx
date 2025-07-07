@@ -92,23 +92,6 @@ const ContentView = () => {
     }
   };
 
-  const handleMarkAsDone = async () => {
-    try {
-      const response = await fetch(`${Url}/api/content/${contentId}/mark-done`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to mark content as done');
-      }
-
-      setDone(true);
-    } catch (error) {
-      console.error('Failed to mark as done:', error);
-      alert('Error: Could not mark as done');
-    }
-  };
-
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
@@ -183,22 +166,6 @@ const ContentView = () => {
               Open in Drive
             </Button>
           )}
-
-          <Button
-            variant="contained"
-            onClick={handleMarkAsDone}
-            disabled={done}
-            sx={{
-              bgcolor: done ? '#003366' : 'white',
-              color: done ? 'white' : '#003366',
-              border: '1px solid #003366',
-              '&:hover': {
-                bgcolor: done ? '#003366' : '#e6f0ff',
-              },
-            }}
-          >
-            {done ? 'Marked as Done' : 'Mark as Done'}
-          </Button>
 
           <IconButton onClick={handleClose}>
             <CloseIcon />

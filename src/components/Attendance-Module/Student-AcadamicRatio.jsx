@@ -65,7 +65,7 @@ const AcadamicRatio = ({studentId}) => {
     useEffect(() => {
         if (acadamicApiData) {
             console.log("API Data:", acadamicApiData); // Log the API data for debugging
-            const attendanceRatio = acadamicApiData.attendance_ratio * 100; // Convert to percentage
+            const attendanceRatio = acadamicApiData.attendance_ratio; // Convert to percentage
             setAcademicData([
                 { name: "Present", value: attendanceRatio, color: "#9C27B0" },
                 { name: "Absent", value: 100 - attendanceRatio, color: "#F44336" },

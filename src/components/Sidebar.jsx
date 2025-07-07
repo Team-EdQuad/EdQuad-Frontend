@@ -649,14 +649,14 @@ const AppSidebar = () => {
                 <Typography>My Profile</Typography>
               </MenuItem>
 
-              <MenuItem
+              {/* <MenuItem
                 active={selected === "Calender"}
                 onClick={() => setSelected("Calender")}
                 icon={<ReceiptOutlined />}
                 component={<Link to="/calender" />}
               >
                 <Typography>Calender</Typography>
-              </MenuItem>
+              </MenuItem> */}
 
               <MenuItem
                 active={selected === "Add Student"}
@@ -748,7 +748,7 @@ const AppSidebar = () => {
                 active={selected === "Access Tracking"}
                 onClick={() => setSelected("Access Tracking")}
                 icon={<TrackChangesOutlined />}
-                component={<Link to="/access-tracking" />}
+                component={<Link to="/accesstracking" />}
               >
                 <Typography>Access Tracking</Typography>
               </MenuItem>
