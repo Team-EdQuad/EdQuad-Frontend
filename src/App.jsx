@@ -49,6 +49,8 @@ import StudentAnalysis from "./pages/Attendance-Module/Student-Analysis";
 import TeacherAttendanceEntry from "./pages/Attendance-Module/Teacher-AttendanceEntry";
 import StudentDocument from "./pages/Attendance-Module/Student-Document";
 import TeacherDocument from "./pages/Attendance-Module/Teacher-Document";
+import TeacherCalendar from "./pages/TeacherCalendar";
+import AdminAnomalyDashboard from "./pages/AdminAnomalyDashboard";
 
 function Layout() {
   const [theme, colorMode] = useMode();
@@ -94,7 +96,7 @@ function Layout() {
       <Route path="/my-profile" element={<MyProfile />} />
       <Route path="/sports" element={<Sports />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
-      <Route path="/calender" element={<Calendar />} />
+      <Route path="/calender" element={<TeacherCalendar />} />
       <Route path="/academic" element={<TeacherSubject />} />
       <Route path="/teacher-content" element={<TeacherContent />} />
       <Route path="/assignment-create" element={<AssignmentCreate />} />
@@ -126,7 +128,8 @@ function Layout() {
       <Route path="/sports" element={<Sports />} />
       <Route path="/academic" element={<TeacherSubject />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
-      <Route path="/uc" element={<UnderConstruction />} />
+      <Route path="/accesstracking" element={<AdminAnomalyDashboard/>}/>
+      {/* <Route path="/uc" element={<UnderConstruction />} /> */}
       <Route path="*" element={<Navigate to="/uc" />} />
     </>
   );

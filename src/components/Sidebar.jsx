@@ -748,7 +748,7 @@ const AppSidebar = () => {
                 active={selected === "Access Tracking"}
                 onClick={() => setSelected("Access Tracking")}
                 icon={<TrackChangesOutlined />}
-                component={<Link to="/access-tracking" />}
+                component={<Link to="/accesstracking" />}
               >
                 <Typography>Access Tracking</Typography>
               </MenuItem>

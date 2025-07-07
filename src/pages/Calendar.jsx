@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Box, Typography, Paper, Checkbox, TextField, Divider, InputAdornment, } from '@mui/material';
-import { ArrowBackIos } from '@mui/icons-material';
-import { PieChart, Pie, Cell } from 'recharts';
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -38,7 +36,7 @@ const AdminCalendar = () => {
                 </Box>
 
                 {/* To Do List */}
-                <Box minWidth="300px">
+                {/* <Box minWidth="300px">
                     <Typography variant="h6" fontWeight="bold" mb={2}>Today's Schedule</Typography>
                     {assignments.map((assignment, index) => (
                         <Box key={index} mb={3}>
@@ -68,7 +66,7 @@ const AdminCalendar = () => {
                             </Box>
                         </Box>
                     ))}
-                </Box>
+                </Box> */}
             </Box>
         </Box>
     );
