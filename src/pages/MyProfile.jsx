@@ -154,7 +154,7 @@ const MyProfile = () => {
     if (profileData.profile_picture) {
       setProfileImageUrl(profileData.profile_picture);
     } else {
-      setProfileImageUrl(); // Default if no picture
+      setProfileImageUrl(""); // Default if no picture
     }
     setProfileImage(null);
     setIsEditing(false);
