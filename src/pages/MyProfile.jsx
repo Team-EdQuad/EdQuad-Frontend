@@ -1,227 +1,3 @@
-// import React, { useContext, useEffect, useState } from "react";
-// import {
-//   Box,
-//   Typography,
-//   Avatar,
-//   Grid,
-//   TextField,
-//   Paper,
-//   IconButton,
-//   Divider,
-//   Button,
-//   useTheme,
-//   Stack,
-// } from "@mui/material";
-// import MailIcon from "@mui/icons-material/Mail";
-// import PhoneIcon from "@mui/icons-material/Phone";
-// import { tokens } from "../theme";
-// import { StoreContext } from "../context/StoreContext";
-
-// const MyProfile = () => {
-//   const theme = useTheme();
-//   const colors = tokens(theme.palette.mode);
-//   const { token, name } = useContext(StoreContext);
-
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [profileData, setProfileData] = useState(null);
-//   const [tempData, setTempData] = useState({});
-
-//   useEffect(() => {
-//     const fetchProfile = async () => {
-//       try {
-//         const response = await fetch("http://127.0.0.1:8000/api/user-management/profile", {
-//           headers: { Authorization: `Bearer ${token}` },
-//         });
-//         if (!response.ok) throw new Error("Failed to fetch profile");
-//         const data = await response.json();
-//         setProfileData(data);
-//         setTempData(data);
-//       } catch (err) {
-//         console.error("Error loading profile:", err.message);
-//       }
-//     };
-//     fetchProfile();
-//   }, [token]);
-
-//   const handleChange = (field) => (e) => {
-//     setTempData({ ...tempData, [field]: e.target.value });
-//   };
-
-//   const handleSave = () => {
-//     setProfileData({ ...tempData });
-//     setIsEditing(false);
-//   };
-
-//   const handleCancel = () => {
-//     setTempData({ ...profileData });
-//     setIsEditing(false);
-//   };
-
-//   if (!profileData) return <Typography>Loading profile...</Typography>;
-
-//   return (
-//     <Box p={4}>
-//       <Typography variant="h5" fontWeight="bold" gutterBottom>
-//         Welcome, {name || profileData.full_name}
-//       </Typography>
-//       <Typography variant="body2" color="text.secondary" gutterBottom>
-//         {new Date().toLocaleDateString("en-US", {
-//           weekday: "short",
-//           day: "numeric",
-//           month: "long",
-//           year: "numeric",
-//         })}
-//       </Typography>
-
-//       <Paper
-//         elevation={4}
-//         sx={{
-//           mt: 4,
-//           borderRadius: 4,
-//           p: { xs: 3, md: 5 },
-//           background: colors.primary[400],
-//           backdropFilter: "blur(10px)",
-//         }}
-//       >
-//         <Grid container spacing={4}>
-//           <Grid item xs={12} md={3}>
-//             <Avatar
-//               src="https://randomuser.me/api/portraits/men/75.jpg"
-//               sx={{
-//                 width: 120,
-//                 height: 120,
-//                 boxShadow: 3,
-                
-//               }}
-//             />
-//           </Grid>
-
-//           <Grid item xs={12} md={9}>
-//             <Grid container spacing={3}>
-//               {["full_name", "gender", "language"].map((field, i) => (
-//                 <Grid item xs={12} md={4} key={field}>
-//                   <Typography fontWeight={500} fontSize={14} mb={1}>
-//                     {field === "full_name"
-//                       ? "Full Name"
-//                       : field.charAt(0).toUpperCase() + field.slice(1)}
-//                   </Typography>
-//                   <TextField
-//                     fullWidth
-//                     variant="outlined"
-//                     value={tempData[field] || ""}
-//                     onChange={handleChange(field)}
-//                     size="small"
-//                     InputProps={{ readOnly: !isEditing }}
-//                     sx={{
-//                       borderRadius: 2,
-//                       backgroundColor: theme.palette.background.paper,
-//                     }}
-//                   />
-//                 </Grid>
-//               ))}
-//             </Grid>
-
-//             <Divider sx={{ my: 4 }} />
-
-//             <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-//               Contact Details
-//             </Typography>
-//             <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-//               <IconButton color="primary">
-//                 <MailIcon />
-//               </IconButton>
-//               <TextField
-//                 fullWidth
-//                 value={tempData.email || ""}
-//                 onChange={handleChange("email")}
-//                 size="small"
-//                 InputProps={{ readOnly: !isEditing }}
-//                 sx={{backgroundColor: theme.palette.background.paper,}}
-//               />
-//             </Stack>
-
-//             <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-//               <IconButton color="primary">
-//                 <PhoneIcon />
-//               </IconButton>
-//               <TextField
-//                 fullWidth
-//                 value={tempData.phone || ""}
-//                 onChange={handleChange("phone")}
-//                 size="small"
-//                 InputProps={{ readOnly: !isEditing }}
-//                 sx={{backgroundColor: theme.palette.background.paper,}}
-//               />
-//             </Stack>
-
-//             <Divider sx={{ my: 4 }} />
-
-//             <Grid container spacing={3}>
-//               <Grid item xs={12} md={4}>
-//                 <Typography fontWeight={500} fontSize={14}>
-//                   Role
-//                 </Typography>
-//                 <TextField
-//                   fullWidth
-//                   size="small"
-//                   value={profileData.role}
-//                   inputProps={{ readOnly: true }}
-//                   sx={{ mt: 1, backgroundColor: theme.palette.background.paper}}
-//                 />
-//               </Grid>
-//               <Grid item xs={12} md={4}>
-//                 <Typography fontWeight={500} fontSize={14}>
-//                   Joined Date
-//                 </Typography>
-//                 <TextField
-//                   fullWidth
-//                   size="small"
-//                   value={profileData.join_date || "-"}
-//                   inputProps={{ readOnly: true }}
-//                   sx={{ mt: 1, backgroundColor: theme.palette.background.paper}}
-                  
-//                 />
-//               </Grid>
-//               <Grid item xs={12} md={4}>
-//                 <Typography fontWeight={500} fontSize={14}>
-//                   Last Edit Date
-//                 </Typography>
-//                 <TextField
-//                   fullWidth
-//                   size="small"
-//                   value={profileData.last_edit_date || "-"}
-//                   inputProps={{ readOnly: true }}
-//                   sx={{ mt: 1, backgroundColor: theme.palette.background.paper}}
-//                 />
-//               </Grid>
-//             </Grid>
-
-//             <Stack direction="row" spacing={2} mt={4}>
-//               {isEditing ? (
-//                 <>
-//                   <Button variant="contained" onClick={handleSave}>
-//                     Save
-//                   </Button>
-//                   <Button variant="outlined" onClick={handleCancel}>
-//                     Cancel
-//                   </Button>
-//                 </>
-//               ) : (
-//                 <Button variant="contained" onClick={() => setIsEditing(true)}>
-//                   Edit
-//                 </Button>
-//               )}
-//             </Stack>
-//           </Grid>
-//         </Grid>
-//       </Paper>
-//     </Box>
-//   );
-// };
-
-// export default MyProfile;
-
-
 import React, { useContext, useEffect, useState, useRef } from "react"; // Import useRef
 import {
   Box,
@@ -251,7 +27,9 @@ const Url = import.meta.env.VITE_BACKEND_URL;
 const MyProfile = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const { token, name } = useContext(StoreContext);
+  const { token, name, role, id } = useContext(StoreContext);
+
+  let user_id = id;
 
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState(null);
@@ -260,6 +38,9 @@ const MyProfile = () => {
   const [profileImageUrl, setProfileImageUrl] = useState(""); // State for the image URL (local or fetched)
   const [uploading, setUploading] = useState(false); // State for upload loading
   const fileInputRef = useRef(null); // Ref for hidden file input
+
+
+
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -329,16 +110,26 @@ const MyProfile = () => {
         return; // Prevent saving other data if image upload failed
       }
     }
-
+    const filteredProfileData = {
+      full_name: tempData.full_name || "",
+      gender: tempData.gender || "",
+      language: tempData.language || "",
+      email: tempData.email || "",
+      phone: tempData.phone || "",
+      role: profileData.role || role, // make sure this is present
+      joined_date: profileData.join_date || "", // if you want to keep it the same
+    };
     // Now save other profile data
     try {
-      const saveResponse = await fetch(`${Url}/api/user-management/profile`, { // Adjust this API endpoint for profile update
+      console.log("Profile update URL:", `${Url}/api/user-management/edit_profile/${role}/${user_id}`);
+
+      const saveResponse = await fetch(`${Url}/api/user-management/edit-profile/${role}/${user_id}`, { // Adjust this API endpoint for profile update
         method: "PUT", // Or PATCH
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedProfileData),
+        body: JSON.stringify(filteredProfileData),
       });
 
       if (!saveResponse.ok) {
@@ -466,7 +257,7 @@ const MyProfile = () => {
                   <TextField
                     fullWidth
                     variant="outlined"
-                    value={tempData[field] || ""}
+                    value={tempData?.[field] ?? ""}
                     onChange={handleChange(field)}
                     size="small"
                     InputProps={{ readOnly: !isEditing }}
@@ -490,11 +281,11 @@ const MyProfile = () => {
               </IconButton>
               <TextField
                 fullWidth
-                value={tempData.email || ""}
+                value={tempData?.email ?? ""}
                 onChange={handleChange("email")}
                 size="small"
                 InputProps={{ readOnly: !isEditing }}
-                sx={{backgroundColor: theme.palette.background.paper,}}
+                sx={{ backgroundColor: theme.palette.background.paper, }}
               />
             </Stack>
 
@@ -504,11 +295,11 @@ const MyProfile = () => {
               </IconButton>
               <TextField
                 fullWidth
-                value={tempData.phone || ""}
+                value={tempData?.phone ?? ""}
                 onChange={handleChange("phone")}
                 size="small"
                 InputProps={{ readOnly: !isEditing }}
-                sx={{backgroundColor: theme.palette.background.paper,}}
+                sx={{ backgroundColor: theme.palette.background.paper, }}
               />
             </Stack>
 
@@ -524,7 +315,7 @@ const MyProfile = () => {
                   size="small"
                   value={profileData.role}
                   inputProps={{ readOnly: true }}
-                  sx={{ mt: 1, backgroundColor: theme.palette.background.paper}}
+                  sx={{ mt: 1, backgroundColor: theme.palette.background.paper }}
                 />
               </Grid>
               <Grid item xs={12} md={4}>
@@ -536,7 +327,7 @@ const MyProfile = () => {
                   size="small"
                   value={profileData.join_date || "-"}
                   inputProps={{ readOnly: true }}
-                  sx={{ mt: 1, backgroundColor: theme.palette.background.paper}}
+                  sx={{ mt: 1, backgroundColor: theme.palette.background.paper }}
 
                 />
               </Grid>
@@ -549,7 +340,7 @@ const MyProfile = () => {
                   size="small"
                   value={profileData.last_edit_date || "-"}
                   inputProps={{ readOnly: true }}
-                  sx={{ mt: 1, backgroundColor: theme.palette.background.paper}}
+                  sx={{ mt: 1, backgroundColor: theme.palette.background.paper }}
                 />
               </Grid>
             </Grid>
