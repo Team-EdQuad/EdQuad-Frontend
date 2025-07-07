@@ -9,6 +9,7 @@ import {
   Tab,
   CircularProgress,
   useTheme,
+  Pagination,
 } from "@mui/material";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -39,6 +40,8 @@ const TeacherCalendar = () => {
   const { id: userId, token, role } = useContext(StoreContext);
   const [assignments, setAssignments] = useState([]);
   const [activeTab, setActiveTab] = useState("Today");
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     let fetchParam = "";
@@ -106,9 +109,11 @@ const TeacherCalendar = () => {
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
+    setPage(1);
   };
 
   const currentList = categorizedAssignments[labelMap[activeTab]] || [];
+  const paginatedList = currentList.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
     <Box
@@ -147,138 +152,54 @@ const TeacherCalendar = () => {
         </Grid>
 
         {/* Assignment Deadlines Section */}
-        <Grid item xs={12} md={8}>
-          <Typography variant="h6" component="h2" fontWeight="bold" mb={theme.spacing(2)} color="text.primary" width="1080px" >
-            Assignment Deadlines
-          </Typography>
-
-          {/* Tabs for categorization */}
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            textColor="primary"
-            indicatorColor="primary"
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              backgroundColor: theme.palette.background.paper,
-              borderRadius: theme.shape.borderRadius,
-              mb: theme.spacing(3),
-              boxShadow: theme.shadows[2],
-              "& .MuiTab-root": {
-                fontWeight: "bold",
-                textTransform: "capitalize",
-              },
-              "& .Mui-selected": {
-                color: theme.palette.primary.main,
-              },
-            }}
-          >
-            {tabLabels.map((label) => (
-              <Tab key={label} label={label} value={label} />
-            ))}
-          </Tabs>
-
-          {/* Content Area for Assignments - Apply minHeight to ensure consistent space */}
-          <Box
-            sx={{
-              minHeight: '280px', // Adjust this based on your average card height + some padding
-              display: 'flex',
-              flexDirection: 'column',
-              // Center content only if no assignments or loading, otherwise align to start
-              justifyContent: (currentList.length === 0 && !loading) || loading ? 'center' : 'flex-start',
-              alignItems: (currentList.length === 0 && !loading) || loading ? 'center' : 'stretch', // Allow inner components to fill width
-              p: theme.spacing(1), // Internal padding for the box
-            }}
-            width="1080px"
-          >
-            {loading ? (
-              <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                <CircularProgress />
-                <Typography ml={2}>Loading assignments...</Typography>
+        <Box flex={2} minWidth="600px" sx={{ mt: 8 }}>
+                <Typography variant="h6" fontWeight="bold" mb={2}>Assignment Deadlines</Typography>
+        
+                <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
+                  {tabLabels.map((label) => (
+                    <Tab key={label} label={label} value={label} />
+                  ))}
+                </Tabs>
+        
+                <Box sx={{ minHeight: "300px", mt: 2 }}>
+                  {loading ? (
+                    <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                      <CircularProgress />
+                    </Box>
+                  ) : paginatedList.length === 0 ? (
+                    <Typography>No {activeTab.toLowerCase()} assignments available.</Typography>
+                  ) : (
+                    <Grid container spacing={2}>
+                      {paginatedList.map((item) => (
+                        <Grid item xs={12} sm={6} md={4} key={item.assignment_id}>
+                          <Card>
+                            <CardContent>
+                              <Typography variant="h6">{item.assignment_name}</Typography>
+                              <Typography variant="body2">Subject: {item.subject_id}</Typography>
+                              {item.class_id && <Typography variant="body2">Class: {item.class_id}</Typography>}
+                              {item.teacher_id && <Typography variant="body2">Created by: {item.teacher_id}</Typography>}
+                              <Typography variant="body2" color="error">
+                                Deadline: {dayjs(item.deadline).format("DD MMM YYYY, h:mm A")}
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  )}
+                </Box>
+        
+                {currentList.length > itemsPerPage && (
+                  <Box display="flex" justifyContent="center" mt={2}>
+                    <Pagination
+                      count={Math.ceil(currentList.length / itemsPerPage)}
+                      page={page}
+                      onChange={(e, value) => setPage(value)}
+                      color="primary"
+                    />
+                  </Box>
+                )}
               </Box>
-            ) : assignments.length === 0 ? (
-              <Card
-                sx={{
-                  p: theme.spacing(3),
-                  boxShadow: theme.shadows[1],
-                  borderRadius: theme.shape.borderRadius,
-                  width: '100%',
-                  minHeight: '200px', // Set a substantial minHeight for the "no content" card
-                  display: 'flex',
-                  alignItems: 'center', // Vertically center content
-                  justifyContent: 'center', // Horizontally center content
-                }}
-              >
-                <Typography variant="body1" color="text.secondary" textAlign="center">
-                  No assignments found for your account.
-                </Typography>
-              </Card>
-            ) : currentList.length === 0 ? (
-              <Card
-                sx={{
-                  p: theme.spacing(3),
-                  boxShadow: theme.shadows[1],
-                  borderRadius: theme.shape.borderRadius,
-                  width: '100%',
-                  minHeight: '200px', // Set a substantial minHeight for the "no content" card
-                  display: 'flex',
-                  alignItems: 'center', // Vertically center content
-                  justifyContent: 'center', // Horizontally center content
-                }}
-              >
-                <Typography variant="body1" color="text.secondary" textAlign="center">
-                  No {activeTab.toLowerCase()} assignments available.
-                </Typography>
-              </Card>
-            ) : (
-              <Grid container spacing={theme.spacing(2)}>
-                {currentList.map((item) => (
-                  <Grid item xs={12} sm={6} lg={4} key={item.assignment_id}>
-                    <Card
-                      sx={{
-                        height: "100%", // Ensures all cards in a row have equal height if content allows
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        boxShadow: theme.shadows[4],
-                        borderRadius: theme.shape.borderRadius,
-                        transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-                        "&:hover": {
-                          transform: "translateY(-4px)",
-                          boxShadow: theme.shadows[6],
-                        },
-                      }}
-                    >
-                      <CardContent>
-                        <Typography variant="h6" component="h3" gutterBottom color="primary.dark">
-                          {item.assignment_name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                          <strong>Subject:</strong> {item.subject_id}
-                        </Typography>
-                        {item.class_id && (
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            <strong>Class:</strong> {item.class_id}
-                          </Typography>
-                        )}
-                        {item.teacher_id && (
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            <strong>Created by:</strong> {item.teacher_id}
-                          </Typography>
-                        )}
-                        <Typography variant="body1" color="error.main" fontWeight="medium" sx={{ mt: 2 }}>
-                          <strong>Deadline:</strong>{" "}
-                          {dayjs(item.deadline).format("DD MMM YYYY, h:mm A")}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            )}
-          </Box>
-        </Grid>
       </Grid>
     </Box>
   );

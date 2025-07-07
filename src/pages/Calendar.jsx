@@ -36,7 +36,7 @@ const AdminCalendar = () => {
                 </Box>
 
                 {/* To Do List */}
-                <Box minWidth="300px">
+                {/* <Box minWidth="300px">
                     <Typography variant="h6" fontWeight="bold" mb={2}>Today's Schedule</Typography>
                     {assignments.map((assignment, index) => (
                         <Box key={index} mb={3}>
@@ -66,7 +66,7 @@ const AdminCalendar = () => {
                             </Box>
                         </Box>
                     ))}
-                </Box>
+                </Box> */}
             </Box>
         </Box>
     );

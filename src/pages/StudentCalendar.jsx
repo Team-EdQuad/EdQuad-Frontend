@@ -3,46 +3,50 @@ import {
   Box,
   Typography,
   Paper,
-  Checkbox,
-  TextField,
-  Divider,
-  InputAdornment,
+  Tabs,
+  Tab,
   Grid,
   Card,
   CardContent,
+  useTheme,
+  CircularProgress,
+  Pagination,
 } from "@mui/material";
-import { ArrowBackIos } from "@mui/icons-material";
 import { PieChart, Pie, Cell } from "recharts";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { StoreContext } from "../context/StoreContext";
+import dayjs from "dayjs";
+import isToday from "dayjs/plugin/isToday";
+import isTomorrow from "dayjs/plugin/isTomorrow";
+import isYesterday from "dayjs/plugin/isYesterday";
+
 const Url = import.meta.env.VITE_BACKEND_URL;
 
+dayjs.extend(isToday);
+dayjs.extend(isTomorrow);
+dayjs.extend(isYesterday);
 
-const taskData = [
-  { name: "Total Task Completed", value: 92, color: "#00C9FF" },
-  { name: "Tasks Ontime", value: 75, color: "#FF69B4" },
-  { name: "Task Late", value: 68, color: "#FFA500" },
-];
-
-const events = ["Event 1", "Event 2", "Sport event", "Sport event"];
-
+const tabLabels = ["Upcoming", "Today", "Tomorrow", "Yesterday"];
+const labelMap = {
+  Upcoming: "upcoming",
+  Today: "today",
+  Tomorrow: "tomorrow",
+  Yesterday: "yesterday",
+};
 
 const StudentCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [loading, setLoading] = useState(true);
-//   const { id: studentId, token } = useContext(StoreContext);
-  const { id: userId, token, role } = useContext(StoreContext); // Get generic userId and userType
-
+  const { id: userId, token, role } = useContext(StoreContext);
   const [assignments, setAssignments] = useState([]);
-
-  console.log("User ID from Context:", userId);
-  console.log("User Type from Context:", role);
-  console.log("Token from Context:", token);
+  const [activeTab, setActiveTab] = useState("Today");
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 5;
+  const theme = useTheme();
 
   useEffect(() => {
-    // Determine the ID parameter based on userType
     let fetchParam = "";
     let fetchId = "";
     if (role === "student" && userId) {
@@ -52,7 +56,6 @@ const StudentCalendar = () => {
       fetchParam = "teacher_id";
       fetchId = userId;
     } else {
-      console.warn("User ID or User Type not available. Skipping deadline fetch.");
       setLoading(false);
       return;
     }
@@ -61,11 +64,9 @@ const StudentCalendar = () => {
       setLoading(true);
       try {
         const url = `${Url}/api/calendar/assignments/deadlines?${fetchParam}=${fetchId}`;
-        console.log(url)
-        
         const res = await fetch(url, {
           headers: {
-            Authorization: `Bearer ${token}`, // Pass the token for authentication
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -75,7 +76,6 @@ const StudentCalendar = () => {
         }
 
         const data = await res.json();
-        console.log("Fetched Deadlines:", data);
         setAssignments(data || []);
       } catch (error) {
         console.error("Error fetching deadlines:", error);
@@ -86,17 +86,38 @@ const StudentCalendar = () => {
     };
 
     fetchDeadlines();
-  }, [userId, token, role]); // Re-run effect if userId, token, or userType changes
+  }, [userId, token, role]);
+
+  const categorizedAssignments = {
+    today: [],
+    tomorrow: [],
+    yesterday: [],
+    upcoming: [],
+  };
+
+  assignments.forEach((assignment) => {
+    const deadline = dayjs(assignment.deadline);
+    if (deadline.isToday()) {
+      categorizedAssignments.today.push(assignment);
+    } else if (deadline.isTomorrow()) {
+      categorizedAssignments.tomorrow.push(assignment);
+    } else if (deadline.isYesterday()) {
+      categorizedAssignments.yesterday.push(assignment);
+    } else if (deadline.isAfter(dayjs(), "day")) {
+      categorizedAssignments.upcoming.push(assignment);
+    }
+  });
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+    setPage(1);
+  };
+
+  const currentList = categorizedAssignments[labelMap[activeTab]] || [];
+  const paginatedList = currentList.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
-    <Box
-      sx={{
-        backgroundColor: "#EEF2FB",
-        p: 4,
-        minHeight: "100vh",
-        fontFamily: "sans-serif",
-      }}
-    >
+    <Box sx={{ backgroundColor: "#EEF2FB", p: 4, minHeight: "100vh" }}>
       <Typography variant="h4" fontWeight="bold" textAlign="center" mb={4}>
         Calendar
       </Typography>
@@ -107,104 +128,58 @@ const StudentCalendar = () => {
             <DateCalendar
               value={selectedDate}
               onChange={(newValue) => setSelectedDate(newValue)}
-              sx={{
-                backgroundColor: "white",
-                borderRadius: "8px",
-                width: "65%",
-                boxShadow: 3,
-              }}
+              sx={{ backgroundColor: "white", borderRadius: "8px", width: "65%", boxShadow: 3 }}
             />
           </LocalizationProvider>
-
-          <Box display="flex" justifyContent="center" mt={4} gap={4}>
-            <Box sx={{ width: "100%" }}>
-              <Typography variant="h6" fontWeight="bold" mb={2}>
-                Upcoming Assignment Deadlines
-              </Typography>
-
-              <Grid container spacing={2}>
-                {loading ? (
-                  <Grid item xs={12}>
-                    <Typography>Loading assignments...</Typography>
-                  </Grid>
-                ) : assignments.length === 0 ? (
-                  <Grid item xs={12}>
-                    <Typography>No assignments found for your account.</Typography>
-                  </Grid>
-                ) : (
-                  assignments.map((item) => (
-                    <Grid item xs={12} sm={6} md={4} key={item.assignment_id}>
-                      <Card sx={{ backgroundColor: "#ffffff", boxShadow: 3 }}>
-                        <CardContent>
-                          <Typography variant="h6" gutterBottom>
-                            {item.assignment_name}
-                          </Typography>
-                          <Typography variant="body2">
-                            <strong>Subject:</strong> {item.subject_id}
-                          </Typography>
-                          {item.class_id && ( // Only display class if it's available
-                            <Typography variant="body2">
-                              <strong>Class:</strong> {item.class_id}
-                            </Typography>
-                          )}
-                          {item.teacher_id && ( // Only display teacher if it's available
-                            <Typography variant="body2">
-                              <strong>Created by:</strong> {item.teacher_id}
-                            </Typography>
-                          )}
-                          <Typography variant="body2" color="error">
-                            <strong>Deadline:</strong>{" "}
-                            {item.deadline
-                              ? new Date(item.deadline).toLocaleString()
-                              : "N/A"}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))
-                )}
-              </Grid>
-            </Box>
-            <Box minWidth="550px">
-              <Paper elevation={2} sx={{ p: 2 }}>
-                <Typography variant="subtitle1" fontWeight="bold" textAlign="center">
-                  Complete Tasks
-                </Typography>
-                <Divider sx={{ mb: 2 }} />
-                {taskData.map((item, i) => (
-                  <Box
-                    key={i}
-                    display="flex"
-                    flexDirection="row"
-                    alignItems="center"
-                    mb={2}
-                    gap={10}
-                  >
-                    <PieChart width={40} height={40}>
-                      <Pie
-                        data={[{ value: item.value }, { value: 100 - item.value }]}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={10}
-                        outerRadius={20}
-                        startAngle={90}
-                        endAngle={-270}
-                        dataKey="value"
-                      >
-                        <Cell fill={item.color} />
-                        <Cell fill="#f0f0f0" />
-                      </Pie>
-                    </PieChart>
-                    <Box ml={1} mb={0.75}>
-                      <Typography fontWeight="bold">{item.value}%</Typography>
-                      <Typography variant="body2">{item.name}</Typography>
-                    </Box>
-                  </Box>
-                ))}
-              </Paper>
-            </Box>
-          </Box>
         </Box>
+      </Box>
+      <Box flex={2} minWidth="600px" sx={{ mt: 8 }}>
+        <Typography variant="h6" fontWeight="bold" mb={2}>Assignment Deadlines</Typography>
+
+        <Tabs value={activeTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
+          {tabLabels.map((label) => (
+            <Tab key={label} label={label} value={label} />
+          ))}
+        </Tabs>
+
+        <Box sx={{ minHeight: "300px", mt: 2 }}>
+          {loading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+              <CircularProgress />
+            </Box>
+          ) : paginatedList.length === 0 ? (
+            <Typography>No {activeTab.toLowerCase()} assignments available.</Typography>
+          ) : (
+            <Grid container spacing={2}>
+              {paginatedList.map((item) => (
+                <Grid item xs={12} sm={6} md={4} key={item.assignment_id}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6">{item.assignment_name}</Typography>
+                      <Typography variant="body2">Subject: {item.subject_id}</Typography>
+                      {item.class_id && <Typography variant="body2">Class: {item.class_id}</Typography>}
+                      {item.teacher_id && <Typography variant="body2">Created by: {item.teacher_id}</Typography>}
+                      <Typography variant="body2" color="error">
+                        Deadline: {dayjs(item.deadline).format("DD MMM YYYY, h:mm A")}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Box>
+
+        {currentList.length > itemsPerPage && (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Pagination
+              count={Math.ceil(currentList.length / itemsPerPage)}
+              page={page}
+              onChange={(e, value) => setPage(value)}
+              color="primary"
+            />
+          </Box>
+        )}
       </Box>
     </Box>
   );
