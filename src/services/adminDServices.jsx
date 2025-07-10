@@ -3,7 +3,7 @@ import axios from 'axios';
 // const API_URL = 'http://127.0.0.1:8000';
 const API_URL = import.meta.env.VITE_BACKEND_URL; // Use this if you have a VITE environment variable set
 
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
+const CACHE_DURATION = 0.5 * 60 * 1000; // 1 minutes in milliseconds
 
 const fetchWithCache = async (key, url, params = null) => {
   const cached = localStorage.getItem(key);
@@ -40,7 +40,8 @@ export const getUserProfiles = async (searchWithId = "", role = "", classId = ""
     role: role || undefined,
     class_id: classId || undefined,
   };
-  return await fetchWithCache("user_profiles", endpoint, params);
+  const cacheKey = `user_profiles_${searchWithId}_${role}_${classId}`;
+  return await fetchWithCache(cacheKey, endpoint, params);
 };
 
 

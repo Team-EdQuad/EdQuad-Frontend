@@ -9,6 +9,7 @@ import {
   InputAdornment,
   IconButton,
   Link,
+  rgbToHex,
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -17,7 +18,8 @@ import { StoreContext } from "../context/StoreContext";
 import Footer from "../components/Footer";
 import { tokens } from "../theme";
 import bgImage from "../assets/login-bg.png";
-import loginImage from "../assets/login.gif"; 
+import Image from "../assets/123.png";
+import Image2 from "../assets/456.jpeg"
 import { useNavigate } from "react-router-dom";
 const Url = import.meta.env.VITE_BACKEND_URL
 
@@ -113,9 +115,10 @@ const Login = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: "cover",
+        backgroundImage: `url(${Image})`,
+        backgroundSize: "contain",
         backgroundPosition: "left",
+        // backgroundRepeat: "no-repeat",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -135,12 +138,13 @@ const Login = () => {
         <Paper
           elevation={3}
           sx={{
-            p: 4,
+            p: 4, mt:12,
             width: "100%",
-            maxWidth: 380,
+            maxWidth: 500,
             borderRadius: 4,
-            background: "linear-gradient(to bottom, #dbeafe, #bfdbfe)",
-            opacity: 1,
+            background: "rgba(43, 51, 62, 0.97)", // more solid white for contrast
+            boxShadow: "0 8px 32px rgba(127, 72, 72, 0.18)",
+            // justifyContent: "center",
           }}
         >
           {/* <Typography
@@ -156,36 +160,48 @@ const Login = () => {
           >
             EdQuad
           </Typography> */}
-          <Typography sx={{ fontSize: '28px', fontWeight: 600, color: colors.nav_text }}>
-            Ed<span style={{ color: 'blue' }}>Q</span>uad
+          <Typography sx={{ fontSize: '28px', fontWeight: 600, color: "rgba(255, 255, 255, 0.95)", mb: 2, textAlign: "center" }}>
+            Ed<span style={{ color: 'rgb(97, 109, 171)' }}>Q</span>uad
           </Typography>
 
-          <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 , textAlign: "center" }}>
+          <Typography variant="h4" fontWeight="bold" sx={{ mb: 3 , textAlign: "center", color: "rgb(118, 135, 140)", }}>
             Login
           </Typography>
 
           <TextField
             fullWidth
             margin="normal"
-            label="Email"
+            label="Email" 
             name="username"
             value={formData.username}
             onChange={handleChange}
             autoComplete="off"
+            InputLabelProps={{
+              sx: { color: "rgb(255,255,255)" } // Label color
+            }}
+            InputProps={{
+              sx: {
+                color: "#fff", // Input text color
+                "& input::placeholder": {
+                  color: "#fff", // Placeholder color
+                  opacity: 1
+                }
+              }
+            }}
           />
-          <TextField
+          <TextField 
             fullWidth
             margin="normal"
             label="Password"
-            name="password"
-            type={showPassword ? "text" : "password"}
+            name="password"  
+            type={showPassword ? "text" : "password" }
             value={formData.password}
             onChange={handleChange}
             autoComplete="off"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton
+                  <IconButton sx={{ color: "#fff" }}
                     onClick={() => setShowPassword(!showPassword)}
                     edge="end"
                   >
@@ -193,6 +209,16 @@ const Login = () => {
                   </IconButton>
                 </InputAdornment>
               ),
+              sx: {
+                color: "#fff", // Input text color
+                "& input::placeholder": {
+                  color: "#fff", // Placeholder color
+                  opacity: 1
+                }
+              }
+            }}
+            InputLabelProps={{
+              sx: { color: "rgb(255,255,255)" } // Label color
             }}
           />
 
@@ -207,9 +233,9 @@ const Login = () => {
             <Link
               href="/forgot-password"
               underline="hover"
-              fontSize={14}
-              fontWeight="500"
-              color="primary"
+              fontSize={13}
+              fontWeight="400"
+              color="white"
             >
               Forgot Password?
             </Link>
@@ -228,7 +254,7 @@ const Login = () => {
           <Typography
             variant="body2"
             align="center"
-            sx={{ mt: 4, color: "text.secondary" }}
+            sx={{ mt: 4, color: "ButtonHighlight" }}
           >
             Don't have an account yet?
           </Typography>

@@ -176,10 +176,21 @@ const AccessUserProfiles = () => {
   const [classId, setClassId] = useState("");
 
   
-const fetchProfiles = async () => {
+// const fetchProfiles = async () => {
+//   setLoading(true);
+//   try {
+//     const data = await getUserProfiles(searchId, role, classId);
+//     setProfiles(data || []);
+//   } catch (error) {
+//     console.error("Error fetching user profiles:", error);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+const fetchProfiles = async (searchIdInput = searchId, roleInput = role, classIdInput = classId) => {
   setLoading(true);
   try {
-    const data = await getUserProfiles(searchId, role, classId);
+    const data = await getUserProfiles(searchIdInput, roleInput, classIdInput);
     setProfiles(data || []);
   } catch (error) {
     console.error("Error fetching user profiles:", error);
@@ -236,14 +247,23 @@ const fetchProfiles = async () => {
           ))}
         </Select>
 
-        <Button
+        {/* <Button
           variant="contained"
           color="primary"
           onClick={fetchProfiles}
           sx={{ whiteSpace: "nowrap" }}
         >
           Search
-        </Button>
+        </Button> */}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => fetchProfiles(searchId, role, classId)}
+          sx={{ whiteSpace: "nowrap" }}
+        >
+          Search
+      </Button>
+
       </Box>
 
       {/* Profile Cards */}
@@ -294,9 +314,9 @@ const fetchProfiles = async () => {
                     {profile.full_name}
                   </Typography>
                 </Box>
-                <Button variant="contained" color="primary">
+                {/* <Button variant="contained" color="primary">
                   View Profile
-                </Button>
+                </Button> */}
               </Card>
             ))
           )}

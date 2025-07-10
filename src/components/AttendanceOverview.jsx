@@ -792,7 +792,7 @@ const AttendanceOverview = ({ studentId, classId }) => {
             mt={2}
           >
             <Typography variant="h5" fontWeight={500} mb={2} sx={{ pl: 4 }}>
-              Monthly Attendance
+              By Week Day Attendance
             </Typography>
           </Box>
           {loading ? (

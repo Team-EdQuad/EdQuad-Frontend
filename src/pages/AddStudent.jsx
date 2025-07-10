@@ -24,7 +24,7 @@ const Url = import.meta.env.VITE_BACKEND_URL;
 
 
 const subjects = [
-  { code: "SUB001", name: "Mathematics" },
+  { code: "SUB001", name: "English" },
   { code: "SUB003", name: "Chemistry" },
   { code: "SUB004", name: "Biology" },
   { code: "SUB005", name: "History" },
@@ -116,11 +116,14 @@ const AddStudent = () => {
     
     const payload = {
       ...formData,
+      phone_no: formData.phone,
+      subject_id: formData.subject,
       full_name: `${formData.first_name} ${formData.last_name}`.trim(),
       join_date: formData.join_date || today,
       last_edit_date: formData.last_edit_date || today,
     };
-
+    delete payload.phone;
+    delete payload.subject;
     console.log("Sending payload:", payload); // Debug log
     console.log("Using token:", token ? "Token present" : "No token"); // Debug log
 
@@ -142,9 +145,13 @@ const AddStudent = () => {
 
       if (!response.ok) {
         throw new Error(
-          responseData.detail || 
-          responseData.message || 
-          `HTTP error! status: ${response.status}`
+          // responseData.detail || 
+          // responseData.message || 
+          typeof responseData.detail === "string"
+            ? responseData.detail
+            : responseData.message ||
+              JSON.stringify(responseData) || 
+              `HTTP error! status: ${response.status}`
         );
       }
 

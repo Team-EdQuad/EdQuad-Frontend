@@ -22,7 +22,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { LineChart, MarkPlot } from '@mui/x-charts';
 import { StoreContext } from '../context/StoreContext';
 
-const Url = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
+const Url = import.meta.env.VITE_BACKEND_URL;
 
 const BehavioralAnalysis = () => {
   const theme = useTheme();

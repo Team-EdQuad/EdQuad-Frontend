@@ -3,7 +3,7 @@ import axios from 'axios';
 // const API_URL = 'http://127.0.0.1:8000';
 const API_URL = import.meta.env.VITE_BACKEND_URL; 
 
-const CACHE_DURATION = 5 * 60 * 1000; // 10 minutes in milliseconds
+const CACHE_DURATION = 0.5 * 60 * 1000; // 1 minutes in milliseconds
 
 const fetchWithCache = async (key, url, params = null) => {
   const cached = localStorage.getItem(key);

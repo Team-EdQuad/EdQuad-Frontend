@@ -170,12 +170,14 @@ import HomeOutlined from "@mui/icons-material/HomeOutlined";
 import { ColorModeContext, tokens } from "../theme";
 import Sidebar from "./Sidebar";
 import { StoreContext } from "../context/StoreContext";
+import { useNavigate } from "react-router-dom";
+
 
 const Topbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
-
+  const navigate = useNavigate();
   const { isMobile, isTablet, drawerOpen, toggleDrawer, id, name } =
     useContext(StoreContext);
   const { logout } = useContext(StoreContext);
@@ -276,6 +278,8 @@ const Topbar = () => {
             }
             borderRadius="6px"
             p="6px 16px"
+            sx={{ cursor: "pointer" }} // Add pointer cursor
+            onClick={() => navigate("/dashboard")} // Add navigation
           >
             <HomeOutlined />
             <Typography sx={{ fontSize: 14, ml: 1, color: colors.nav_text }}>

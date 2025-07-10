@@ -13,6 +13,8 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Footer from "../components/Footer";
 import { tokens } from "../theme";
+const Url = import.meta.env.VITE_BACKEND_URL
+
 
 const ForgotPassword = () => {
   const theme = useTheme();
@@ -36,7 +38,7 @@ const ForgotPassword = () => {
 
   const handleSendResetEmail = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/forgot-password", {
+      const res = await fetch(`${Url}/api/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -51,7 +53,7 @@ const ForgotPassword = () => {
 
   const handleVerifyCode = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/verify-code", {
+      const res = await fetch(`${Url}/api/verify-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -73,7 +75,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:8000/api/reset-password", {
+      const res = await fetch$(`${Url}/api/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
