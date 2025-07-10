@@ -412,16 +412,16 @@ const AddTeacher = () => {
                   return (
                     <Card key={subjectId} sx={{ mb: 2, backgroundColor: colors.primary[500] }}>
                       <CardContent>
-                        <Typography variant="h6" sx={{ mb: 2 }}>
+                        <Typography variant="h6" sx={{ mb: 2 ,color: "white"}}>
                           {subject?.name} - Select Classes:
                         </Typography>
-                        <Grid container spacing={1}>
+                        <Grid container spacing={1} sx={{color: "white"}}>
                           {availableClasses.map((cls) => (
                             <Grid item xs={12} sm={6} md={3} key={cls.id}>
                               <FormGroup>
                                 <FormControlLabel
                                   control={
-                                    <Checkbox
+                                    <Checkbox sx={{ color: "white" }}
                                       checked={subjectClasses[subjectId]?.includes(cls.id) || false}
                                       onChange={() => handleClassToggle(subjectId, cls.id)}
                                     />

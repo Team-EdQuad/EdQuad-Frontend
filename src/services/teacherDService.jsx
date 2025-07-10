@@ -3,7 +3,7 @@ import axios from 'axios';
 // const API_URL = 'http://127.0.0.1:8000';
 const API_URL = import.meta.env.VITE_BACKEND_URL; // Use this if you have a VITE environment variable set
 
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
+const CACHE_DURATION = 0.5 * 60 * 1000; // 1 minutes in milliseconds
 
 const fetchWithCache = async (key, url, params = null) => {
   const cached = localStorage.getItem(key);
@@ -61,12 +61,13 @@ export const getWeeklyAttendance = async (classId, year = new Date().getFullYear
 
 export const getLowAttendanceRiskStudents = async () => {
   const key = `lowAttendanceRiskStudents`;
-  const url = `${API_URL}/api/teacher/dashboard/low-academic-attendance`; 
-  return fetchWithCache(key, url);
+  const url = `${API_URL}/api/teacher/dashboard/low-academic-attendance`;
+  const data = await fetchWithCache(key, url);
+  console.log("getLowAttendanceRiskStudents response:", data);
+  return data.low_attendance_students || [];
 };
-
 export const getLowAttendanceRiskStudentsCount = async () => {
-  const key = `lowAttendanceRiskStudents`;
+  const key = `lowAttendanceRiskStudentCount`;
   const url = `${API_URL}/api/teacher/dashboard/low-attendance-count`; 
   return fetchWithCache(key, url);
 };
