@@ -20,17 +20,17 @@ const PERIOD_OPTIONS = [
 // Subject ID to Name mapping
 const SUBJECT_NAMES = {
     'SPT001': 'Cricket',
-    'SPT002': 'Football',
+    'SPT002': 'Netball',
     'SPT003': 'Basketball',
-    'SPT004': 'Tennis',
+    'SPT004': 'Badminton',
     'SPT005': 'Swimming',
-    'SPT006': 'Badminton',
-    'CLB001': 'Netball',
-    'CLB002': 'Dance',
-    'CLB003': 'Drama',
-    'CLB004': 'Singing',
-    'CLB005': 'Scout',
-    'CLB006': 'Science Club',
+    'SPT006': 'Tennis',
+    'CLB001': 'Science Club',
+    'CLB002': 'Dance Club',
+    'CLB003': 'Singing Club',
+    'CLB004': 'Scout Club',
+    'CLB005': 'Drama Club',
+    // 'CLB006': 'Science Club',
     // Add more mappings as needed
 };
 
