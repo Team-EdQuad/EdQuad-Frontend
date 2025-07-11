@@ -106,36 +106,52 @@ const SubjectContent = () => {
         const allItems = [];
 
         // Add content items
-        if (Array.isArray(contentData)) {
+        // Add content items
+          if (Array.isArray(contentData)) {
           contentData.forEach(item => {
-            allItems.push({
-              type: 'content',
-              id: item.content_id,
-              name: item.content_name,
-              description: item.description,
-              filePath: item.content_file_path,
-              date: new Date(item.Date).toISOString().split('T')[0],
-            });
+           const dateValue = item.upload_date || item.Date; // Get potential date value
+            // Only add item if the date is a valid, non-empty string
+             if (dateValue) { 
+          allItems.push({
+          type: 'content',
+          d: item.content_id,
+          name: item.content_name,
+          description: item.description,
+          filePath: item.content_file_path,
+                          // Normalize the date to YYYY-MM-DD format
+          date: new Date(dateValue).toISOString().split('T')[0], 
           });
-        }
+          }
+          });
+          }
 
-        //  Add assignment items
+      // Add assignment items
         if (assignmentData.assignments) {
-          assignmentData.assignments.forEach(asm => {
-            allItems.push({
-              type: 'assignment',
-              id: asm.assignment_id,
-              name: asm.assignment_name,
-              date: new Date(asm.created_at).toISOString().split('T')[0],
-            });
-          });
+        assignmentData.assignments.forEach(asm => {
+                    // Only add item if the date is a valid, non-empty string
+        if (asm.created_at) { 
+        allItems.push({
+        type: 'assignment',
+        id: asm.assignment_id,
+        name: asm.assignment_name,
+                        // The existing logic is already good, this just keeps it consistent
+        date: new Date(asm.created_at).toISOString().split('T')[0],
+        });
         }
-
+        });
+        }
         // Group by date
-        const grouped = allItems.reduce((acc, item) => {
+          const grouped = allItems.reduce((acc, item) => {
           const date = item.date;
-          if (!acc[date]) acc[date] = [];
-          acc[date].push(item);
+
+          // Only group items that have a valid date string
+          if (date) {
+            if (!acc[date]) {
+              acc[date] = [];
+            }
+            acc[date].push(item);
+          }
+          
           return acc;
         }, {});
 
@@ -168,7 +184,7 @@ const SubjectContent = () => {
                 fontWeight="bold"
                 sx={{ mb: 2, color: theme.palette.primary.main }}
               >
-                {new Date(date).toDateString()}
+                {new Date(date.replace(/-/g, '/')).toDateString()}
               </Typography>
 
               <List>
