@@ -18,6 +18,7 @@ const Url = import.meta.env.VITE_BACKEND_URL;
 const SubjectContent = () => {
   const navigate = useNavigate();
   const [groupedItems, setGroupedItems] = useState({});
+  const [allContent, setAllContent] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const theme = useTheme();
@@ -44,22 +45,26 @@ const SubjectContent = () => {
     }
   };
 
-const handleClick = async (item) => {
+ const handleClick = async (item) => {
   if (item.type === 'assignment') {
     navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
   } else if (item.type === 'content') {
     try {
+      // Check if fileId is valid
+      if (!item.filePath) {
+        alert('This content does not have an attached file:');  //stuck here
+        return;
+      }
+
       const formData = new FormData();
       formData.append('student_id', studentId);
       formData.append('content_id', item.id);
 
-      // Notify backend of content access
       await fetch(`${Url}/api/startContentAccess`, {
         method: 'POST',
         body: formData,
       });
 
-      // Mark content as complete
       await fetch(`${Url}/api/content/${item.id}`, {
         method: 'POST',
         headers: {
@@ -68,30 +73,24 @@ const handleClick = async (item) => {
         body: JSON.stringify({ student_id: studentId }),
       });
 
-      // Pass the content data through navigation state
-      navigate(`/content-view/${item.id}`, {
-        state: {
-          contentData: {
-            content_id: item.id,
-            content_name: item.name,
-            content_file_id: item.fileId,
-            description: item.description,
-            Date: item.date,
-            file_type: item.fileId ? 'pdf' : 'unknown', // Default to PDF for Google Drive
-          }
-        }
-      });
+      // Pass correct name including file extension
+      if (!item.filePath && !item.fileId ) {
+      alert('This content does not have an attached file...');
+      return;
+      }
+
+    navigate(`/content-view/${item.id}`, {
+      state: {
+        contentUrl: `${Url}/api/content/file/${item.id}`,
+        contentName: item.filePath ? item.filePath.split('/').pop().split('\\').pop(): item.name,
+        contentDescription: item.description,
+      }
+    });
     } catch (err) {
-      console.error('Failed to notify backend of content access or mark as complete', err);
+      console.error('Failed to notify backend or mark content as complete', err);
     }
   }
 };
-
-
-
-  const handleOpenFile = (fileId) => {
-    window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,7 +102,7 @@ const handleClick = async (item) => {
 
         const contentData = await contentRes.json();
         const assignmentData = await assignmentRes.json();
-
+        setAllContent(contentData);
         const allItems = [];
 
         // Add content items
@@ -114,7 +113,7 @@ const handleClick = async (item) => {
               id: item.content_id,
               name: item.content_name,
               description: item.description,
-              fileId: item.content_file_id,
+              filePath: item.content_file_path,
               date: new Date(item.Date).toISOString().split('T')[0],
             });
           });

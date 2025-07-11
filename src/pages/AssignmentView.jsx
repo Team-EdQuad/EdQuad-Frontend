@@ -22,7 +22,7 @@ const AssignmentView = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Assignment data:', data); // ✅ Debug logging
+        console.log('Assignment data:', data); 
         setAssignment(data);
         setLoading(false);
       } catch (error) {
@@ -45,16 +45,7 @@ const AssignmentView = () => {
   
 
   const handleView = () => {
-  if (assignment.assignment_file_id) {
-    // ✅ Pass file ID for Google Drive files
-    navigate('/assignment-file-view', {
-      state: {
-        fileId: assignment.assignment_file_id,
-        assignmentFileName: getFileName(),
-        assignmentFileUrl: `https://drive.google.com/file/d/${assignment.assignment_file_id}/view`
-      }
-    });
-  } else if (assignment.assignment_file_path) {
+   if (assignment.assignment_file_path) {
     // Local file
     const fileUrl = `${Url}/api/assignment/file/${assignment.assignment_id}`;
     navigate('/assignment-file-view', {
