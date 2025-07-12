@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import React, { useEffect, useState,useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   Box,
   Button,
@@ -10,10 +10,25 @@ import {
   ListItemText,
   useTheme,
 } from '@mui/material';
-
 import { StoreContext } from '../context/StoreContext';
+
 const Url = import.meta.env.VITE_BACKEND_URL;
 
+// ✅ Timezone-safe date formatting (no shifting for "YYYY-MM-DD")
+const formatDate = (dateStr) => {
+  const [year, month, day] = dateStr.split("-");
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Use midnight time to avoid UTC shift
+  const date = new Date(`${year}-${month}-${day}T00:00:00`);
+  const weekday = weekdays[date.getDay()];
+  const monthName = months[date.getMonth()];
+  return `${weekday} ${monthName} ${day} ${year}`;
+};
 
 const SubjectContent = () => {
   const navigate = useNavigate();
@@ -24,134 +39,119 @@ const SubjectContent = () => {
   const theme = useTheme();
   const { subjectId } = useParams();
   const { id: studentId } = useContext(StoreContext);
-  const Url = import.meta.env.VITE_BACKEND_URL;
-
 
   const getIconForItem = (item) => {
     if (item.type === 'assignment') return '📝';
 
     const ext = item.filePath?.split('.').pop()?.toLowerCase();
     switch (ext) {
-      case 'pdf':
-        return '📄';
-      case 'txt':
-        return '📃';
-      case 'mp3':
-        return '🎵';
-      case 'mp4':
-        return '🎬';
-      default:
-        return '📁';
+      case 'pdf': return '📄';
+      case 'txt': return '📃';
+      case 'mp3': return '🎵';
+      case 'mp4': return '🎬';
+      default: return '📁';
     }
   };
 
- const handleClick = async (item) => {
-  if (item.type === 'assignment') {
-    navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
-  } else if (item.type === 'content') {
-    try {
-      // Check if fileId is valid
-      if (!item.filePath) {
-        alert('This content does not have an attached file:');  //stuck here
-        return;
+  const handleClick = async (item) => {
+    if (item.type === 'assignment') {
+      navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
+    } else if (item.type === 'content') {
+      try {
+        if (!item.filePath) {
+          alert('This content does not have an attached file.');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('student_id', studentId);
+        formData.append('content_id', item.id);
+
+        await fetch(`${Url}/api/startContentAccess`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        await fetch(`${Url}/api/content/${item.id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ student_id: studentId }),
+        });
+
+        navigate(`/content-view/${item.id}`, {
+          state: {
+            contentUrl: `${Url}/api/content/file/${item.id}`,
+            contentName: item.filePath
+              ? item.filePath.split('/').pop().split('\\').pop()
+              : item.name,
+            contentDescription: item.description,
+          },
+        });
+      } catch (err) {
+        console.error('Failed to notify backend or mark content as complete', err);
       }
-
-      const formData = new FormData();
-      formData.append('student_id', studentId);
-      formData.append('content_id', item.id);
-
-      await fetch(`${Url}/api/startContentAccess`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      await fetch(`${Url}/api/content/${item.id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ student_id: studentId }),
-      });
-
-      // Pass correct name including file extension
-      if (!item.filePath && !item.fileId ) {
-      alert('This content does not have an attached file...');
-      return;
-      }
-
-    navigate(`/content-view/${item.id}`, {
-      state: {
-        contentUrl: `${Url}/api/content/file/${item.id}`,
-        contentName: item.filePath ? item.filePath.split('/').pop().split('\\').pop(): item.name,
-        contentDescription: item.description,
-      }
-    });
-    } catch (err) {
-      console.error('Failed to notify backend or mark content as complete', err);
     }
-  }
-};
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [contentRes, assignmentRes] = await Promise.all([
           fetch(`${Url}/api/content/${studentId}/${subjectId}`),
-          fetch(`${Url}/api/assignments/${studentId}/${subjectId}`)
+          fetch(`${Url}/api/assignments/${studentId}/${subjectId}`),
         ]);
 
         const contentData = await contentRes.json();
         const assignmentData = await assignmentRes.json();
         setAllContent(contentData);
+
         const allItems = [];
 
-        // Add content items
-        // Add content items
-          if (Array.isArray(contentData)) {
-          contentData.forEach(item => {
-           const dateValue = item.upload_date || item.Date; // Get potential date value
-            // Only add item if the date is a valid, non-empty string
-             if (dateValue) { 
-          allItems.push({
-          type: 'content',
-          d: item.content_id,
-          name: item.content_name,
-          description: item.description,
-          filePath: item.content_file_path,
-                          // Normalize the date to YYYY-MM-DD format
-          date: new Date(dateValue).toISOString().split('T')[0], 
-          });
-          }
-          });
-          }
+        // ✅ Add content items (preserve date string to avoid timezone shift)
+        if (Array.isArray(contentData)) {
+          contentData.forEach((item) => {
+            const rawDate = item.upload_date || item.Date;
+            if (rawDate) {
+              const normalizedDate = rawDate.includes('T')
+                ? new Date(rawDate).toISOString().split('T')[0]
+                : rawDate;
 
-      // Add assignment items
-        if (assignmentData.assignments) {
-        assignmentData.assignments.forEach(asm => {
-                    // Only add item if the date is a valid, non-empty string
-        if (asm.created_at) { 
-        allItems.push({
-        type: 'assignment',
-        id: asm.assignment_id,
-        name: asm.assignment_name,
-                        // The existing logic is already good, this just keeps it consistent
-        date: new Date(asm.created_at).toISOString().split('T')[0],
-        });
-        }
-        });
-        }
-        // Group by date
-          const grouped = allItems.reduce((acc, item) => {
-          const date = item.date;
-
-          // Only group items that have a valid date string
-          if (date) {
-            if (!acc[date]) {
-              acc[date] = [];
+              allItems.push({
+                type: 'content',
+                id: item.content_id,
+                name: item.content_name,
+                description: item.description,
+                filePath: item.content_file_path,
+                date: normalizedDate,
+              });
             }
-            acc[date].push(item);
-          }
-          
+          });
+        }
+
+        // ✅ Add assignment items (created_at is full ISO)
+        if (assignmentData.assignments) {
+          assignmentData.assignments.forEach((asm) => {
+            if (asm.created_at) {
+              const parsedDate = new Date(asm.created_at);
+              if (!isNaN(parsedDate)) {
+                allItems.push({
+                  type: 'assignment',
+                  id: asm.assignment_id,
+                  name: asm.assignment_name,
+                  date: parsedDate.toISOString().split('T')[0],
+                });
+              }
+            }
+          });
+        }
+
+        // ✅ Group by date
+        const grouped = allItems.reduce((acc, item) => {
+          const date = item.date;
+          if (!acc[date]) acc[date] = [];
+          acc[date].push(item);
           return acc;
         }, {});
 
@@ -176,7 +176,7 @@ const SubjectContent = () => {
         <Typography>No content or assignments available.</Typography>
       ) : (
         Object.entries(groupedItems)
-          .sort((a, b) => new Date(b[0]) - new Date(a[0])) // Descending date sort
+          .sort((a, b) => new Date(b[0]) - new Date(a[0]))
           .map(([date, items]) => (
             <Box key={date} mb={4}>
               <Typography
@@ -184,7 +184,7 @@ const SubjectContent = () => {
                 fontWeight="bold"
                 sx={{ mb: 2, color: theme.palette.primary.main }}
               >
-                {new Date(date.replace(/-/g, '/')).toDateString()}
+                {formatDate(date)}
               </Typography>
 
               <List>
@@ -203,7 +203,9 @@ const SubjectContent = () => {
                   >
                     <ListItemText
                       primary={`${getIconForItem(item)} ${item.name}`}
-                      secondary={item.description || (item.type === 'assignment' ? 'Assignment' : '')}
+                      secondary={
+                        item.description || (item.type === 'assignment' ? 'Assignment' : '')
+                      }
                       sx={{ mr: 2 }}
                     />
                     <Button
