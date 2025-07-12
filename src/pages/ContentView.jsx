@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -11,17 +11,28 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
+import { StoreContext } from '../context/StoreContext';
+
+const Url = import.meta.env.VITE_BACKEND_URL;
 
 const ContentView = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const { id: student_id } = useContext(StoreContext);
 
   const [fileContent, setFileContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hasClosed, setHasClosed] = useState(false); // prevent double close
 
-  const { contentUrl, contentName, contentDescription } = location.state || {};
+  const {
+    contentUrl,
+    contentName,
+    contentDescription,
+    content_id,
+  } = location.state || {};
+
   const fileType = contentName?.split('.').pop()?.toLowerCase() || '';
 
   useEffect(() => {
@@ -48,6 +59,78 @@ const ContentView = () => {
 
     fetchFileContent();
   }, [contentUrl, contentName, fileType]);
+
+  // ✅ Common function to call backend
+  const sendCloseContent = async () => {
+    if (hasClosed || !student_id || !content_id) return;
+
+    try {
+      const formData = new URLSearchParams();
+      formData.append('student_id', student_id);
+      formData.append('content_id', content_id);
+
+      await fetch(`${Url}/api/closeContentAccess`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Accept: 'application/json',
+        },
+        body: formData,
+      });
+
+      console.log('Closed content access via fetch');
+    } catch (err) {
+      console.error('Error closing content:', err);
+    } finally {
+      setHasClosed(true);
+    }
+  };
+
+  // ✅ Manual close button handler
+  const handleManualClose = async () => {
+    await sendCloseContent();
+    navigate(-1);
+  };
+
+  // ✅ Auto-close on inactivity
+  useEffect(() => {
+    let timer;
+
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        console.log('Auto-closing due to inactivity...');
+        sendCloseContent().then(() => navigate(-1));
+      }, 5 * 60 * 1000); // 5 minutes
+    };
+
+    const activityEvents = ['mousemove', 'keydown', 'scroll'];
+    activityEvents.forEach((e) => window.addEventListener(e, resetTimer));
+
+    resetTimer();
+
+    return () => {
+      clearTimeout(timer);
+      activityEvents.forEach((e) => window.removeEventListener(e, resetTimer));
+    };
+  }, [student_id, content_id]);
+
+  // ✅ Auto-close on tab/window close
+  useEffect(() => {
+    const handleUnload = () => {
+      if (hasClosed || !student_id || !content_id) return;
+
+      const formData = new URLSearchParams();
+      formData.append('student_id', student_id);
+      formData.append('content_id', content_id);
+
+      navigator.sendBeacon(`${Url}/api/closeContentAccess`, formData);
+      setHasClosed(true);
+    };
+
+    window.addEventListener('beforeunload', handleUnload);
+    return () => window.removeEventListener('beforeunload', handleUnload);
+  }, [student_id, content_id, hasClosed]);
 
   if (loading) {
     return (
@@ -84,7 +167,7 @@ const ContentView = () => {
           <Typography variant="h6">{contentName || 'Content File'}</Typography>
           <Typography variant="body2" color="text.secondary">{contentDescription || ''}</Typography>
         </Box>
-        <IconButton onClick={() => navigate(-1)}>
+        <IconButton onClick={handleManualClose}>
           <CloseIcon />
         </IconButton>
       </Box>

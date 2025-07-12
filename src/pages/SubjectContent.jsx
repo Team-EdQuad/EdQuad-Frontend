@@ -87,6 +87,7 @@ const SubjectContent = () => {
               ? item.filePath.split('/').pop().split('\\').pop()
               : item.name,
             contentDescription: item.description,
+            content_id:item.id,
           },
         });
       } catch (err) {
@@ -147,7 +148,7 @@ const SubjectContent = () => {
           });
         }
 
-        // ✅ Group by date
+        // Group by date
         const grouped = allItems.reduce((acc, item) => {
           const date = item.date;
           if (!acc[date]) acc[date] = [];
