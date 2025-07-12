@@ -25,6 +25,7 @@ const Url = import.meta.env.VITE_BACKEND_URL;
 
 const subjects = [
   { code: "SUB001", name: "English" },
+  { code: "SUB002", name: "Physics" },
   { code: "SUB003", name: "Chemistry" },
   { code: "SUB004", name: "Biology" },
   { code: "SUB005", name: "History" },
@@ -417,7 +418,7 @@ const AddStudent = () => {
               }
               size="small"
               sx={{ mt: 1 }}
-              placeholder="e.g., CLUB001,CLUB002"
+              placeholder="e.g., CLB001,CLB002"
             />
           </Grid>
 
@@ -436,7 +437,7 @@ const AddStudent = () => {
               }
               size="small"
               sx={{ mt: 1 }}
-              placeholder="e.g., SPORT001,SPORT002"
+              placeholder="e.g., SPT001,SPT002"
             />
           </Grid>
 

@@ -141,9 +141,23 @@ const StudentExamMarksChart = ({ studentId, classId, examYear }) => {
           labels: subjects,
           datasets,
         });
+        // setLoading(false);
+      } 
+      // catch (error) {
+    //     console.error("Error loading student exam marks:", error);
+    //   }
+    // };
+
+    // loadData();
+      catch (error) {
+        if (error.response && error.response.status === 505) {
+          console.warn("No exam marks found for this student.");
+          setChartData(null); // Explicitly set to null or empty
+        } else {
+          console.error("Error loading student exam marks:", error);
+        }
+      } finally {
         setLoading(false);
-      } catch (error) {
-        console.error("Error loading student exam marks:", error);
       }
     };
 
@@ -172,7 +186,7 @@ const StudentExamMarksChart = ({ studentId, classId, examYear }) => {
         <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
           <CircularProgress />
         </Box>
-      ) : (
+      ) : chartData ?(
         <Box sx={{ px: 2, pt: 3 ,padding: 3, height: "500px"}}>
           <Bar
             data={chartData}
@@ -206,6 +220,12 @@ const StudentExamMarksChart = ({ studentId, classId, examYear }) => {
             }}
           />
         </Box>
+        ) : (
+          <Box sx={{ textAlign: "center", py: 5 }}>
+            <Typography variant="h6" color="text.secondary">
+              No exam data found for this student in {examYear}.
+            </Typography>
+          </Box>
       )}
     </Paper>
   );
