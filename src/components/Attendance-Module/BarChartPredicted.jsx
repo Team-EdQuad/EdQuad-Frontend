@@ -42,7 +42,8 @@ const BarChartPredicted = ({ classId, subjectId }) => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const today = dayjs("2025-03-12"); // fixed test date
+  // const today = dayjs("2025-03-12"); // fixed test date
+  const today = dayjs();
   const todayDate = today.format("YYYY-MM-DD");
   const startDate = today.subtract(7, "day").format("YYYY-MM-DD");
   const endDate = today.add(7, "day").format("YYYY-MM-DD");
