@@ -12,12 +12,13 @@ const AcadamicRatio = ({classId}) => {
     const colors = tokens(theme.palette.mode);
 
     const [academicData, setAcademicData] = useState([
-        { name: "Present", value: null, color: "#9C27B0" },
-        { name: "Absent", value: null, color: "#F44336" },
+        { name: "Present", value: 0, color: "#9C27B0" },
+        { name: "Absent", value: 0, color: "#F44336" },
     ]);
     const [acadamicApiData, setAcadamicApiData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [hasData, setHasData] = useState(false);
 
     const [acadamicDataPeriod, setAcadamicDataPeriod] = useState('Yearly');
 
@@ -39,21 +40,19 @@ const AcadamicRatio = ({classId}) => {
             // Replace 'YOUR_API_ENDPOINT' with your actual API endpoint
             const response = await fetch(`${attendanceModuleUrl}/class/academic/ratio?class_id=${classId}&subject_id=academic&summary_type=${summaryType}`);
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                console.warn(`API returned ${response.status}. No data available.`);
+                setAcadamicApiData(null);
+                setHasData(false);
+                return;
             }
             const data = await response.json();
             setAcadamicApiData(data.data); // Store the API data
+            setHasData(true);
 
         } catch (error) {
-            if (error.response) {
-                console.error(`Error ${error.response.status}:`, error.response.data);
-                if (error.response.status === 404) {
-                    console.error("Data not found (404)");
-                    setAcadamicApiData(null);
-                }
-              } else {
-                console.error("Error:", error.message);
-              }
+            console.error("Error:", error.message);
+            setAcadamicApiData(null);
+            setHasData(false);
         } finally {
             setLoading(false);
         }
@@ -72,6 +71,11 @@ const AcadamicRatio = ({classId}) => {
             setAcademicData([
                 { name: "Present", value: attendanceRatio, color: "#9C27B0" },
                 { name: "Absent", value: 100 - attendanceRatio, color: "#F44336" },
+            ]);
+        } else {
+            setAcademicData([
+                { name: "Present", value: 0, color: "#9C27B0" },
+                { name: "Absent", value: 0, color: "#F44336" },
             ]);
         }
     }, [acadamicApiData]);
@@ -112,6 +116,27 @@ const AcadamicRatio = ({classId}) => {
         );
     };
 
+    const renderNoData = () => {
+        return (
+            <div style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                fontSize: "14px",
+                color: "#666",
+                zIndex: 1,
+            }}>
+                <div style={{ fontSize: "24px", marginBottom: "8px" }}>👀</div>
+                <div>No Data</div>
+            </div>
+        );
+    };
 
     return (
         <Box sx={{
@@ -150,7 +175,7 @@ const AcadamicRatio = ({classId}) => {
                 {/* Chart container */}
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                     <DoughnutChart data={academicData} />
-                    {renderPercentageLabels(academicData)}
+                    {hasData ? renderPercentageLabels(academicData) : renderNoData()}
                 </div>
             </Paper>
         </Box>
