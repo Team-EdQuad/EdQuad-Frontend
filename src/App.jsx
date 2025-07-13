@@ -8,6 +8,7 @@ import NotificationProvider from './components/NotificationProvider';
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
+import AdminCalendar from "./components/AdminCalendar";
 
 import UnderConstruction from "./pages/UnderConstruction";
 
@@ -100,6 +101,7 @@ function App() {
       <Route path="/dashboard" element={<AdminDashboard />} />
       <Route path="/sports" element={<Sports />} />
       <Route path="/clubandsocieties" element={<Clubandsocieties />} />
+      <Route path="/admin-calendar" element={<AdminCalendar />} />
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="*" element={<Navigate to="/uc" />} /> {/* Redirect unknown routes */}
     </Routes>
