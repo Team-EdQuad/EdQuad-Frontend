@@ -130,7 +130,7 @@ const AcadamicSummary = ({classId}) => {
 
     useEffect(() => {
         fetchAttendanceData(summeryType.toLowerCase(), month);
-    }, [summeryType, month]);
+    }, [summeryType, month, classId]);
 
     const hasData = (data) => {
         if (Array.isArray(data)) return data.length > 0;

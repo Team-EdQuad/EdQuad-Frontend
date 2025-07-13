@@ -45,8 +45,8 @@ const StoreContextProvider = (props) => {
     };
 
     // const [role, setRole] = useState("Student")
-    // const [role, setRole] = useState("Admin")
-    const [role, setRole] = useState("Teacher")
+    const [role, setRole] = useState("Admin")
+    // const [role, setRole] = useState("Teacher")
 
     const contextValue = {
         isMobile,

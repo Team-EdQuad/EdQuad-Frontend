@@ -79,7 +79,7 @@ const AcadamicRatio = ({classId}) => {
     useEffect(() => {
         // Fetch initial data (e.g., for 'yearly')
         fetchAttendanceData(acadamicDataPeriod.toLowerCase());
-    }, [acadamicDataPeriod]);
+    }, [acadamicDataPeriod, classId]);
 
     // Update chart data when API data changes or component mounts
     useEffect(() => {

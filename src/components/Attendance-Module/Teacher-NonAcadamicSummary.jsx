@@ -164,7 +164,7 @@ const NonAcadamicSummary = ({classId}) => {
     useEffect(() => {
         // Fetch initial data
         fetchAttendanceData(summeryType.toLowerCase(), month, subjectType);
-    }, [summeryType, month, subjectType]);
+    }, [summeryType, month, subjectType, classId]);
 
     // Add useEffect for fetching subjects
     useEffect(() => {
