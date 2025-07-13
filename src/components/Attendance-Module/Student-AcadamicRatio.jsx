@@ -23,9 +23,9 @@ const AcadamicRatio = ({ studentId }) => {
     };
 
     const acadamicDataPeriodOptions = [
-        { label: 'Yearly', value: 'Yearly' },
-        { label: 'Monthly', value: 'Monthly' },
-        { label: 'Daily', value: 'Daily' },
+        { label: 'Year-to-Date', value: 'Yearly' },
+        { label: 'Month-to-Date', value: 'Monthly' },
+        { label: 'Today', value: 'Daily' },
     ];
 
     // Function to fetch data from your API

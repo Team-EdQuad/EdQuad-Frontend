@@ -11,9 +11,9 @@ const DEFAULT_CHART_DATA = [
 ];
 
 const PERIOD_OPTIONS = [
-    { label: 'Yearly', value: 'Yearly' },
-    { label: 'Monthly', value: 'Monthly' },
-    { label: 'Daily', value: 'Daily' },
+    { label: 'Year-to-Date', value: 'Yearly' },
+    { label: 'Month-to-Date', value: 'Monthly' },
+    { label: 'Today', value: 'Daily' },
 ];
 
 const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange }) => {

@@ -8,13 +8,30 @@ import CustomDropdown from '../../components/Attendance-Module/CustomDropdown';
 import { StoreContext } from '../../context/StoreContext';
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
+// Subject ID to Name mapping
+const SUBJECT_NAMES = {
+    'SPT001': 'Cricket',
+    'SPT002': 'Football',
+    'SPT003': 'Basketball',
+    'SPT004': 'Tennis',
+    'SPT005': 'Swimming',
+    'SPT006': 'Badminton',
+    'CLB001': 'Netball',
+    'CLB002': 'Dance',
+    'CLB003': 'Drama',
+    'CLB004': 'Singing',
+    'CLB005': 'Scout',
+    'CLB006': 'Science Club',
+    // Add more mappings as needed
+};
 
 const StudentDocument = () => {
 
-  const { studentId, classId } = useContext(StoreContext);
+  const { studentId, classId, showNotification } = useContext(StoreContext);
 
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
 
   // for dropdown
   const [attendanceType, setAttendanceType] = useState('academic');
@@ -51,14 +68,14 @@ const StudentDocument = () => {
       
       // Filter and set sports options
       const sports = subjects.filter(id => id.startsWith('SPT')).map(id => ({
-        label: id,
+        label: SUBJECT_NAMES[id] || id,
         value: id
       }));
       setSportsOptions(sports);
       
       // Filter and set clubs options
       const clubs = subjects.filter(id => id.startsWith('CLB')).map(id => ({
-        label: id,
+        label: SUBJECT_NAMES[id] || id,
         value: id
       }));
       setClubsOptions(clubs);
@@ -68,6 +85,7 @@ const StudentDocument = () => {
       if (!clubsId && clubs.length > 0) setClubsId(clubs[0].value);
     } catch (error) {
       console.error('Failed to fetch subjects:', error);
+      showNotification('Failed to fetch subjects', 'error');
     }
   };
 
@@ -78,8 +96,12 @@ const StudentDocument = () => {
       );
 
       setDocuments(response.data.data || []);
+      if (response.data.data?.length === 0) {
+        showNotification('No documents found for the selected criteria', 'info');
+      }
     } catch (error) {
       console.error('Failed to fetch documents:', error);
+      showNotification('Failed to fetch documents. Please try again later.', 'error');
       setDocuments([]);
     } finally {
       setLoading(false);
@@ -87,18 +109,26 @@ const StudentDocument = () => {
   };
 
   const handleView = (doc) => {
-    window.open(doc.file_url, '_blank');
+    try {
+      window.open(doc.file_url, '_blank');
+      showNotification('Opening document in new tab', 'info');
+    } catch (error) {
+      console.error('Failed to open document:', error);
+      showNotification('Failed to open document. Please try again.', 'error');
+    }
   };
 
   const handleDelete = async (doc) => {
-    if (!window.confirm('Are you sure you want to delete this document?')) return;
-
+    setDeletingId(doc._id);
     try {
       await axios.delete(`${attendanceModuleUrl}/delete/document/${doc._id}`);
       setDocuments((prevDocs) => prevDocs.filter((d) => d._id !== doc._id));
+      showNotification('Document deleted successfully', 'success');
     } catch (error) {
       console.error('Failed to delete document:', error);
-      alert('Failed to delete document.');
+      showNotification('Failed to delete document. Please try again.', 'error');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -168,6 +198,7 @@ const StudentDocument = () => {
           index={index}
           onView={handleView}
           onDelete={handleDelete}
+          isDeleting={deletingId === doc._id}
         />
       ))}
     </Box>
