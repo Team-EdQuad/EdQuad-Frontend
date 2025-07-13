@@ -3,6 +3,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { StoreContext } from './context/StoreContext'
 import { useContext } from "react";
+import NotificationProvider from './components/NotificationProvider';
 
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
@@ -118,43 +119,27 @@ function App() {
   };
 
   return (
-    // <ColorModeContext.Provider value={colorMode}>
-    //   <ThemeProvider theme={theme}>
-    //     <CssBaseline />
-    //     <div className="topbar">
-    //       <Topbar />
-    //       <div className="sidebar">
-    //         {!isMobile && <Sidebar role={userRole} />} {/* Pass role to Sidebar */}
-    //         <div className="content-footer">
-    //           <main className="content">{getRoutes()}</main>
-    //           <div className="footer">
-    //             <Footer />
-    //           </div>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </ThemeProvider>
-    // </ColorModeContext.Provider>
-
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <div className="panel">
-          <div className="top-panel">
-            <Topbar />
-          </div>  
-          <div className="bottom-panel">
-            <div className="bottom-left-panel">
-              {!isMobile && <Sidebar role={userRole} />}
-            </div>
-            <div className="bottom-right-panel">
-              <main className="content">{getRoutes()}</main>
-              <div className="footer">
-                <Footer />
+        <NotificationProvider>
+          <div className="panel">
+            <div className="top-panel">
+              <Topbar />
+            </div>  
+            <div className="bottom-panel">
+              <div className="bottom-left-panel">
+                {!isMobile && <Sidebar role={userRole} />}
+              </div>
+              <div className="bottom-right-panel">
+                <main className="content">{getRoutes()}</main>
+                <div className="footer">
+                  <Footer />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </NotificationProvider>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

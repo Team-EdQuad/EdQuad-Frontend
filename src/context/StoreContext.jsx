@@ -18,12 +18,35 @@ const StoreContextProvider = (props) => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const toggleDrawer = () => {
         setDrawerOpen(!drawerOpen);
-      };
+    };
 
-    // const [role, setRole] = useState("Student")
+    // Notification state
+    const [notification, setNotification] = useState({
+        open: false,
+        message: '',
+        severity: 'info', // 'error', 'warning', 'info', 'success'
+        duration: 3000
+    });
+
+    const showNotification = (message, severity = 'info', duration = 3000) => {
+        setNotification({
+            open: true,
+            message,
+            severity,
+            duration
+        });
+    };
+
+    const hideNotification = () => {
+        setNotification(prev => ({
+            ...prev,
+            open: false
+        }));
+    };
+
+    const [role, setRole] = useState("Student")
     // const [role, setRole] = useState("Admin")
-    const [role, setRole] = useState("Teacher")
-
+    // const [role, setRole] = useState("Teacher")
 
     const contextValue = {
         isMobile,
@@ -40,7 +63,11 @@ const StoreContextProvider = (props) => {
         selected,
         setSelected,
         classId,
-        setClassId
+        setClassId,
+        // Add notification context
+        notification,
+        showNotification,
+        hideNotification
     };
 
     return (
