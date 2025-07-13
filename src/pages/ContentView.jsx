@@ -60,7 +60,7 @@ const ContentView = () => {
     fetchFileContent();
   }, [contentUrl, contentName, fileType]);
 
-  // ✅ Common function to call backend
+  // Common function to call backend
   const sendCloseContent = async () => {
     if (hasClosed || !student_id || !content_id) return;
 
@@ -86,13 +86,13 @@ const ContentView = () => {
     }
   };
 
-  // ✅ Manual close button handler
+  // Manual close button handler
   const handleManualClose = async () => {
     await sendCloseContent();
     navigate(-1);
   };
 
-  // ✅ Auto-close on inactivity
+  // Auto-close on inactivity
   useEffect(() => {
     let timer;
 
@@ -115,7 +115,7 @@ const ContentView = () => {
     };
   }, [student_id, content_id]);
 
-  // ✅ Auto-close on tab/window close
+  // Auto-close on tab/window close
   useEffect(() => {
     const handleUnload = () => {
       if (hasClosed || !student_id || !content_id) return;
