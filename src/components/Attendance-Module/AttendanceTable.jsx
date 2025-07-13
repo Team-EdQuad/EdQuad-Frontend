@@ -15,29 +15,31 @@ const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 
 
-const requestData = async (classId, subject_type, subjectId, date) => {
+const requestData = async (classId, subject_type, subjectId, date, mode) => {
     const requestData = {
         class_id: classId,
         subject_id: subjectId,
-        subject_type: subject_type,   //handle this properly
-        date: date
+        subject_type: subject_type,   // This will be 'academic', 'sport', or 'club'
+        date: date,
+        mode: mode
     };
 
     try {
         // Different endpoints for student and teacher roles
-        const endpoint = classId.startsWith('STU') 
+        const endpoint = classId.startsWith('STU') && mode == 'view'   
             ? `${attendanceModuleUrl}/get_student_attendance`
             : `${attendanceModuleUrl}/students/by-class`;
 
+        console.log("Sending request with data:", requestData); // Add logging
+
         const response = await axios.post(endpoint, requestData);
         const responseData = response.data;
+        console.log("Response data:", responseData); // Add logging
 
         const fetchedData = responseData.data.map((student) => ({
             id: student.student_id,
             name: student.full_name,
             attendance: student.attendance || 'present',
-            monthly: student.att_ratio !== undefined ? `${(student.att_ratio * 100).toFixed(0)}%` : "N/A",
-            trend: `${Math.floor(Math.random() * 21) + 70}%`,
         }));
 
         return {
@@ -46,6 +48,7 @@ const requestData = async (classId, subject_type, subjectId, date) => {
         };
     } catch (error) {
         console.error('Error fetching student data:', error);
+        console.error('Request data was:', requestData); // Add error logging
         return {
             "_id": null,
             "fetchedData": []
@@ -73,7 +76,6 @@ const markAttendance = async (classId, subjectId, students, date = null) => {
     };
 
     try {
-        // Different endpoints for student and teacher roles
         const endpoint = classId.startsWith('STU')
             ? `${attendanceModuleUrl}/mark_student_attendance`
             : `${attendanceModuleUrl}/attendance_marking`;
@@ -81,10 +83,12 @@ const markAttendance = async (classId, subjectId, students, date = null) => {
         const response = await axios.post(endpoint, payload);
         console.log('✅ Attendance marked successfully:', response.data);
         return true;
+
     } catch (error) {
         console.error('Error marking attendance:', error);
         return false;
     }
+
 };
 
 
@@ -123,8 +127,8 @@ const deleteAttendance = async (attendance_id, classId) => {
     try {
         // Different endpoints for student and teacher roles
         const endpoint = classId.startsWith('STU')
-            ? `${attendanceModuleUrl}/delete_student_attendance/${attendance_id}`
-            : `${attendanceModuleUrl}/delete_attendance_of_class/${attendance_id}`;
+            ? `${attendanceModuleUrl}/delete-student-attendance/${attendance_id}`
+            : `${attendanceModuleUrl}/delete-attendance-of-class/${attendance_id}`;
 
         const response = await axios.delete(endpoint);
         console.log('✅ Attendance deleted successfully:', response.data);
@@ -162,14 +166,15 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
     const handleSubmit = async () => {
         setLoading(true);
         if (!existingAttendanceId) {
-            const success = await markAttendance("CLS013", attendanceType === "academic" ? "academic" : subjectType, students, selectedDate);
+            const success = await markAttendance(classId, attendanceType === "academic" ? "academic" : subjectId, students, selectedDate);
             if (success) {
                 console.log('Attendance submitted successfully');
+                await fetchData();
             } else {
                 console.log('Failed to submit attendance');
             }
         } else {
-            const success = await updateAttendance(existingAttendanceId, "CLS013", attendanceType === "academic" ? "academic" : subjectType, students, selectedDate);
+            const success = await updateAttendance(existingAttendanceId, classId, attendanceType === "academic" ? "academic" : subjectId, students, selectedDate);
             if (success) {
                 console.log('Attendance Updated successfully');
                 await fetchData(); // 🔁 Refresh the student data
@@ -192,24 +197,32 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
 
 
     const handleSearch = (e) => {
-        const newQuery = e.target.value;
-        setSearchQuery(newQuery);
-        
-        // Filter based on the new query
-        const filtered = students.filter(student =>
-            student.id.toString().toLowerCase().includes(newQuery.toLowerCase()) ||
-            student.name.toLowerCase().includes(newQuery.toLowerCase())
-        );
-        setFilteredData(filtered);
+        setSearchQuery(e.target.value);
     };
 
+    useEffect(() => {
+        const filtered = students.filter(student =>
+            student.id.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+            student.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setFilteredData(filtered);
+    }, [students, searchQuery]);
+
     const fetchData = async () => {
-        const responseData = await requestData(classId, subjectType, subjectId, selectedDate);
-        const fetchedData = responseData.fetchedData;
-        setStudents(fetchedData);
-        setFilteredData(fetchedData); // Initialize filtered data with all students
-        setExistingAttendanceId(responseData._id);
+        try {
+          const responseData = await requestData(classId, subjectType, subjectId, selectedDate, mode);
+          
+          const fetchedData = responseData.fetchedData;
+          setStudents(fetchedData);
+          setFilteredData(fetchedData); // Set initial filtered data
+          setExistingAttendanceId(responseData._id);
+      
+          console.log("This is from table:", responseData); // Use comma for better logging
+        } catch (error) {
+          console.error("Failed to fetch data:", error);
+        }
     };
+      
 
     useEffect(() => {
         fetchData();
@@ -256,69 +269,6 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
     };
 
 
-    const filteredStudents = students.filter(
-        (student) =>
-            student.id.toLowerCase().includes(searchQuery) ||
-            student.name.toLowerCase().includes(searchQuery)
-    );
-
-    const Search = styled('div')(({ theme }) => ({
-        position: 'relative',
-        borderRadius: theme.shape.borderRadius,
-        backgroundColor: '#EFF3FF',
-        '&:hover': {
-            backgroundColor: '#EFF3FF',
-        },
-        marginBottom: 0,
-        width: '40%',
-        height: '33px',
-        display: 'flex',
-        alignItems: 'center',
-        border: `1px solid #D9D9D9`,
-        overflow: 'hidden',
-        '& .MuiInputBase-root': {
-            width: '100%',
-            height: '100%',
-        },
-        '& .MuiInputBase-input': {
-            width: '100%',
-            height: '100%',
-            paddingLeft: '45px',
-            paddingRight: '8px',
-            fontSize: '0.9rem',
-        }
-    }));
-
-    const SearchIconWrapper = styled('div')(({ theme }) => ({
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        height: '33px',
-        width: '33px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1,
-        pointerEvents: 'none',
-    }));
-
-
-    const StyledInputBase = styled(InputBase)(({ theme }) => ({
-        color: '#333',
-        width: '100%',
-        height: '100%',
-        '& .MuiInputBase-input': {
-            padding: theme.spacing(1, 1, 1, 4.5),
-            width: '100%',
-            height: '100%',
-            transition: theme.transitions.create('width'),
-            fontSize: '0.9rem',
-            '&:focus': {
-                width: '100%',
-            }
-        },
-    }));
-
     return (
         <Box sx={{
             width: '100%',
@@ -339,32 +289,48 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
                     mb: 2, 
                     gap: 2
                 }}>
-                    <Search sx={{ 
+                    <Box sx={{ 
+                        position: 'relative',
                         width: isExtraSmallPaper ? '100%' : '300px',
                         marginTop: isExtraSmallPaper ? 1 : 0,
-                        overflow: 'visible'
                     }}>
-                        <SearchIconWrapper>
-                            <SearchIcon sx={{
-                                backgroundColor: '#D9D9D9',
-                                color: '#000',
-                                padding: '5px',
-                                width: '33px',
-                                height: '33px',
-                                borderRadius: '5px 0px 0px 5px',
-                            }} />
-                        </SearchIconWrapper>
-                        <StyledInputBase
+                        <SearchIcon sx={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            height: '33px',
+                            width: '33px',
+                            backgroundColor: '#D9D9D9',
+                            color: '#000',
+                            padding: '5px',
+                            borderRadius: '5px 0px 0px 5px',
+                            zIndex: 1,
+                        }} />
+                        <InputBase
                             placeholder="Search by ID or Name"
                             inputProps={{ 
-                                'aria-label': 'search',
-                                style: { paddingLeft: '45px' }
+                                'aria-label': 'search'
                             }}
                             value={searchQuery}
                             onChange={handleSearch}
-                            fullWidth
+                            sx={{
+                                backgroundColor: '#EFF3FF',
+                                borderRadius: '5px',
+                                border: '1px solid #D9D9D9',
+                                height: '33px',
+                                width: '100%',
+                                fontSize: '0.9rem',
+                                '& .MuiInputBase-input': {
+                                    paddingLeft: '45px',
+                                    paddingRight: '8px',
+                                    height: '100%',
+                                },
+                                '&:hover': {
+                                    backgroundColor: '#EFF3FF',
+                                },
+                            }}
                         />
-                    </Search>
+                    </Box>
 
                     <FormControl sx={{ 
                         width: isExtraSmallPaper ? '100%' : '180px',
@@ -487,11 +453,11 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
                                 <TableCell sx={{ fontSize: isExtraSmallPaper ? '0.8rem' : '0.9rem' }}>
                                     Attendance
                                 </TableCell>
-                                {!isSmallPaper && (
+                                {/* {!isSmallPaper && (
                                     <TableCell sx={{ fontSize: isExtraSmallPaper ? '0.8rem' : '0.9rem' }}>
                                         Yearly Pres
                                     </TableCell>
-                                )}
+                                )} */}
                                 {/* {!isExtraSmallPaper && (
                                     <TableCell sx={{ fontSize: isExtraSmallPaper ? '0.8rem' : '0.9rem' }}>
                                         Trend Pres
@@ -562,7 +528,7 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
                                             student.attendance
                                         )}
                                     </TableCell>
-                                    {!isSmallPaper && (
+                                    {/* {!isSmallPaper && (
                                         <TableCell
                                             sx={{
                                                 color: student.attendance === 'present' ? '#000' : '#fff',
@@ -574,7 +540,7 @@ const AttendanceTable = ({ classId, attendanceType, subjectType, subjectId, sele
                                         >
                                             {student.monthly}
                                         </TableCell>
-                                    )}
+                                    )} */}
                                     {/* {!isExtraSmallPaper && (
                                         <TableCell
                                             sx={{

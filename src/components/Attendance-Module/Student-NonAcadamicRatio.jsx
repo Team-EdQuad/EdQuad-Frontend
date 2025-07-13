@@ -36,7 +36,7 @@ const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange
                     textAlign: "center",
                     color: entry.color,
                 }}>
-                    {entry.name}<br />{entry.value}%
+                    {entry.name}<br />{parseFloat(entry.value).toFixed(2)}%%
                 </div>
             ))}
         </div>

@@ -3,6 +3,7 @@ import { Box, Paper, Typography, useTheme } from '@mui/material'
 import Calendar from './CustomCalender'
 import CustomDropdown from './CustomDropdown'
 import BarChartCompo from './BarChartCompo'
+import BarChartPredicted from './BarChartPredicted'
 import LineChartCompo from './LineChartCompo'
 import { useState, useEffect } from 'react'
 import { ColorModeContext, tokens } from "../../theme";
@@ -22,13 +23,14 @@ const AcadamicSummary = ({classId}) => {
 
 
 
-    const [summeryType, setSummeryType] = useState('Monthly');
+    const [summeryType, setSummeryType] = useState('Predicted');
 
     const handlesummeryTypeChange = (e) => {
         setSummeryType(e.target.value);
     };
 
     const summeryTypeOptions = [
+        { label: 'Predicted', value: 'Predicted' },
         { label: 'Monthly', value: 'Monthly' },
         { label: 'Weekly', value: 'Weekly' },
         { label: 'Daily', value: 'Daily' },
@@ -133,9 +135,13 @@ const AcadamicSummary = ({classId}) => {
                     />
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'left', alignItems: 'flex-start', width: '100%' }}>
-                    {summeryType === 'Monthly' ? (
-                        // <BarChartCompo data={monthlyData} />
-                        <LineChartCompo data={monthlyData} />
+                    {summeryType === 'Predicted' ? (
+                        <BarChartPredicted classId={classId} subjectId="academic" />
+                    ) : summeryType === 'Monthly' ? (
+                        <BarChartCompo data={monthlyData} />
+                        // <BarChartPredicted classId={classId} subjectId="academic" />
+                        // <LineChartCompo data={monthlyData} />
+                    
                     ) : summeryType === 'Weekly' ? (
                         <Box>
                             <Box display="flex" justifyContent="flex-end" mb={2} mx={"25px"}>

@@ -6,7 +6,7 @@ import DoughnutChart from './DoughnutChart';
 import CustomDropdown from './CustomDropdown';
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
-const AcadamicRatio = ({studentId}) => {
+const AcadamicRatio = ({ studentId }) => {
 
     const [academicData, setAcademicData] = useState([
         { name: "Present", value: null, color: "#9C27B0" },
@@ -16,7 +16,7 @@ const AcadamicRatio = ({studentId}) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const [acadamicDataPeriod, setAcadamicDataPeriod] = useState('Monthly');
+    const [acadamicDataPeriod, setAcadamicDataPeriod] = useState('Yearly');
 
     const handleacadamicDataPeriodChange = (e) => {
         setAcadamicDataPeriod(e.target.value);
@@ -34,7 +34,7 @@ const AcadamicRatio = ({studentId}) => {
         setError(null);
         try {
             const response = await fetch(`${attendanceModuleUrl}/student/academic/ratio?student_id=${studentId}&subject_id=academic&summary_type=${summaryType}`);
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -48,9 +48,9 @@ const AcadamicRatio = ({studentId}) => {
                     console.error("Data not found (404)");
                     setAcadamicApiData(null);
                 }
-              } else {
+            } else {
                 console.error("Error:", error.message);
-              }
+            }
         } finally {
             setLoading(false);
         }
@@ -93,18 +93,18 @@ const AcadamicRatio = ({studentId}) => {
                         key={index}
                         style={{
                             position: "absolute",
-                            top: index === 0 ? "3%" : "60%",   // you can adjust
-                            left: index === 0 ? "3%" : "80%",   // you can adjust
-                            // transform: "translate(-50%, -50%)",
+                            top: index === 0 ? "3%" : "60%",
+                            left: index === 0 ? "3%" : "80%",
                             textAlign: "center",
                             color: entry.color,
                         }}
                     >
                         {entry.name}
                         <br />
-                        {entry.value}%
+                        {parseFloat(entry.value).toFixed(2)}%
                     </div>
                 ))}
+
             </div>
         );
     };

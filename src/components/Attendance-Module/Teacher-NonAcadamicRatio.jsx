@@ -7,8 +7,8 @@ import axios from 'axios';
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const DEFAULT_CHART_DATA = [
-    { name: "Present", value: null, color: "#9C27B0" },
-    { name: "Absent", value: null, color: "#F44336" },
+    { name: "Present", value: 0, color: "#9C27B0" },
+    { name: "Absent", value: 0, color: "#F44336" },
 ];
 
 const PERIOD_OPTIONS = [
@@ -17,7 +17,24 @@ const PERIOD_OPTIONS = [
     { label: 'Daily', value: 'Daily' },
 ];
 
-const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange }) => {
+// Subject ID to Name mapping
+const SUBJECT_NAMES = {
+    'SPT001': 'Cricket',
+    'SPT002': 'Netball',
+    'SPT003': 'Basketball',
+    'SPT004': 'Badminton',
+    'SPT005': 'Swimming',
+    'SPT006': 'Tennis',
+    'CLB001': 'Science Club',
+    'CLB002': 'Dance Club',
+    'CLB003': 'Singing Club',
+    'CLB004': 'Scout Club',
+    'CLB005': 'Drama Club',
+    // 'CLB006': 'Science Club',
+    // Add more mappings as needed
+};
+
+const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange, hasData }) => {
     const renderPercentageLabels = (data) => (
         <div style={{
             position: "absolute",
@@ -43,6 +60,26 @@ const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange
         </div>
     );
 
+    const renderNoData = () => (
+        <div style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: "14px",
+            color: "#666",
+            zIndex: 1,
+        }}>
+            <div style={{ fontSize: "24px", marginBottom: "8px" }}>👀</div>
+            <div>No Data</div>
+        </div>
+    );
+
     return (
         <Box sx={{ 
             display: 'flex', 
@@ -61,10 +98,10 @@ const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange
             </div>
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                 <DoughnutChart data={subjectData} />
-                {renderPercentageLabels(subjectData)}
+                {hasData ? renderPercentageLabels(subjectData) : renderNoData()}
             </div>
             <div style={{ marginBottom: '10px' }}>
-                <Typography variant="h5">{subjectId}</Typography>
+                <Typography variant="h5">{SUBJECT_NAMES[subjectId] || subjectId}</Typography>
             </div>
         </Box>
     );
@@ -97,14 +134,20 @@ const NonAcademicRatio = ({ classId }) => {
                 `${attendanceModuleUrl}/class/nonacademic/ratio?class_id=${classId}&subject_id=${subject}&summary_type=${summaryType.toLowerCase()}`
             );
             
-            let data;
             if (!response.ok) {
-                console.warn(`API returned ${response.status}. Using default data.`);
-                data = { data: { attendance_ratio: 0.75 } };
-            } else {
-                data = await response.json();
+                console.warn(`API returned ${response.status}. No data available.`);
+                setSubjectsData(prev => ({
+                    ...prev,
+                    [subject]: {
+                        ...prev[subject],
+                        chartData: DEFAULT_CHART_DATA,
+                        hasData: false
+                    }
+                }));
+                return;
             }
 
+            const data = await response.json();
             const attendanceRatio = data.data.attendance_ratio * 100;
             setSubjectsData(prev => ({
                 ...prev,
@@ -113,20 +156,18 @@ const NonAcademicRatio = ({ classId }) => {
                     chartData: [
                         { name: "Present", value: attendanceRatio, color: "#9C27B0" },
                         { name: "Absent", value: 100 - attendanceRatio, color: "#F44336" },
-                    ]
+                    ],
+                    hasData: true
                 }
             }));
         } catch (error) {
             console.error(`Error fetching data for ${subject}:`, error);
-            const attendanceRatio = 75; // Default value
             setSubjectsData(prev => ({
                 ...prev,
                 [subject]: {
                     ...prev[subject],
-                    chartData: [
-                        { name: "Present", value: attendanceRatio, color: "#9C27B0" },
-                        { name: "Absent", value: 100 - attendanceRatio, color: "#F44336" },
-                    ]
+                    chartData: DEFAULT_CHART_DATA,
+                    hasData: false
                 }
             }));
         } finally {
@@ -145,7 +186,8 @@ const NonAcademicRatio = ({ classId }) => {
                     ...acc,
                     [subject]: {
                         period: 'Yearly',
-                        chartData: DEFAULT_CHART_DATA
+                        chartData: DEFAULT_CHART_DATA,
+                        hasData: false
                     }
                 }), {});
                 setSubjectsData(initialData);
@@ -224,6 +266,7 @@ const NonAcademicRatio = ({ classId }) => {
                             subjectData={subjectsData[subjectId]?.chartData || DEFAULT_CHART_DATA}
                             period={subjectsData[subjectId]?.period || 'Yearly'}
                             onPeriodChange={handlePeriodChange}
+                            hasData={subjectsData[subjectId]?.hasData || false}
                         />
                     ))}
                 </Box>

@@ -49,6 +49,7 @@ const TeacherAttendanceEntry = () => {
                 value: id
             }));
             setSportsOptions(sports);
+            console.log("This is from teacher attendance entry: " + sports[0].value);
             
             // Filter and set clubs options
             const clubs = subjects.filter(id => id.startsWith('CLB')).map(id => ({
@@ -110,6 +111,7 @@ const TeacherAttendanceEntry = () => {
         { label: 'Sports', value: 'sport' },
         { label: 'Clubs', value: 'club' }
     ];
+
 
     return (
         <Box ref={panelRef} sx={{
@@ -180,6 +182,9 @@ const TeacherAttendanceEntry = () => {
                         mode='edit'
                         panelSize={panelSize.width}
                     />
+                    {/* {console.log("This is from teacher attendance entry: " + subjectType)}
+                    {console.log("This is from teacher attendance entry: " + sportsId)}
+                    {console.log("This is from teacher attendance entry: " + clubsId)} */}
                 </Box>
             </Box>
         </Box>
