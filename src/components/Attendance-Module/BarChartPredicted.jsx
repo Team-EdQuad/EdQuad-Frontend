@@ -50,7 +50,7 @@ const BarChartPredicted = ({ classId, subjectId }) => {
   useEffect(() => {
     const fetchAttendanceSummary = async () => {
       try {
-        const url = `${attendanceModuleUrl}/summary?class_id=${classId}&subject_id=${subjectId}&start_date=${startDate}&end_date=${endDate}&today_date=${todayDate}`;
+        const url = `${attendanceModuleUrl}/summary?class_id=${classId}&subject_id=${subjectId}&start_date=${startDate}&end_date=${endDate}&current_date=${todayDate}`;
         const res = await fetch(url);
         const data = await res.json();
 
