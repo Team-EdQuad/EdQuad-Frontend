@@ -1,9 +1,11 @@
+
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { StoreContext } from "./context/StoreContext";
 import { useContext } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
+import NotificationProvider from './components/NotificationProvider';
 
 import Topbar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
@@ -107,7 +109,7 @@ function Layout() {
       <Route path="/uc" element={<UnderConstruction />} />
       <Route path="/behavioural-analysis" element={<BehavioralAnalysis />} />
       <Route path="/submission/view/:submissionId" element={<SubmissionView />} />  
-      <Route path="check-auto-graded" element={<ReviewAutoGradedAssignments />} />
+      <Route path="/check-auto-graded" element={<ReviewAutoGradedAssignments />} />
       <Route path="*" element={<Navigate to="/uc" />} />
     </>
   );
@@ -131,44 +133,24 @@ function Layout() {
     </>
   );
 
-  // const getRoutes = () => {
-  //   switch (userRole) {
-  //     case "Student":
-  //       return studentRoutes;
-  //     case "Teacher":
-  //       return teacherRoutes;
-  //     case "Admin":
-  //       return adminRoutes;
-  //     default:
-  //       return (
-  //         <Routes>
-  //           <Route path="/" element={<Login />} />
-  //           <Route path="*" element={<Navigate to="/" />} />
-  //         </Routes>
-  //       );
-  //   }
-  // };
-
   const getRoutes = () => {
-  switch (userRole) {
-    case "student":
-      return studentRoutes; // array of <Route> elements
-    case "teacher":
-      return teacherRoutes;
-    case "admin":
-      return adminRoutes;
-    default:
-      return [
-        <Route key="login" path="/" element={<Login />} />,
-        <Route key="notfound" path="*" element={<Navigate to="/" />} />
-      ];
-  }
-};
-
+    switch (userRole) {
+      case "student":
+        return studentRoutes;
+      case "teacher":
+        return teacherRoutes;
+      case "admin":
+        return adminRoutes;
+      default:
+        return [
+          <Route key="login" path="/" element={<Login />} />,
+          <Route key="notfound" path="*" element={<Navigate to="/" />} />
+        ];
+    }
+  };
 
   return (
-    <>
-      <CssBaseline />
+    <NotificationProvider>
       <div className="panel">
         <div className="top-panel">
           <Topbar />
@@ -181,36 +163,13 @@ function Layout() {
             <main className="content">
               <Routes>{getRoutes()}</Routes>
             </main>
-
             <div className="footer">
               <Footer />
             </div>
           </div>
         </div>
       </div>
-    </>
-
-    // <ColorModeContext.Provider value={colorMode}>
-    //   <ThemeProvider theme={theme}>
-    //     <CssBaseline />
-    //     <div className="panel">
-    //       <div className="top-panel">
-    //         <Topbar />
-    //       </div>
-    //       <div className="bottom-panel">
-    //         <div className="bottom-left-panel">
-    //           {!isMobile && <Sidebar role={userRole} />}
-    //         </div>
-    //         <div className="bottom-right-panel">
-    //           <main className="content">{getRoutes()}</main>
-    //           <div className="footer">
-    //             <Footer />
-    //           </div>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </ThemeProvider>
-    // </ColorModeContext.Provider>
+    </NotificationProvider>
   );
 }
 
@@ -221,11 +180,6 @@ function App() {
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {/* <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/*" element={<Layout />} />
-        </Routes> */}
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

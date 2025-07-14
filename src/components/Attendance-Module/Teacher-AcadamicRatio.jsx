@@ -1,10 +1,28 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Box, Paper, Typography, useTheme } from '@mui/material';
+import { Box, Paper, Typography, useTheme, CircularProgress } from '@mui/material';
 import DoughnutChart from './DoughnutChart';
 import CustomDropdown from './CustomDropdown';
 import { ColorModeContext, tokens } from "../../theme";
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
+
+const LoadingOverlay = () => (
+    <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        zIndex: 1,
+        borderRadius: 'inherit'
+    }}>
+        <CircularProgress />
+    </Box>
+);
 
 const AcadamicRatio = ({classId}) => {
 
@@ -27,9 +45,9 @@ const AcadamicRatio = ({classId}) => {
     };
 
     const acadamicDataPeriodOptions = [
-        { label: 'Yearly', value: 'Yearly' },
-        { label: 'Monthly', value: 'Monthly' },
-        { label: 'Daily', value: 'Daily' },
+        { label: 'Year-to-Date', value: 'Yearly' },
+        { label: 'Month-to-Date', value: 'Monthly' },
+        { label: 'Today', value: 'Daily' },
     ];
 
     // Function to fetch data from your API
@@ -61,7 +79,7 @@ const AcadamicRatio = ({classId}) => {
     useEffect(() => {
         // Fetch initial data (e.g., for 'yearly')
         fetchAttendanceData(acadamicDataPeriod.toLowerCase());
-    }, [acadamicDataPeriod]);
+    }, [acadamicDataPeriod, classId]);
 
     // Update chart data when API data changes or component mounts
     useEffect(() => {
@@ -174,8 +192,13 @@ const AcadamicRatio = ({classId}) => {
 
                 {/* Chart container */}
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                    <DoughnutChart data={academicData} />
-                    {hasData ? renderPercentageLabels(academicData) : renderNoData()}
+                    {loading && <LoadingOverlay />}
+                    {!loading && (
+                        <>
+                            <DoughnutChart data={academicData} />
+                            {hasData ? renderPercentageLabels(academicData) : renderNoData()}
+                        </>
+                    )}
                 </div>
             </Paper>
         </Box>

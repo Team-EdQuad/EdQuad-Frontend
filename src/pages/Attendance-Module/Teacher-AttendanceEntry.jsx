@@ -12,6 +12,22 @@ import DateSelector from '../../components/Attendance-Module/DateSelector';
 import AttendanceTable from '../../components/Attendance-Module/AttendanceTable';
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
+// Subject ID to Name mapping
+const SUBJECT_NAMES = {
+    'SPT001': 'Cricket',
+    'SPT002': 'Football',
+    'SPT003': 'Basketball',
+    'SPT004': 'Tennis',
+    'SPT005': 'Swimming',
+    'SPT006': 'Badminton',
+    'CLB001': 'Netball',
+    'CLB002': 'Dance',
+    'CLB003': 'Drama',
+    'CLB004': 'Singing',
+    'CLB005': 'Scout',
+    'CLB006': 'Science Club',
+    // Add more mappings as needed
+};
 
 const TeacherAttendanceEntry = () => {
     const [panelRef, panelSize] = useElementSize();
@@ -45,15 +61,14 @@ const TeacherAttendanceEntry = () => {
             
             // Filter and set sports options
             const sports = subjects.filter(id => id.startsWith('SPT')).map(id => ({
-                label: id,
+                label: SUBJECT_NAMES[id] || id,
                 value: id
             }));
             setSportsOptions(sports);
-            console.log("This is from teacher attendance entry: " + sports[0].value);
             
             // Filter and set clubs options
             const clubs = subjects.filter(id => id.startsWith('CLB')).map(id => ({
-                label: id,
+                label: SUBJECT_NAMES[id] || id,
                 value: id
             }));
             setClubsOptions(clubs);

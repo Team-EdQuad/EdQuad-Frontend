@@ -99,16 +99,21 @@ const TeacherAnalysis = () => {
                 </Box>
 
                 <Box sx={{ 
-                    display: 'flex', 
-                    flexWrap: 'wrap',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 550px), 1fr))',
                     gap: 2,
-                    '& > *': { flexGrow: 1, minWidth: 'min(100%, 550px)' }
+                    width: '100%'
                 }}>
                     <AcadamicSummary classId={classId} />
                     <NonAcadamicSummary classId={classId} />
                 </Box>
 
-                <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                <Box sx={{ 
+                    flex: 1, 
+                    overflow: 'hidden',
+                    width: '100%',
+                    minHeight: '300px'
+                }}>
                     <History classId={classId} />
                 </Box>
             </Box>

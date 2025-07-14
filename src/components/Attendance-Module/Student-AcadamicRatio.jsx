@@ -1,17 +1,50 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
-import { Box, Paper, Typography } from '@mui/material';
-
+import React, { useEffect, useState } from 'react';
+import { Box, Paper, Typography, CircularProgress } from '@mui/material';
 import DoughnutChart from './DoughnutChart';
 import CustomDropdown from './CustomDropdown';
+
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
-const AcadamicRatio = ({ studentId }) => {
+const LoadingOverlay = () => (
+    <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        zIndex: 1,
+        borderRadius: 'inherit'
+    }}>
+        <CircularProgress />
+    </Box>
+);
 
-    const [academicData, setAcademicData] = useState([
-        { name: "Present", value: null, color: "#9C27B0" },
-        { name: "Absent", value: null, color: "#F44336" },
-    ]);
+const NoDataMessage = () => (
+    <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 1,
+        zIndex: 1,
+    }}>
+        <Typography variant="h6" color="text.secondary">👀</Typography>
+        <Typography variant="body1" color="text.secondary">Data not found</Typography>
+    </Box>
+);
+
+const AcadamicRatio = ({ studentId }) => {
+    const [academicData, setAcademicData] = useState(null);
     const [acadamicApiData, setAcadamicApiData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -23,99 +56,83 @@ const AcadamicRatio = ({ studentId }) => {
     };
 
     const acadamicDataPeriodOptions = [
-        { label: 'Yearly', value: 'Yearly' },
-        { label: 'Monthly', value: 'Monthly' },
-        { label: 'Daily', value: 'Daily' },
+        { label: 'Year-to-Date', value: 'Yearly' },
+        { label: 'Month-to-Date', value: 'Monthly' },
+        { label: 'Today', value: 'Daily' },
     ];
 
-    // Function to fetch data from your API
     const fetchAttendanceData = async (summaryType) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`${attendanceModuleUrl}/student/academic/ratio?student_id=${studentId}&subject_id=academic&summary_type=${summaryType}`);
+            const response = await fetch(
+                `${attendanceModuleUrl}/student/academic/ratio?student_id=${studentId}&subject_id=academic&summary_type=${summaryType}`
+            );
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
             const data = await response.json();
-            setAcadamicApiData(data.data); // Store the API data
-
-        } catch (error) {
-            if (error.response) {
-                console.error(`Error ${error.response.status}:`, error.response.data);
-                if (error.response.status === 404) {
-                    console.error("Data not found (404)");
-                    setAcadamicApiData(null);
-                }
+            if (data?.data?.attendance_ratio != null) {
+                setAcadamicApiData(data.data);
             } else {
-                console.error("Error:", error.message);
+                setAcadamicApiData(null);
             }
+        } catch (error) {
+            console.error("Error:", error.message);
+            setAcadamicApiData(null);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        // Fetch initial data (e.g., for 'yearly')
         fetchAttendanceData(acadamicDataPeriod.toLowerCase());
     }, [acadamicDataPeriod]);
 
-    // Update chart data when API data changes or component mounts
     useEffect(() => {
         if (acadamicApiData) {
-            console.log("API Data:", acadamicApiData); // Log the API data for debugging
-            const attendanceRatio = acadamicApiData.attendance_ratio; // Convert to percentage
+            const attendanceRatio = acadamicApiData.attendance_ratio;
             setAcademicData([
                 { name: "Present", value: attendanceRatio, color: "#9C27B0" },
                 { name: "Absent", value: 100 - attendanceRatio, color: "#F44336" },
             ]);
+        } else {
+            setAcademicData(null);
         }
     }, [acadamicApiData]);
 
-    const renderPercentageLabels = (data) => {
-        return (
-            <div
-                style={{
-                    position: "absolute", // <-- Important
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    fontSize: "12px",
-                    zIndex: 1,
-                    pointerEvents: "none", // <-- So it won't block mouse clicks
-                    // backgroundColor: "white"
-                }}
-            >
-                {data.map((entry, index) => (
-                    <div
-                        key={index}
-                        style={{
-                            position: "absolute",
-                            top: index === 0 ? "3%" : "60%",
-                            left: index === 0 ? "3%" : "80%",
-                            textAlign: "center",
-                            color: entry.color,
-                        }}
-                    >
-                        {entry.name}
-                        <br />
-                        {parseFloat(entry.value).toFixed(2)}%
-                    </div>
-                ))}
-
-            </div>
-        );
-    };
-
+    const renderPercentageLabels = (data) => (
+        <div style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            fontSize: "12px",
+            zIndex: 1,
+            pointerEvents: "none",
+        }}>
+            {data.map((entry, index) => (
+                <div
+                    key={index}
+                    style={{
+                        position: "absolute",
+                        top: index === 0 ? "3%" : "60%",
+                        left: index === 0 ? "3%" : "80%",
+                        textAlign: "center",
+                        color: entry.color,
+                    }}
+                >
+                    {entry.name}
+                    <br />
+                    {parseFloat(entry.value).toFixed(2)}%
+                </div>
+            ))}
+        </div>
+    );
 
     return (
-        <Box sx={{
-            height: '100%',
-            backgroundColor: '#EFF3FF', // Change this to your desired background color
-            p: 2, // Optional: adds padding
-        }}>
+        <Box sx={{ height: '100%', backgroundColor: '#EFF3FF', p: 2 }}>
             <Paper
                 sx={{
                     height: 321,
@@ -129,6 +146,7 @@ const AcadamicRatio = ({ studentId }) => {
                     boxShadow: 'none',
                 }}
             >
+                {loading && <LoadingOverlay />}
                 <Typography variant="h5" sx={{ mb: '20px' }}>
                     Academic
                 </Typography>
@@ -141,10 +159,13 @@ const AcadamicRatio = ({ studentId }) => {
                     />
                 </div>
 
-                {/* Chart container */}
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                    <DoughnutChart data={academicData} />
-                    {renderPercentageLabels(academicData)}
+                    {!loading && academicData ? (
+                        <>
+                            <DoughnutChart data={academicData} />
+                            {renderPercentageLabels(academicData)}
+                        </>
+                    ) : !loading && <NoDataMessage />}
                 </div>
             </Paper>
         </Box>
@@ -152,5 +173,3 @@ const AcadamicRatio = ({ studentId }) => {
 };
 
 export default AcadamicRatio;
-
-// only change url

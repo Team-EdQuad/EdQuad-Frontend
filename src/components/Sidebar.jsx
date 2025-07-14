@@ -650,12 +650,12 @@ const AppSidebar = () => {
               </MenuItem>
 
               <MenuItem
-                active={selected === "Calender"}
-                onClick={() => setSelected("Calender")}
-                icon={<ReceiptOutlined />}
-                component={<Link to="/calender" />}
+                active={selected === "Calendar Management"}
+                onClick={() => setSelected("Calendar Management")}
+                icon={<CalendarTodayOutlined />}
+                component={<Link to="/admin-calendar" />}
               >
-                <Typography>Calender</Typography>
+                <Typography>Calendar Management</Typography>
               </MenuItem>
 
               <MenuItem
