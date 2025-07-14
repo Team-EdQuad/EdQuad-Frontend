@@ -34,6 +34,8 @@ import {
 } from '@mui/icons-material';
 import axios from 'axios';
 
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
+
 // Constants
 const CLASSES = [
   { id: 'CLS001', name: 'Class 6A' },
@@ -187,7 +189,7 @@ const AdminCalendar = () => {
       };
 
       const response = await axios.post(
-        'http://127.0.0.1:8000/attendance/store-calendar-event', 
+        `${attendanceModuleUrl}/store-calendar-event`, 
         requestData,
         {
           timeout: 10000, // 10 second timeout
@@ -196,7 +198,7 @@ const AdminCalendar = () => {
           }
         }
       );
-
+      
       if (response.status === 200) {
         showNotification('Calendar event added successfully!');
         resetForm();
