@@ -22,6 +22,26 @@ import CancelIcon from "@mui/icons-material/Cancel"; // Cancel icon
 import { tokens } from "../theme";
 import { StoreContext } from "../context/StoreContext";
 
+function formatDate(dateString) {
+  if (!dateString) return "-";
+
+  const date = new Date(dateString);
+
+  if (isNaN(date)) return dateString; 
+
+  // Format: e.g. 12 Jul 2025
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function getPhone(data) {
+  return data?.phone_no ?? data?.Phone_no ?? data?.phone ?? "";
+}
+
+
 const Url = import.meta.env.VITE_BACKEND_URL;
 
 const MyProfile = () => {
@@ -46,7 +66,7 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${Url}/api/user-management/profile`, {
+        const response = await fetch(`${Url}/api/user-management/get-full-profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) throw new Error("Failed to fetch profile");
@@ -247,7 +267,7 @@ const MyProfile = () => {
 
           <Grid item xs={12} md={9}>
             <Grid container spacing={3}>
-              {["full_name", "gender", "language"].map((field, i) => (
+              {["full_name", "gender"].map((field, i) => (
                 <Grid item xs={12} md={4} key={field}>
                   <Typography fontWeight={500} fontSize={14} mb={1}>
                     {field === "full_name"
@@ -295,7 +315,7 @@ const MyProfile = () => {
               </IconButton>
               <TextField
                 fullWidth
-                value={tempData?.phone ?? ""}
+                value={getPhone(tempData)}
                 onChange={handleChange("phone")}
                 size="small"
                 InputProps={{ readOnly: !isEditing }}
@@ -322,23 +342,38 @@ const MyProfile = () => {
                 <Typography fontWeight={500} fontSize={14}>
                   Joined Date
                 </Typography>
-                <TextField
+                {/* <TextField
                   fullWidth
                   size="small"
                   value={profileData.join_date || "-"}
                   inputProps={{ readOnly: true }}
                   sx={{ mt: 1, backgroundColor: theme.palette.background.paper }}
 
+                /> */}
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={formatDate(profileData.join_date)}
+                  inputProps={{ readOnly: true }}
+                  sx={{ mt: 1, backgroundColor: theme.palette.background.paper }}
                 />
+
               </Grid>
               <Grid item xs={12} md={4}>
                 <Typography fontWeight={500} fontSize={14}>
                   Last Edit Date
                 </Typography>
-                <TextField
+                {/* <TextField
                   fullWidth
                   size="small"
                   value={profileData.last_edit_date || "-"}
+                  inputProps={{ readOnly: true }}
+                  sx={{ mt: 1, backgroundColor: theme.palette.background.paper }}
+                /> */}
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={formatDate(profileData.last_edit_date)}
                   inputProps={{ readOnly: true }}
                   sx={{ mt: 1, backgroundColor: theme.palette.background.paper }}
                 />
