@@ -1,9 +1,45 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Paper, Typography, CircularProgress } from '@mui/material';
 import DoughnutChart from './DoughnutChart';
 import CustomDropdown from './CustomDropdown';
+import { getSubjectName } from './SubjectNameMapping';
+
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
+
+const LoadingOverlay = () => (
+    <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        zIndex: 1,
+        borderRadius: 'inherit'
+    }}>
+        <CircularProgress />
+    </Box>
+);
+
+const NoDataMessage = () => (
+    <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 1,
+        zIndex: 1
+    }}>
+        <Typography variant="h6" color="text.secondary">👀</Typography>
+        <Typography variant="body1" color="text.secondary">Data not found</Typography>
+    </Box>
+);
 
 const DEFAULT_CHART_DATA = [
     { name: "Present", value: null, color: "#9C27B0" },
@@ -11,9 +47,9 @@ const DEFAULT_CHART_DATA = [
 ];
 
 const PERIOD_OPTIONS = [
-    { label: 'Yearly', value: 'Yearly' },
-    { label: 'Monthly', value: 'Monthly' },
-    { label: 'Daily', value: 'Daily' },
+    { label: 'Year-to-Date', value: 'Yearly' },
+    { label: 'Month-to-Date', value: 'Monthly' },
+    { label: 'Today', value: 'Daily' },
 ];
 
 const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange }) => {
@@ -36,21 +72,21 @@ const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange
                     textAlign: "center",
                     color: entry.color,
                 }}>
-                    {entry.name}<br />{entry.value}%
+                    {entry.name}<br />{parseFloat(entry.value).toFixed(2)}%
                 </div>
             ))}
         </div>
     );
 
+    const hasValidData = subjectData && subjectData.every(d => typeof d.value === 'number');
+
     return (
-        <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            justifyContent: 'center', 
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
             alignItems: 'center',
-            Width: '100px',
-            // flex: 1,
-            // backgroundColor: 'red',
+            minWidth: 230,
         }}>
             <div style={{ marginBottom: '20px' }}>
                 <CustomDropdown
@@ -60,11 +96,15 @@ const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange
                 />
             </div>
             <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <DoughnutChart data={subjectData} />
-                {renderPercentageLabels(subjectData)}
+                {hasValidData ? (
+                    <>
+                        <DoughnutChart data={subjectData} />
+                        {renderPercentageLabels(subjectData)}
+                    </>
+                ) : <NoDataMessage />}
             </div>
-            <div style={{ marginBottom: '10px' }}>
-                <Typography variant="h5">{subjectId}</Typography>
+            <div style={{ marginTop: '10px' }}>
+                <Typography variant="h6">{getSubjectName(subjectId)}</Typography>
             </div>
         </Box>
     );
@@ -79,9 +119,7 @@ const NonAcadamicRatio = ({ studentId }) => {
     const fetchSubjects = async () => {
         try {
             const response = await fetch(`${attendanceModuleUrl}/non-acadamic/subjects/${studentId}`);
-            if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
             const data = await response.json();
             return data.subject_ids || [];
         } catch (error) {
@@ -97,37 +135,43 @@ const NonAcadamicRatio = ({ studentId }) => {
             const response = await fetch(
                 `${attendanceModuleUrl}/student/nonacademic/ratio?student_id=${studentId}&subject_id=${subject}&summary_type=${summaryType.toLowerCase()}`
             );
-            
-            let data;
+
             if (!response.ok) {
-                console.warn(`API returned ${response.status}. Using default data.`);
-                data = { data: { attendance_ratio: 0.75 } };
-            } else {
-                data = await response.json();
+                console.warn(`No data for subject ${subject}`);
+                throw new Error('No data');
             }
 
-            const attendanceRatio = data.data.attendance_ratio;
-            setSubjectsData(prev => ({
-                ...prev,
-                [subject]: {
-                    ...prev[subject],
-                    chartData: [
-                        { name: "Present", value: attendanceRatio, color: "#9C27B0" },
-                        { name: "Absent", value: 100 - attendanceRatio, color: "#F44336" },
-                    ]
-                }
-            }));
+            const data = await response.json();
+            const ratio = data?.data?.attendance_ratio;
+
+            if (typeof ratio === 'number') {
+                setSubjectsData(prev => ({
+                    ...prev,
+                    [subject]: {
+                        ...prev[subject],
+                        chartData: [
+                            { name: "Present", value: ratio, color: "#9C27B0" },
+                            { name: "Absent", value: 100 - ratio, color: "#F44336" },
+                        ]
+                    }
+                }));
+            } else {
+                // No valid data
+                setSubjectsData(prev => ({
+                    ...prev,
+                    [subject]: {
+                        ...prev[subject],
+                        chartData: DEFAULT_CHART_DATA
+                    }
+                }));
+            }
         } catch (error) {
             console.error(`Error fetching data for ${subject}:`, error);
-            const attendanceRatio = 75; // Default value
             setSubjectsData(prev => ({
                 ...prev,
                 [subject]: {
                     ...prev[subject],
-                    chartData: [
-                        { name: "Present", value: attendanceRatio, color: "#9C27B0" },
-                        { name: "Absent", value: 100 - attendanceRatio, color: "#F44336" },
-                    ]
+                    chartData: DEFAULT_CHART_DATA
                 }
             }));
         } finally {
@@ -137,28 +181,19 @@ const NonAcadamicRatio = ({ studentId }) => {
 
     useEffect(() => {
         const loadInitialData = async () => {
-            try {
-                const subjects = await fetchSubjects();
-                setSubjectList(subjects);
-                
-                // Initialize subjects data with default values
-                const initialData = subjects.reduce((acc, subject) => ({
-                    ...acc,
-                    [subject]: {
-                        period: 'Yearly',
-                        chartData: DEFAULT_CHART_DATA
-                    }
-                }), {});
-                setSubjectsData(initialData);
+            const subjects = await fetchSubjects();
+            setSubjectList(subjects);
 
-                // Fetch data for each subject
-                subjects.forEach(subject => {
-                    fetchAttendanceData(subject, 'Yearly');
-                });
-            } catch (err) {
-                console.error("Failed to load initial data:", err);
-                setError(err);
-            }
+            const initial = subjects.reduce((acc, subject) => ({
+                ...acc,
+                [subject]: {
+                    period: 'Yearly',
+                    chartData: DEFAULT_CHART_DATA
+                }
+            }), {});
+            setSubjectsData(initial);
+
+            subjects.forEach(subject => fetchAttendanceData(subject, 'Yearly'));
         };
 
         loadInitialData();
@@ -176,11 +211,7 @@ const NonAcadamicRatio = ({ studentId }) => {
     };
 
     return (
-        <Box sx={{
-            height: '100%',
-            backgroundColor: '#EFF3FF',
-            p: 2,
-        }}>
+        <Box sx={{ height: '100%', backgroundColor: '#EFF3FF', p: 2 }}>
             <Paper sx={{
                 height: 321,
                 width: '100%',
@@ -188,45 +219,47 @@ const NonAcadamicRatio = ({ studentId }) => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 padding: 2,
-                paddingBottom: 1,
                 borderRadius: '10px',
                 position: 'relative',
                 boxShadow: 'none'
             }}>
+                {loading && <LoadingOverlay />}
                 <Typography variant="h5" sx={{ mb: '20px' }}>
                     Non-Academic
                 </Typography>
 
                 <Box sx={{
-                    paddingX: 0,
                     display: 'flex',
                     flexDirection: 'row',
                     gap: '2px',
                     height: '100%',
                     width: '100%',
                     overflowX: 'auto',
-                    '&::-webkit-scrollbar': {
-                        height: 6,
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                        backgroundColor: '#00CADC',
-                        borderRadius: 3,
-                    },
-                    '&::-webkit-scrollbar-track': {
-                        backgroundColor: '#f0f0f0',
-                        borderRadius: 3,
-                        margin: '0 8px',
-                    }
+                    '&::-webkit-scrollbar': { height: 6 },
+                    '&::-webkit-scrollbar-thumb': { backgroundColor: '#00CADC', borderRadius: 3 },
+                    '&::-webkit-scrollbar-track': { backgroundColor: '#f0f0f0', borderRadius: 3, margin: '0 8px' },
                 }}>
-                    {subjectList.map(subjectId => (
-                        <SubjectAttendanceChart
-                            key={subjectId}
-                            subjectId={subjectId}
-                            subjectData={subjectsData[subjectId]?.chartData || DEFAULT_CHART_DATA}
-                            period={subjectsData[subjectId]?.period || 'Yearly'}
-                            onPeriodChange={handlePeriodChange}
-                        />
-                    ))}
+                    {subjectList.length > 0 ? (
+                        subjectList.map(subjectId => (
+                            <SubjectAttendanceChart
+                                key={subjectId}
+                                subjectId={subjectId}
+                                subjectData={subjectsData[subjectId]?.chartData || DEFAULT_CHART_DATA}
+                                period={subjectsData[subjectId]?.period || 'Yearly'}
+                                onPeriodChange={handlePeriodChange}
+                            />
+                        ))
+                    ) : !loading && (
+                        <Box sx={{
+                            width: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            py: 4
+                        }}>
+                            <NoDataMessage />
+                        </Box>
+                    )}
                 </Box>
             </Paper>
         </Box>

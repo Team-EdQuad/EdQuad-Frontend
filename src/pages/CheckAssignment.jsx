@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Box,
   Typography,
@@ -17,28 +17,27 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { StoreContext } from '../context/StoreContext';
-const Url = import.meta.env.VITE_BACKEND_URL;
 
+const Url = import.meta.env.VITE_BACKEND_URL;
 
 const CheckAssignment = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { id: teacher_id } = useContext(StoreContext);
 
-  
-  const { id:teacher_id } = useContext(StoreContext);
-  //const teacher_id = 'TCH001';
-
-  const [submissions, setSubmissions] = useState([]);
+  const [onTimeSubmissions, setOnTimeSubmissions] = useState([]);
+  const [lateSubmissions, setLateSubmissions] = useState([]);
   const [marksInput, setMarksInput] = useState({});
 
   useEffect(() => {
     axios
       .get(`${Url}/api/submission_view/${teacher_id}`)
       .then(({ data }) => {
-        setSubmissions(data);
+        setOnTimeSubmissions(data.on_time_submissions || []);
+        setLateSubmissions(data.late_submissions || []);
       })
       .catch((err) => console.error('Error fetching submissions:', err));
-  }, []);
+  }, [teacher_id]);
 
   const handleMarkChange = (submission_id, value) => {
     setMarksInput((prev) => ({
@@ -54,29 +53,26 @@ const CheckAssignment = () => {
       return;
     }
 
-    // Create URL-encoded form data
     const formData = new URLSearchParams();
     formData.append('submission_id', submission_id);
     formData.append('marks', marks);
 
     axios
-      .post(
-        `${Url}/api/update_submission_marks/${teacher_id}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            accept: 'application/json',
-          },
-        }
-      )
+      .post(`${Url}/api/update_submission_marks/${teacher_id}`, formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          accept: 'application/json',
+        },
+      })
       .then(({ data }) => {
-        console.log('Update marks response:', data);
-        setSubmissions((prev) =>
-          prev.map((s) =>
+        const updateList = (list) =>
+          list.map((s) =>
             s.submission_id === submission_id ? { ...s, marks: data.marks } : s
-          )
-        );
+          );
+
+        setOnTimeSubmissions((prev) => updateList(prev));
+        setLateSubmissions((prev) => updateList(prev));
+
         alert('Marks updated successfully!');
         window.location.reload();
       })
@@ -86,23 +82,16 @@ const CheckAssignment = () => {
       });
   };
 
-  return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      bgcolor={theme.palette.background.default}
-      minHeight="100vh"
-      p={3}
-    >
+  const renderSubmissionTable = (title, submissionList, highlightLate = false) => (
+    <>
       <Typography
-        variant="h5"
+        variant="h6"
         fontWeight="bold"
-        mb={3}
-        color={theme.palette.text.primary}
+        mt={4}
+        mb={2}
+        color={highlightLate ? theme.palette.error.main : theme.palette.primary.main}
       >
-        Check Assignments
+        {title}
       </Typography>
 
       <TableContainer
@@ -112,6 +101,7 @@ const CheckAssignment = () => {
           borderRadius: '8px',
           boxShadow: 1,
           maxWidth: '1000px',
+          mb: 3,
         }}
       >
         <Table>
@@ -134,14 +124,13 @@ const CheckAssignment = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {submissions.map((sub) => (
+            {submissionList.map((sub) => (
               <TableRow
                 key={sub.submission_id}
                 sx={{
-                  backgroundColor:
-                    submissions.indexOf(sub) % 2 === 0
-                      ? theme.palette.action.hover
-                      : theme.palette.background.default,
+                  backgroundColor: highlightLate
+                    ? theme.palette.error.light
+                    : theme.palette.action.hover,
                 }}
               >
                 <TableCell>{sub.student_id}</TableCell>
@@ -158,9 +147,7 @@ const CheckAssignment = () => {
                         textDecoration: 'underline',
                         cursor: 'pointer',
                       }}
-                      onClick={() =>
-                        navigate(`/submission/view/${sub.submission_id}`)
-                      }
+                      onClick={() => navigate(`/submission/view/${sub.submission_id}`)}
                     >
                       {sub.file_name}
                     </Typography>
@@ -177,10 +164,7 @@ const CheckAssignment = () => {
                     onChange={(e) =>
                       handleMarkChange(sub.submission_id, e.target.value)
                     }
-                    sx={{
-                      width: '80px',
-                      backgroundColor: theme.palette.background.paper,
-                    }}
+                    sx={{ width: '80px' }}
                   />
                 </TableCell>
                 <TableCell>
@@ -204,6 +188,30 @@ const CheckAssignment = () => {
           </TableBody>
         </Table>
       </TableContainer>
+    </>
+  );
+
+  return (
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      bgcolor={theme.palette.background.default}
+      minHeight="100vh"
+      p={3}
+    >
+      <Typography
+        variant="h5"
+        fontWeight="bold"
+        mb={3}
+        color={theme.palette.text.primary}
+      >
+        Check Assignments
+      </Typography>
+
+      {renderSubmissionTable('🟢 On Time Submissions', onTimeSubmissions)}
+      {renderSubmissionTable('🔴 Late Submissions', lateSubmissions, true)}
     </Box>
   );
 };

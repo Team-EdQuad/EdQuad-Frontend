@@ -104,7 +104,7 @@ const BehavioralAnalysis = () => {
       setAvgAccessFrequency(0);
   }
 
-  // *** GRAPH STYLING IS SIMPLIFIED HERE ***
+  
   const fetchVisualizationData = async (subject_id, class_id, currentPrediction = null) => {
     try {
       setChartLoading(true);
@@ -131,7 +131,7 @@ const BehavioralAnalysis = () => {
                 data: [...yData, null],
                 label: 'Historical Active Time (mins)',
                 color: theme.palette.primary.main,
-                // No area fill for a clean line
+                
             };
 
             const predictionSegment = {
@@ -337,7 +337,7 @@ const BehavioralAnalysis = () => {
           <Card><CardContent><InsertChartIcon color="secondary" sx={{ fontSize: 40, mb: 1 }} /><Typography variant="h6">Time Spent on Resources</Typography><Typography variant="h4">{avgTimeSpent.toFixed(2)} mins</Typography></CardContent></Card>
         </Grid>
         <Grid item xs={12} sm={12} md={4}>
-          <Card><CardContent><TrendingUpIcon color="success" sx={{ fontSize: 40, mb: 1 }} /><Typography variant="h6">Resource Access Frequency</Typography><Typography variant="h4">{avgAccessFrequency.toFixed(2)} /day</Typography></CardContent></Card>
+          <Card><CardContent><TrendingUpIcon color="success" sx={{ fontSize: 40, mb: 1 }} /><Typography variant="h6">Resource Access Frequency</Typography><Typography variant="h4">{Math.round(avgAccessFrequency)} /day</Typography></CardContent></Card>
         </Grid>
       </Grid>
       
