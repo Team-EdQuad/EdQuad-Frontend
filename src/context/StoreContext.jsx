@@ -1,32 +1,29 @@
 import { createContext, useMemo, useState } from "react";
 import { useMediaQuery } from "@mui/material";
 const Url = import.meta.env.VITE_BACKEND_URL
-
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
   const isMobile = useMediaQuery("(max-width:600px)");
   const isTablet = useMediaQuery("(max-width:900px)");
-
-  // Initialize from localStorage if available
+  
   const [token, setToken] = useState(() => localStorage.getItem("token") || null);
   const [role, setRole] = useState(() => localStorage.getItem("role") || null);
   const [id, setId] = useState(() => localStorage.getItem("id") || null);
   const [name, setName] = useState(() => localStorage.getItem("name") || null);
   const [classId, setClassId] = useState(() => localStorage.getItem("classId") || null);
-
   const [selected, setSelected] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  
   const toggleDrawer = () => setDrawerOpen((open) => !open);
 
-  // Notification state
   const [notification, setNotification] = useState({
     open: false,
     message: '',
-    severity: 'info', // 'error', 'warning', 'info', 'success'
+    severity: 'info', 
     duration: 3000
   });
-
+  
   const showNotification = (message, severity = 'info', duration = 3000) => {
     setNotification({
       open: true,
@@ -35,15 +32,14 @@ const StoreContextProvider = (props) => {
       duration
     });
   };
-
+  
   const hideNotification = () => {
     setNotification(prev => ({
       ...prev,
       open: false
     }));
   };
-
-  // Login: set state and localStorage
+  
   const login = ({ token, role, id, name, classId }) => {
     setToken(token);
     setRole(role);
@@ -60,46 +56,48 @@ const StoreContextProvider = (props) => {
       localStorage.removeItem("classId");
     }
   };
-
-  // Logout: clear state and localStorage
-  console.log("Logging out:", { id, role, token });
-
+  
   const logout = async () => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
-    const id = localStorage.getItem("id");
-
-    try {
-      const res = await fetch(`${Url}/api/user-management/logout`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: new URLSearchParams({
-          user_id: id,
-          role: role,
-        }),
-      });
-
-      const data = await res.json();
-      console.log("Logout response:", data);
-    } catch (e) {
-      console.error("Logout API error", e);
-    }
-
-    // Now clear
+    const currentToken = localStorage.getItem("token");
+    const currentRole = localStorage.getItem("role");
+    const currentId = localStorage.getItem("id");
+    
     setToken(null);
     setRole(null);
     setId(null);
     setName(null);
     setClassId(null);
     localStorage.clear();
+    
+    try {
+      if (currentToken && currentRole && currentId) {
+        const res = await fetch(`${Url}/api/user-management/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": `Bearer ${currentToken}`,
+          },
+          body: new URLSearchParams({
+            user_id: currentId,
+            role: currentRole,
+          }),
+        });
+        const data = await res.json();
+        console.log("Logout response:", data);
+      }
+    } catch (e) {
+      console.error("Logout API error", e);
+    }
+    
+    window.location.href = '/login';
   };
-
-  // Are we logged in?
-  const isAuthenticated = !!token && !!role;
-
+  
+  const isAuthenticated = () => {
+    const hasToken = token && localStorage.getItem("token");
+    const hasRole = role && localStorage.getItem("role");
+    return !!(hasToken && hasRole);
+  };
+  
   const contextValue = useMemo(
     () => ({
       isMobile,
@@ -120,8 +118,7 @@ const StoreContextProvider = (props) => {
       setClassId,
       login,
       logout,
-      isAuthenticated,
-      // Add notification context
+      isAuthenticated: isAuthenticated(), // Call the function
       notification,
       showNotification,
       hideNotification
@@ -130,28 +127,16 @@ const StoreContextProvider = (props) => {
       isMobile,
       isTablet,
       drawerOpen,
-      setDrawerOpen,
-      toggleDrawer,
       role,
-      setRole,
       id,
-      setId,
       name,
-      setName,
       selected,
-      setSelected,
       token,
       classId,
-      setClassId,
-      login,
-      logout,
-      isAuthenticated,
-      notification,
-      showNotification,
-      hideNotification
+      notification
     ]
   );
-
+  
   return (
     <StoreContext.Provider value={contextValue}>
       {props.children}

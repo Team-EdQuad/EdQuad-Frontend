@@ -189,7 +189,7 @@ const AdminCalendar = () => {
       };
 
       const response = await axios.post(
-        `${attendanceModuleUrl}/store-calendar-event`, 
+        `${attendanceModuleUrl}/store-calendar-events`, 
         requestData,
         {
           timeout: 10000, // 10 second timeout
