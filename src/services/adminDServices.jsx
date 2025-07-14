@@ -50,3 +50,19 @@ export const getAllClasses = async () => {
   const url = `${API_URL}/api/teacher/dashboard/classes`; 
   return fetchWithCache(key, url);
 };
+
+export const getAccessProfile = async (userId) => {
+  const endpoint = `${API_URL}/api/admin/dashboard/admin-access-profile`;
+  const params = { user_id: userId };
+
+  const url = new URL(endpoint);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) url.searchParams.append(key, value);
+  });
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Error fetching user profile: ${response.statusText}`);
+  }
+  return await response.json();
+};

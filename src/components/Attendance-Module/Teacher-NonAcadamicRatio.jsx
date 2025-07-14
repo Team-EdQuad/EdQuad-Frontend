@@ -1,10 +1,28 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography, CircularProgress } from '@mui/material';
 import DoughnutChart from './DoughnutChart';
 import CustomDropdown from './CustomDropdown';
 import axios from 'axios';
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
+
+const LoadingOverlay = () => (
+    <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        zIndex: 1,
+        borderRadius: 'inherit'
+    }}>
+        <CircularProgress />
+    </Box>
+);
 
 const DEFAULT_CHART_DATA = [
     { name: "Present", value: 0, color: "#9C27B0" },
@@ -12,9 +30,9 @@ const DEFAULT_CHART_DATA = [
 ];
 
 const PERIOD_OPTIONS = [
-    { label: 'Yearly', value: 'Yearly' },
-    { label: 'Monthly', value: 'Monthly' },
-    { label: 'Daily', value: 'Daily' },
+    { label: 'Year-to-Date', value: 'Yearly' },
+    { label: 'Month-to-Date', value: 'Monthly' },
+    { label: 'Today', value: 'Daily' },
 ];
 
 // Subject ID to Name mapping
@@ -34,7 +52,7 @@ const SUBJECT_NAMES = {
     // Add more mappings as needed
 };
 
-const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange, hasData }) => {
+const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange, hasData, loading }) => {
     const renderPercentageLabels = (data) => (
         <div style={{
             position: "absolute",
@@ -87,8 +105,10 @@ const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange
             justifyContent: 'center', 
             alignItems: 'center',
             minWidth: '200px',
-            flex: 1
+            flex: 1,
+            position: 'relative'
         }}>
+            {loading && <LoadingOverlay />}
             <div style={{ marginBottom: '20px' }}>
                 <CustomDropdown
                     value={period}
@@ -97,8 +117,12 @@ const SubjectAttendanceChart = ({ subjectId, subjectData, period, onPeriodChange
                 />
             </div>
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                <DoughnutChart data={subjectData} />
-                {hasData ? renderPercentageLabels(subjectData) : renderNoData()}
+                {!loading && (
+                    <>
+                        <DoughnutChart data={subjectData} />
+                        {hasData ? renderPercentageLabels(subjectData) : renderNoData()}
+                    </>
+                )}
             </div>
             <div style={{ marginBottom: '10px' }}>
                 <Typography variant="h5">{SUBJECT_NAMES[subjectId] || subjectId}</Typography>
@@ -267,6 +291,7 @@ const NonAcademicRatio = ({ classId }) => {
                             period={subjectsData[subjectId]?.period || 'Yearly'}
                             onPeriodChange={handlePeriodChange}
                             hasData={subjectsData[subjectId]?.hasData || false}
+                            loading={loading}
                         />
                     ))}
                 </Box>

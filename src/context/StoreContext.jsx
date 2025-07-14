@@ -8,9 +8,6 @@ const StoreContextProvider = (props) => {
   const isMobile = useMediaQuery("(max-width:600px)");
   const isTablet = useMediaQuery("(max-width:900px)");
 
-  // const [studentId, setStudentId] = useState('STU001');
-  // const [classId, setClassId] = useState('CLS001');
-  // const [name, setName] = useState('W.K.T.P.Kularathna');
   // Initialize from localStorage if available
   const [token, setToken] = useState(() => localStorage.getItem("token") || null);
   const [role, setRole] = useState(() => localStorage.getItem("role") || null);
@@ -22,8 +19,32 @@ const StoreContextProvider = (props) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const toggleDrawer = () => setDrawerOpen((open) => !open);
 
+  // Notification state
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'info', // 'error', 'warning', 'info', 'success'
+    duration: 3000
+  });
+
+  const showNotification = (message, severity = 'info', duration = 3000) => {
+    setNotification({
+      open: true,
+      message,
+      severity,
+      duration
+    });
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      open: false
+    }));
+  };
+
   // Login: set state and localStorage
-    const login = ({ token, role, id, name, classId }) => {
+  const login = ({ token, role, id, name, classId }) => {
     setToken(token);
     setRole(role);
     setId(id);
@@ -34,59 +55,47 @@ const StoreContextProvider = (props) => {
     localStorage.setItem("id", id);
     localStorage.setItem("name", name);
     if (classId) {
-        localStorage.setItem("classId", classId);
+      localStorage.setItem("classId", classId);
     } else {
-        localStorage.removeItem("classId");
+      localStorage.removeItem("classId");
     }
-    };
-
+  };
 
   // Logout: clear state and localStorage
-  
-// const logout = () => {
-//   setToken(null);
-//   setRole(null);
-//   setId(null);
-//   setName(null);
-//   setClassId(null);
-//   localStorage.clear();
-// };
+  console.log("Logging out:", { id, role, token });
 
-console.log("Logging out:", { id, role, token });
+  const logout = async () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    const id = localStorage.getItem("id");
 
+    try {
+      const res = await fetch(`${Url}/api/user-management/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: new URLSearchParams({
+          user_id: id,
+          role: role,
+        }),
+      });
 
-const logout = async () => {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const id = localStorage.getItem("id");
+      const data = await res.json();
+      console.log("Logout response:", data);
+    } catch (e) {
+      console.error("Logout API error", e);
+    }
 
-  try {
-    const res = await fetch(`${Url}/api/user-management/logout`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: new URLSearchParams({
-        user_id: id,
-        role: role,
-      }),
-    });
-
-    const data = await res.json();
-    console.log("Logout response:", data);
-  } catch (e) {
-    console.error("Logout API error", e);
-  }
-
-  // Now clear
-  setToken(null);
-  setRole(null);
-  setId(null);
-  setName(null);
-  setClassId(null);
-  localStorage.clear();
-};
+    // Now clear
+    setToken(null);
+    setRole(null);
+    setId(null);
+    setName(null);
+    setClassId(null);
+    localStorage.clear();
+  };
 
   // Are we logged in?
   const isAuthenticated = !!token && !!role;
@@ -112,6 +121,10 @@ const logout = async () => {
       login,
       logout,
       isAuthenticated,
+      // Add notification context
+      notification,
+      showNotification,
+      hideNotification
     }),
     [
       isMobile,
@@ -128,9 +141,14 @@ const logout = async () => {
       selected,
       setSelected,
       token,
+      classId,
+      setClassId,
       login,
       logout,
       isAuthenticated,
+      notification,
+      showNotification,
+      hideNotification
     ]
   );
 

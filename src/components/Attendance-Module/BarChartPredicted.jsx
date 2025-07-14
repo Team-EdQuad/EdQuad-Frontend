@@ -42,7 +42,8 @@ const BarChartPredicted = ({ classId, subjectId }) => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const today = dayjs("2025-03-12"); // fixed test date
+  // const today = dayjs("2025-07-14"); // fixed test date
+  const today = dayjs();
   const todayDate = today.format("YYYY-MM-DD");
   const startDate = today.subtract(7, "day").format("YYYY-MM-DD");
   const endDate = today.add(7, "day").format("YYYY-MM-DD");
@@ -53,6 +54,8 @@ const BarChartPredicted = ({ classId, subjectId }) => {
         const url = `${attendanceModuleUrl}/summary?class_id=${classId}&subject_id=${subjectId}&start_date=${startDate}&end_date=${endDate}&current_date=${todayDate}`;
         const res = await fetch(url);
         const data = await res.json();
+
+        console.log("data", data);
 
         const combinedMap = new Map();
 
