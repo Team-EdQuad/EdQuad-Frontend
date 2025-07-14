@@ -48,6 +48,21 @@ const classes = [
      { class_id: "CLS011", class_name: "11-A" },
      { class_id: "CLS012", class_name: "11-B" }
 ];
+function getCurrentDateIST() {
+  const date = new Date();
+
+  const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+  const istOffset = 5.5 * 60 * 60000; 
+
+  const istDate = new Date(utc + istOffset);
+
+  const year = istDate.getFullYear();
+  const month = String(istDate.getMonth() + 1).padStart(2, "0");
+  const day = String(istDate.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 
 const UpdateUser = () => {
     const theme = useTheme();
@@ -57,10 +72,10 @@ const UpdateUser = () => {
         studentId: "",
         firstName: "",
         lastName: "",
-        gender: "male", // Changed to lowercase to match your backend
+        gender: "male", 
         email: "",
-        classId: "", // Changed to match backend field
-        selectedSubjects: [], // This will store subject codes
+        classId: "", 
+        selectedSubjects: [], 
         phoneNo: "",
     });
 
@@ -69,6 +84,48 @@ const UpdateUser = () => {
     const handleChange = (field) => (e) => {
         setFormData({ ...formData, [field]: e.target.value });
     };
+
+    const handleFetchStudent = async () => {
+        if (!formData.studentId) {
+            setAlert({ open: true, type: "error", message: "Enter a Student ID to fetch data." });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${Url}/api/user-management/get-student/${formData.studentId}`, {                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.detail || "Failed to fetch student");
+            }
+
+            const data = await res.json();
+
+            // Prefill the form with fetched data
+            setFormData({
+                studentId: data.student_id || "",
+                firstName: data.first_name || "",
+                lastName: data.last_name || "",
+                gender: data.gender || "male",
+                email: data.email || "",
+                classId: data.class_id || "",
+                selectedSubjects: data.subject_id || [],
+                phoneNo: data.phone_no || "",
+            });
+
+            setAlert({ open: true, type: "success", message: "Student data loaded!" });
+
+        } catch (err) {
+            setAlert({ open: true, type: "error", message: err.message });
+        }
+    };
+
 
     const handleSubjectToggle = (subjectCode) => {
         setFormData((prev) => {
@@ -102,8 +159,8 @@ const UpdateUser = () => {
             class_id: formData.classId,
             phone_no: formData.phoneNo,
             subject_id: formData.selectedSubjects, // This sends the subject codes
-            join_date: new Date().toISOString().split('T')[0],
-            last_edit_date: new Date().toISOString().split('T')[0],
+            join_date: getCurrentDateIST(),
+            last_edit_date: getCurrentDateIST(),
             club_id: [],
             sport_id: [],
             role: "student"
@@ -111,7 +168,7 @@ const UpdateUser = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${Url}/add-student`, {
+            const res = await fetch(`${Url}/api/user-management/update-student`, {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
@@ -189,6 +246,14 @@ const UpdateUser = () => {
                                         onChange={handleChange("studentId")}
                                         placeholder="e.g., STU001"
                                     />
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{ ml: 2 }}
+                                        onClick={handleFetchStudent}
+                                    >
+                                        Fetch Student
+                                    </Button>
                                 </Box>
                             </Grid>
 
