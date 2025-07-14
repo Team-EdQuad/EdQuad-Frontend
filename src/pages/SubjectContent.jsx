@@ -14,7 +14,7 @@ import { StoreContext } from '../context/StoreContext';
 
 const Url = import.meta.env.VITE_BACKEND_URL;
 
-// ✅ Timezone-safe date formatting (no shifting for "YYYY-MM-DD")
+// Timezone-safe date formatting (no shifting for "YYYY-MM-DD")
 const formatDate = (dateStr) => {
   const [year, month, day] = dateStr.split("-");
   const months = [
@@ -110,7 +110,7 @@ const SubjectContent = () => {
 
         const allItems = [];
 
-        // ✅ Add content items (preserve date string to avoid timezone shift)
+        //  Add content items (preserve date string to avoid timezone shift)
         if (Array.isArray(contentData)) {
           contentData.forEach((item) => {
             const rawDate = item.upload_date || item.Date;
@@ -131,7 +131,7 @@ const SubjectContent = () => {
           });
         }
 
-        // ✅ Add assignment items (created_at is full ISO)
+        //  Add assignment items (created_at is full ISO)
         if (assignmentData.assignments) {
           assignmentData.assignments.forEach((asm) => {
             if (asm.created_at) {

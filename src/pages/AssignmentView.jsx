@@ -64,7 +64,7 @@ const AssignmentView = () => {
     navigate(`/submission/${assignment.assignment_id}`);
   };
   
-  // ✅ Get file name for display
+  // Get file name for display
   const getFileName = () => {
     if (assignment.file_name) {
       return assignment.file_name;
@@ -96,7 +96,7 @@ const AssignmentView = () => {
           {assignment.description || 'No description available.'}
         </Typography>
         
-        {/* ✅ Only show file section if file exists */}
+        {/*  Only show file section if file exists */}
         {(assignment.assignment_file_id || assignment.assignment_file_path) && (
           <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
             <Box display="flex" alignItems="center">

@@ -104,7 +104,7 @@ const BehavioralAnalysis = () => {
       setAvgAccessFrequency(0);
   }
 
-  // *** GRAPH STYLING IS SIMPLIFIED HERE ***
+  
   const fetchVisualizationData = async (subject_id, class_id, currentPrediction = null) => {
     try {
       setChartLoading(true);
@@ -131,7 +131,7 @@ const BehavioralAnalysis = () => {
                 data: [...yData, null],
                 label: 'Historical Active Time (mins)',
                 color: theme.palette.primary.main,
-                // No area fill for a clean line
+                
             };
 
             const predictionSegment = {
