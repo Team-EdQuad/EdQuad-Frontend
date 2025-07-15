@@ -29,8 +29,9 @@ const Footer = () => {
                 Ed<span style={{ color: 'blue' }}>Q</span>uad
               </Typography>
               <Typography mt={2}>
-                Welcome to Sri Lanka's first inspirational global experience in online grocery retailing.
-                Be a part of this experience, redefining convenience and freshness.
+                EdQuad brings together data, AI, and simplicity to make education smarter.  
+                Designed for schools. Built for students. Powered by insight.
+
               </Typography>
             </Box>
           </Grid>
@@ -75,7 +76,7 @@ const Footer = () => {
               <Typography variant="h6" fontWeight="bold">Contact Us</Typography>
               <Typography>• Phone Number: 036-2385974</Typography>
               <Typography>• Email: customercair@edquad.com</Typography>
-              <Typography>• EdQuad: <Link href="https://www.edquad.com" target="_blank" rel="noopener">https://www.edquad.com</Link></Typography>
+              <Typography>• EdQuad: <Link href="https://www.edquad.me" target="_blank" rel="noopener">http://167.71.225.152:3000/</Link></Typography>
 
               <Typography mt={2} fontWeight="bold">Follow Us</Typography>
               <IconButton color="primary"><FacebookIcon /></IconButton>

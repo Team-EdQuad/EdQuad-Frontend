@@ -115,9 +115,10 @@ const SubjectContent = () => {
           contentData.forEach((item) => {
             const rawDate = item.upload_date || item.Date;
             if (rawDate) {
-              const normalizedDate = rawDate.includes('T')
-                ? new Date(rawDate).toISOString().split('T')[0]
-                : rawDate;
+              // const normalizedDate = rawDate.includes('T')
+              //   ? new Date(rawDate).toISOString().split('T')[0]
+              //   : rawDate;
+              const normalizedDate = rawDate.split('T')[0]; // Keep as YYYY-MM-DD
 
               allItems.push({
                 type: 'content',
