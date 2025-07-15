@@ -1,44 +1,80 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Box, Typography } from '@mui/material';
 import axios from 'axios';
 
 import DocumentCard from '../../components/Attendance-Module/DocumentCard';
 import FileUploadForm from '../../components/Attendance-Module/FileUploadForm';
 import CustomDropdown from '../../components/Attendance-Module/CustomDropdown';
+import { StoreContext } from '../../context/StoreContext';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
-const StudentDocument = ({studentId, classId}) => {
+
+const StudentDocument = () => {
+
+  const { id:studentId, classId } = useContext(StoreContext);
+
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // for dropdown
   const [attendanceType, setAttendanceType] = useState('academic');
-  const [subjectType, setSubjectType] = useState('SUB001');
+  const [sportsId, setSportsId] = useState('');
+  const [clubsId, setClubsId] = useState('');
+  const [sportsOptions, setSportsOptions] = useState([]);
+  const [clubsOptions, setClubsOptions] = useState([]);
 
-  const subjectParam = attendanceType === 'academic' ? 'academic' : subjectType;
+  const subjectParam = attendanceType === 'academic' ? 'academic' : 
+                      attendanceType === 'sport' ? sportsId : 
+                      attendanceType === 'club' ? clubsId : 'academic';
 
   const handleAttendanceTypeChange = (e) => {
     setAttendanceType(e.target.value);
   };
-  const handleSubjectTypeChange = (e) => {
-    setSubjectType(e.target.value);
+  const handleSportsIdChange = (e) => {
+    setSportsId(e.target.value);
+  };
+  const handleClubsIdChange = (e) => {
+    setClubsId(e.target.value);
   };
 
   const attendanceTypeOptions = [
-    { label: 'Acadamic', value: 'academic' },
-    { label: 'Non-Acadamic', value: 'nonAcadamic' },
-  ];
-  const subjectTypeOptions = [
-    { label: 'Cricket', value: 'SUB001' },
-    { label: 'Basketball', value: 'SUB002' },
-    { label: 'Science Club', value: 'SUB003' },
-    { label: 'Maths Club', value: 'SUB004' },
+    { label: 'Academic', value: 'academic' },
+    { label: 'Sports', value: 'sport' },
+    { label: 'Clubs', value: 'club' }
   ];
 
+  // Fetch non-academic subjects
+  const fetchNonAcademicSubjects = async () => {
+    try {
+      const response = await axios.get(`${attendanceModuleUrl}/non-acadamic/subjects/${studentId}`);
+      const subjects = response.data.subject_ids;
+      
+      // Filter and set sports options
+      const sports = subjects.filter(id => id.startsWith('SPT')).map(id => ({
+        label: id,
+        value: id
+      }));
+      setSportsOptions(sports);
+      
+      // Filter and set clubs options
+      const clubs = subjects.filter(id => id.startsWith('CLB')).map(id => ({
+        label: id,
+        value: id
+      }));
+      setClubsOptions(clubs);
+
+      // Set initial values if not set
+      if (!sportsId && sports.length > 0) setSportsId(sports[0].value);
+      if (!clubsId && clubs.length > 0) setClubsId(clubs[0].value);
+    } catch (error) {
+      console.error('Failed to fetch subjects:', error);
+    }
+  };
 
   const fetchDocuments = async () => {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/attendance/view-document?class_id=${classId}&subject_id=${subjectParam}&student_id=${studentId}`
+        `${attendanceModuleUrl}/documents?class_id=${classId}&subject_id=${subjectParam}&student_id=${studentId}`
       );
 
       setDocuments(response.data.data || []);
@@ -58,7 +94,7 @@ const StudentDocument = ({studentId, classId}) => {
     if (!window.confirm('Are you sure you want to delete this document?')) return;
 
     try {
-      await axios.delete(`http://127.0.0.1:8000/attendance/delete-document/${doc._id}`);
+      await axios.delete(`${attendanceModuleUrl}/delete/document/${doc._id}`);
       setDocuments((prevDocs) => prevDocs.filter((d) => d._id !== doc._id));
     } catch (error) {
       console.error('Failed to delete document:', error);
@@ -70,6 +106,10 @@ const StudentDocument = ({studentId, classId}) => {
   const handleUploadSuccess = () => {
     fetchDocuments();
   };
+
+  useEffect(() => {
+    fetchNonAcademicSubjects();
+  }, [studentId]);
 
   useEffect(() => {
     fetchDocuments();
@@ -93,13 +133,20 @@ const StudentDocument = ({studentId, classId}) => {
           onChange={handleAttendanceTypeChange}
           menuItems={attendanceTypeOptions}
         />
-        {attendanceType != 'academic' &&
+        {attendanceType === 'sport' && (
           <CustomDropdown
-            value={subjectType}
-            onChange={handleSubjectTypeChange}
-            menuItems={subjectTypeOptions}
+            value={sportsId}
+            onChange={handleSportsIdChange}
+            menuItems={sportsOptions}
           />
-        }
+        )}
+        {attendanceType === 'club' && (
+          <CustomDropdown
+            value={clubsId}
+            onChange={handleClubsIdChange}
+            menuItems={clubsOptions}
+          />
+        )}
       </Box>
 
       <FileUploadForm

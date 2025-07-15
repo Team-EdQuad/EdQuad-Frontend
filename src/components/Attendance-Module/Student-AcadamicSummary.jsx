@@ -4,6 +4,7 @@ import Calendar from './CustomCalender'
 import CustomDropdown from './CustomDropdown'
 import BarChartCompo from './BarChartCompo'
 import { useState, useEffect } from 'react'
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const AcadamicSummary = ({studentId}) => {
 
@@ -52,7 +53,7 @@ const AcadamicSummary = ({studentId}) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(`http://127.0.0.1:8000/attendance/student/academic/summary?student_id=${studentId}&subject_id=academic&summary_type=${summaryType}&month=${month}`);
+            const response = await fetch(`${attendanceModuleUrl}/student/academic/summary?student_id=${studentId}&subject_id=academic&summary_type=${summaryType}&month=${month}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -60,15 +61,19 @@ const AcadamicSummary = ({studentId}) => {
 
             if (summaryType === 'daily') {
                 const dailyData = Object.fromEntries(
-                    Object.entries(data.data.result).map(([date, value]) => [date, value.charAt(0).toUpperCase() + value.slice(1)])
+                    Object.entries(data.data.result).map(([date, value]) => [
+                        date,
+                        value === 100 ? "Present" : "Absent"
+                    ])
                 );
+                console.log("Daily Data:", dailyData);
                 setDailyData(dailyData);
 
             } else if (summaryType === 'weekly') {
-                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setWeeklyData(weeklyData);
             } else if (summaryType === 'monthly') {
-                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setMonthlyData(monthlyData);
                 console.log('Processed Monthly Data:', monthlyData);
             }

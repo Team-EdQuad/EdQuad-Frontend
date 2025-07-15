@@ -15,8 +15,10 @@ import NonAcadamicSummary from '../../components/Attendance-Module/Student-NonAc
 const StudentAnalysis = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { id } = useContext(StoreContext);
+    const { id:studentId } = useContext(StoreContext);
     const [panelRef, panelSize] = useElementSize();
+
+    console.log(studentId);
 
     const isExtraSmallPaper = panelSize.width < 430;
     const isSmallPaper = panelSize.width < 650;
@@ -40,7 +42,8 @@ const StudentAnalysis = () => {
                 flexDirection: 'column',
                 gap: 3,
                 height: '100%',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                pt: 4
             }}>
                 <Typography variant="h3" sx={{ 
                     color: '#333', 
@@ -57,14 +60,14 @@ const StudentAnalysis = () => {
                     overflow: 'hidden'
                 }}>
                     <Box sx={{ flexShrink: 0 }}>
-                        <AcadamicRatio studentId={id} />
+                        <AcadamicRatio studentId={studentId} />
                     </Box>
                     <Box sx={{ 
                         flex: 1,
                         minWidth: 0,
                         overflow: 'hidden'
                     }}>
-                        <NonAcadamicRatio studentId={id} />
+                        <NonAcadamicRatio studentId={studentId} />
                     </Box>
                 </Box>
 
@@ -74,12 +77,12 @@ const StudentAnalysis = () => {
                     gap: 2,
                     '& > *': { flexGrow: 1, minWidth: 'min(100%, 550px)' }
                 }}>
-                    <AcadamicSummary studentId={id} />
-                    <NonAcadamicSummary studentId={id} />
+                    <AcadamicSummary studentId={studentId} />
+                    <NonAcadamicSummary studentId={studentId} />
                 </Box>
 
                 {/* <Box sx={{ flex: 1, overflow: 'hidden' }}>
-                    <History studentId={id} />
+                    <History studentId={studentId} />
                 </Box> */}
             </Box>
         </Box>

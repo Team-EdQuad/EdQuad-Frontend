@@ -8,6 +8,7 @@ import Calendar from "../components/DashbboardCalendar";
 
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { Box } from "@mui/material";
 
 import { useContext } from "react";
 import { StoreContext } from "../context/StoreContext"; 
@@ -17,11 +18,12 @@ import { StoreContext } from "../context/StoreContext";
 const StudentDashboard = () => {
 
   // const studentId = 'STU009';
-  const classId = 'CLS001';
+  // const classId = 'CLS001';
   const location = useLocation();
-  const { id: studentId } = useContext(StoreContext);
-  // const { id: studentId, classId } = useContext(StoreContext);
+  // const { id: studentId } = useContext(StoreContext);
+const { id: studentId, classId } = useContext(StoreContext);
 
+  // const studentId = 'STU001';
   console.log("Dashboard is rendering...");
 
   useEffect(() => {
@@ -34,7 +36,17 @@ const StudentDashboard = () => {
   }, [location]);
 
   return (
-    <div className="p-6 space-y-8" >
+    // <div className="p-6 space-y-8" >
+    <Box
+    sx={{
+      minHeight: "100vh",
+    backgroundImage: "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1500&q=80')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    }}
+    className="space-y-8"
+  >
     <section id="subject-progress">
       <SubjectProgress studentId={studentId} classId={classId} />
     </section>
@@ -44,7 +56,7 @@ const StudentDashboard = () => {
     </section>
 
     <section id="attendance">
-      <AttendanceOverview studentId="STU030" classId="CLS013" />
+      <AttendanceOverview studentId={studentId} classId={classId} />
     </section>
 
     <section id="academic-performance">
@@ -52,10 +64,11 @@ const StudentDashboard = () => {
     </section>
 
     <section id="predictive-analysis">
-      <PerformancePrediction />
+      <PerformancePrediction studentId={studentId} classId={classId} />
     </section>
     <Calendar />
-    </div>
+    {/* </div> */}
+  </Box>
     
   );
   

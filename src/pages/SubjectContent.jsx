@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import {
   Box,
   Button,
@@ -11,6 +11,10 @@ import {
   useTheme,
 } from '@mui/material';
 
+import { StoreContext } from '../context/StoreContext';
+const Url = import.meta.env.VITE_BACKEND_URL;
+
+
 const SubjectContent = () => {
   const navigate = useNavigate();
   const [groupedItems, setGroupedItems] = useState({});
@@ -18,8 +22,9 @@ const SubjectContent = () => {
   const [error, setError] = useState(null);
   const theme = useTheme();
   const { subjectId } = useParams();
+  const { id: studentId } = useContext(StoreContext);
+  const Url = import.meta.env.VITE_BACKEND_URL;
 
-  const studentId = 'STU001'; // ✅ Global declaration
 
   const getIconForItem = (item) => {
     if (item.type === 'assignment') return '📝';
@@ -39,37 +44,61 @@ const SubjectContent = () => {
     }
   };
 
-  const handleClick = async (item) => {
-    if (item.type === 'assignment') {
-      navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
-    } else if (item.type === 'content') {
-      try {
-        const formData = new FormData();
-        formData.append('student_id', studentId);
-        formData.append('content_id', item.id);
+const handleClick = async (item) => {
+  if (item.type === 'assignment') {
+    navigate(`/assignment-view/${encodeURIComponent(item.id)}`);
+  } else if (item.type === 'content') {
+    try {
+      const formData = new FormData();
+      formData.append('student_id', studentId);
+      formData.append('content_id', item.id);
 
-        await fetch('http://127.0.0.1:8000/api/startContentAccess', {
-          method: 'POST',
-          body: formData,
-        });
+      // Notify backend of content access
+      await fetch(`${Url}/api/startContentAccess`, {
+        method: 'POST',
+        body: formData,
+      });
 
-        navigate(`/content-view/${item.id}`);
-      } catch (err) {
-        console.error('Failed to notify backend of content access', err);
-      }
+      // Mark content as complete
+      await fetch(`${Url}/api/content/${item.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ student_id: studentId }),
+      });
+
+      // Pass the content data through navigation state
+      navigate(`/content-view/${item.id}`, {
+        state: {
+          contentData: {
+            content_id: item.id,
+            content_name: item.name,
+            content_file_id: item.fileId,
+            description: item.description,
+            Date: item.date,
+            file_type: item.fileId ? 'pdf' : 'unknown', // Default to PDF for Google Drive
+          }
+        }
+      });
+    } catch (err) {
+      console.error('Failed to notify backend of content access or mark as complete', err);
     }
-  };
+  }
+};
 
-  const handleOpenFile = (filePath) => {
-    window.open(`http://localhost:8000/${filePath}`, '_blank');
+
+
+  const handleOpenFile = (fileId) => {
+    window.open(`https://drive.google.com/file/d/${fileId}/view`, '_blank');
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [contentRes, assignmentRes] = await Promise.all([
-          fetch(`http://localhost:8000/api/content/${studentId}/${subjectId}`),
-          fetch(`http://localhost:8000/api/assignments/${studentId}/${subjectId}`)
+          fetch(`${Url}/api/content/${studentId}/${subjectId}`),
+          fetch(`${Url}/api/assignments/${studentId}/${subjectId}`)
         ]);
 
         const contentData = await contentRes.json();
@@ -77,7 +106,7 @@ const SubjectContent = () => {
 
         const allItems = [];
 
-        // ✅ Add content items
+        // Add content items
         if (Array.isArray(contentData)) {
           contentData.forEach(item => {
             allItems.push({
@@ -85,13 +114,13 @@ const SubjectContent = () => {
               id: item.content_id,
               name: item.content_name,
               description: item.description,
-              filePath: item.content_file_path,
+              fileId: item.content_file_id,
               date: new Date(item.Date).toISOString().split('T')[0],
             });
           });
         }
 
-        // ✅ Add assignment items
+        //  Add assignment items
         if (assignmentData.assignments) {
           assignmentData.assignments.forEach(asm => {
             allItems.push({
@@ -103,7 +132,7 @@ const SubjectContent = () => {
           });
         }
 
-        // ✅ Group by date
+        // Group by date
         const grouped = allItems.reduce((acc, item) => {
           const date = item.date;
           if (!acc[date]) acc[date] = [];

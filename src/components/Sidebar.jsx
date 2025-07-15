@@ -189,7 +189,7 @@ const AppSidebar = () => {
           )}
 
           {/* MENU ITEMS */}
-          {role === "Student" && (
+          {role === "student" && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
               {/* Dashborad */}
@@ -279,7 +279,7 @@ const AppSidebar = () => {
                 active={selected === "My Profile"}
                 onClick={() => setSelected("My Profile")}
                 icon={<ContactsOutlined />}
-                component={<Link to="/myprofile" />}
+                component={<Link to="/my-profile" />}
               >
                 <Typography>My Profile</Typography>
               </MenuItem>
@@ -364,7 +364,7 @@ const AppSidebar = () => {
               </MenuItem>
             </Box>
           )}
-          {role === 'Teacher' && (
+          {role === 'teacher' && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
               {/* Dashborad */}
@@ -440,7 +440,7 @@ const AppSidebar = () => {
                 active={selected === "My Profile"}
                 onClick={() => setSelected("My Profile")}
                 icon={<ContactsOutlined />}
-                component={<Link to="/myprofile" />}
+                component={<Link to="/my-profile" />}
               >
                 <Typography>My Profile</Typography>
               </MenuItem>
@@ -548,6 +548,16 @@ const AppSidebar = () => {
               </MenuItem>
 
               <MenuItem
+                active={selected === "Review AI-Graded Assignments"}
+                onClick={() => setSelected("Review AI-Graded Assignments")}
+                icon={<EditNoteOutlined />}
+                component={<Link to="/check-auto-graded" />}
+              >
+                <Typography>Review AI-Graded Assignments</Typography>
+              </MenuItem>
+
+
+              <MenuItem
                 active={selected === "Enter term-test marks"}
                 onClick={() => setSelected("Enter term-test marks")}
                 icon={<EditNoteOutlined />}
@@ -568,7 +578,7 @@ const AppSidebar = () => {
 
             </Box>
           )}
-          {role === 'Admin' && (
+          {role === 'admin' && (
             <Box paddingInline={isCollapsed ? undefined : "5px"}>
 
               {/* Dashborad */}
@@ -634,7 +644,7 @@ const AppSidebar = () => {
                 active={selected === "My Profile"}
                 onClick={() => setSelected("My Profile")}
                 icon={<ContactsOutlined />}
-                component={<Link to="/myprofile" />}
+                component={<Link to="/my-profile" />}
               >
                 <Typography>My Profile</Typography>
               </MenuItem>
@@ -738,7 +748,7 @@ const AppSidebar = () => {
                 active={selected === "Access Tracking"}
                 onClick={() => setSelected("Access Tracking")}
                 icon={<TrackChangesOutlined />}
-                component={<Link to="/access-tracking" />}
+                component={<Link to="/accesstracking" />}
               >
                 <Typography>Access Tracking</Typography>
               </MenuItem>

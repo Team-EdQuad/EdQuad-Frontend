@@ -4,6 +4,7 @@ import { Box, Paper, Typography, useTheme } from '@mui/material';
 import DoughnutChart from './DoughnutChart';
 import CustomDropdown from './CustomDropdown';
 import { ColorModeContext, tokens } from "../../theme";
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const AcadamicRatio = ({classId}) => {
 
@@ -18,7 +19,7 @@ const AcadamicRatio = ({classId}) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const [acadamicDataPeriod, setAcadamicDataPeriod] = useState('Monthly');
+    const [acadamicDataPeriod, setAcadamicDataPeriod] = useState('Yearly');
 
     const handleacadamicDataPeriodChange = (e) => {
         setAcadamicDataPeriod(e.target.value);
@@ -36,7 +37,7 @@ const AcadamicRatio = ({classId}) => {
         setError(null);
         try {
             // Replace 'YOUR_API_ENDPOINT' with your actual API endpoint
-            const response = await fetch(`http://127.0.0.1:8000/attendance/class/academic/ratio?class_id=${classId}&subject_id=academic&summary_type=${summaryType}`);
+            const response = await fetch(`${attendanceModuleUrl}/class/academic/ratio?class_id=${classId}&subject_id=academic&summary_type=${summaryType}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }

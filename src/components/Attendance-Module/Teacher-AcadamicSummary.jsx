@@ -3,8 +3,10 @@ import { Box, Paper, Typography, useTheme } from '@mui/material'
 import Calendar from './CustomCalender'
 import CustomDropdown from './CustomDropdown'
 import BarChartCompo from './BarChartCompo'
+import LineChartCompo from './LineChartCompo'
 import { useState, useEffect } from 'react'
 import { ColorModeContext, tokens } from "../../theme";
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const AcadamicSummary = ({classId}) => {
 
@@ -33,7 +35,7 @@ const AcadamicSummary = ({classId}) => {
     ];
 
 
-    const [month, setMonth] = useState('April');
+    const [month, setMonth] = useState('January');
 
     const monthOptions = [
         { label: 'January', value: 'January' },
@@ -60,24 +62,25 @@ const AcadamicSummary = ({classId}) => {
         setError(null);
         try {
 
-            const response = await fetch(`http://127.0.0.1:8000/attendance/class/academic/summary?class_id=${classId}&subject_id=academic&summary_type=${summaryType}&month=${month}`);
+            const response = await fetch(`${attendanceModuleUrl}/class/academic/summary?class_id=${classId}&subject_id=academic&summary_type=${summaryType}&month=${month}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
+            console.log("Fetched Data:", data);
             console.log("Final Format:", data.data.result);
 
             if (summaryType === 'daily') {
                 const dailyData = Object.fromEntries(
-                    Object.entries(data.data.result).map(([date, value]) => [date, (value * 100) + "%"])
+                    Object.entries(data.data.result).map(([date, value]) => [date, (value) + "%"])
                 );
                 setDailyData(dailyData);
 
             } else if (summaryType === 'weekly') {
-                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setWeeklyData(weeklyData);
             } else if (summaryType === 'monthly') {
-                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setMonthlyData(monthlyData);
             }
 
@@ -131,7 +134,8 @@ const AcadamicSummary = ({classId}) => {
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'left', alignItems: 'flex-start', width: '100%' }}>
                     {summeryType === 'Monthly' ? (
-                        <BarChartCompo data={monthlyData} />
+                        // <BarChartCompo data={monthlyData} />
+                        <LineChartCompo data={monthlyData} />
                     ) : summeryType === 'Weekly' ? (
                         <Box>
                             <Box display="flex" justifyContent="flex-end" mb={2} mx={"25px"}>

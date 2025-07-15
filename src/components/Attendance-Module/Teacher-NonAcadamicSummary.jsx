@@ -5,6 +5,8 @@ import CustomDropdown from './CustomDropdown'
 import BarChartCompo from './BarChartCompo'
 import { useState, useEffect } from 'react'
 import { ColorModeContext, tokens } from "../../theme";
+import axios from 'axios';
+const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const NonAcadamicSummary = ({classId}) => {
 
@@ -18,20 +20,36 @@ const NonAcadamicSummary = ({classId}) => {
     const [monthlyData, setMonthlyData] = useState([]);
     const [weeklyData, setWeeklyData] = useState([]);
 
-
-    const [subjectType, setSubjectType] = useState('SUB001');
+    const [subjectType, setSubjectType] = useState('');
+    const [subjectTypeOptions, setSubjectTypeOptions] = useState([]);
 
     const handleSubjectTypeChange = (e) => {
         setSubjectType(e.target.value);
     };
 
-    const subjectTypeOptions = [
-        { label: 'Cricket', value: 'SUB001' },
-        { label: 'Basketball', value: 'SUB002' },
-        { label: 'Science Club', value: 'SUB003' },
-        { label: 'Maths Club', value: 'SUB004' },
-    ];
-
+    // Function to fetch non-academic subjects
+    const fetchNonAcademicSubjects = async () => {
+        try {
+            const response = await axios.get(`${attendanceModuleUrl}/non-acadamic/subjects`);
+            const subjects = response.data.subject_ids;
+            
+            // Transform the subject IDs into the format needed for the dropdown
+            const options = subjects.map(id => ({
+                label: id, // You might want to add a more descriptive label if available from the API
+                value: id
+            }));
+            
+            setSubjectTypeOptions(options);
+            
+            // Set initial value if not set
+            if (!subjectType && options.length > 0) {
+                setSubjectType(options[0].value);
+            }
+        } catch (error) {
+            console.error('Failed to fetch subjects:', error);
+            setError('Failed to fetch subjects');
+        }
+    };
 
     const [summeryType, setSummeryType] = useState('Monthly');
 
@@ -46,7 +64,7 @@ const NonAcadamicSummary = ({classId}) => {
     ];
 
 
-    const [month, setMonth] = useState('April');
+    const [month, setMonth] = useState('January');
 
     const monthOptions = [
         { label: 'January', value: 'January' },
@@ -73,7 +91,7 @@ const NonAcadamicSummary = ({classId}) => {
         setError(null);
         try {
 
-            const response = await fetch(`http://127.0.0.1:8000/attendance/class/nonacademic/summary?class_id=${classId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
+            const response = await fetch(`${attendanceModuleUrl}/class/nonacademic/summary?class_id=${classId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -82,15 +100,15 @@ const NonAcadamicSummary = ({classId}) => {
 
             if (summaryType === 'daily') {
                 const dailyData = Object.fromEntries(
-                    Object.entries(data.data.result).map(([date, value]) => [date, (value * 100) + "%"])
+                    Object.entries(data.data.result).map(([date, value]) => [date, (value) + "%"])
                 );
                 setDailyData(dailyData);
 
             } else if (summaryType === 'weekly') {
-                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setWeeklyData(weeklyData);
             } else if (summaryType === 'monthly') {
-                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value * 100) }));
+                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
                 setMonthlyData(monthlyData);
             }
 
@@ -113,6 +131,11 @@ const NonAcadamicSummary = ({classId}) => {
         // Fetch initial data (e.g., for 'yearly')
         fetchAttendanceData(summeryType.toLowerCase(), month, subjectType);
     }, [summeryType, month, subjectType]);
+
+    // Add useEffect for fetching subjects
+    useEffect(() => {
+        fetchNonAcademicSubjects();
+    }, []);
 
     return (
         <Box sx={{

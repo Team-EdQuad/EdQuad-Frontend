@@ -1,28 +1,89 @@
-import React, { useState } from 'react';
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Button, Paper, useTheme } from '@mui/material';
+import React, { useState, useEffect,useContext } from 'react';
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Button,
+  Paper,
+  useTheme,
+} from '@mui/material';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { StoreContext } from '../context/StoreContext';
+const Url = import.meta.env.VITE_BACKEND_URL;
+
 
 const CheckAssignment = () => {
-  const theme = useTheme(); // Access the current theme
-  const [marks, setMarks] = useState({}); // State to store marks for each student
+  const theme = useTheme();
+  const navigate = useNavigate();
 
-  const assignments = [
-    { student: 'Student 1', assignmentName: 'Assignment 1', file: 'Assignment1.pdf' },
-    { student: 'Student 2', assignmentName: 'Assignment 1', file: 'Assignment1.pdf' },
-    { student: 'Student 3', assignmentName: 'Assignment 2', file: 'Assignment2.pdf' },
-    { student: 'Student 2', assignmentName: 'Assignment 3', file: 'Assignment3.pdf' },
-  ];
+  
+  const { id:teacher_id } = useContext(StoreContext);
+  //const teacher_id = 'TCH001';
 
-  const handleMarkChange = (index, value) => {
-    setMarks((prevMarks) => ({
-      ...prevMarks,
-      [index]: value,
+  const [submissions, setSubmissions] = useState([]);
+  const [marksInput, setMarksInput] = useState({});
+
+  useEffect(() => {
+    axios
+      .get(`${Url}/api/submission_view/${teacher_id}`)
+      .then(({ data }) => {
+        setSubmissions(data);
+      })
+      .catch((err) => console.error('Error fetching submissions:', err));
+  }, []);
+
+  const handleMarkChange = (submission_id, value) => {
+    setMarksInput((prev) => ({
+      ...prev,
+      [submission_id]: value,
     }));
   };
 
-  const handleSubmit = (index) => {
-    console.log(`Marks for ${assignments[index].student}:`, marks[index]);
-    // Add logic to save marks
+  const handleSubmitMarks = (submission_id) => {
+    const marks = parseInt(marksInput[submission_id], 10);
+    if (isNaN(marks) || marks < 0 || marks > 100) {
+      alert('Please enter a valid number between 0 and 100');
+      return;
+    }
+
+    // Create URL-encoded form data
+    const formData = new URLSearchParams();
+    formData.append('submission_id', submission_id);
+    formData.append('marks', marks);
+
+    axios
+      .post(
+        `${Url}/api/update_submission_marks/${teacher_id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            accept: 'application/json',
+          },
+        }
+      )
+      .then(({ data }) => {
+        console.log('Update marks response:', data);
+        setSubmissions((prev) =>
+          prev.map((s) =>
+            s.submission_id === submission_id ? { ...s, marks: data.marks } : s
+          )
+        );
+        alert('Marks updated successfully!');
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.error('Error updating marks:', err);
+        alert('Failed to update marks');
+      });
   };
 
   return (
@@ -31,7 +92,7 @@ const CheckAssignment = () => {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      bgcolor={theme.palette.background.default} // Dynamic background color
+      bgcolor={theme.palette.background.default}
       minHeight="100vh"
       p={3}
     >
@@ -39,9 +100,7 @@ const CheckAssignment = () => {
         variant="h5"
         fontWeight="bold"
         mb={3}
-        sx={{
-          color: theme.palette.text.primary, // Dynamic text color
-        }}
+        color={theme.palette.text.primary}
       >
         Check Assignments
       </Typography>
@@ -49,88 +108,61 @@ const CheckAssignment = () => {
       <TableContainer
         component={Paper}
         sx={{
-          backgroundColor: theme.palette.background.paper, // Dynamic table background
+          backgroundColor: theme.palette.background.paper,
           borderRadius: '8px',
           boxShadow: 1,
-          maxWidth: '900px',
+          maxWidth: '1000px',
         }}
       >
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell
-                sx={{
-                  backgroundColor: theme.palette.primary.main, // Dynamic header background
-                  color: theme.palette.primary.contrastText, // Dynamic header text color
-                  fontWeight: 'bold',
-                }}
-              >
-                Name of Student
-              </TableCell>
-              <TableCell
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.primary.contrastText,
-                  fontWeight: 'bold',
-                }}
-              >
-                Assignment Name
-              </TableCell>
-              <TableCell
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.primary.contrastText,
-                  fontWeight: 'bold',
-                }}
-              >
-                Uploaded Files
-              </TableCell>
-              <TableCell
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.primary.contrastText,
-                  fontWeight: 'bold',
-                }}
-              >
-                Marks
-              </TableCell>
-              <TableCell
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.primary.contrastText,
-                  fontWeight: 'bold',
-                }}
-              >
-                Action
-              </TableCell>
+              {['Student ID', 'Class', 'Subject', 'Assignment', 'File', 'Marks', 'Action'].map(
+                (h) => (
+                  <TableCell
+                    key={h}
+                    sx={{
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {h}
+                  </TableCell>
+                )
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
-            {assignments.map((assignment, index) => (
+            {submissions.map((sub) => (
               <TableRow
-                key={index}
+                key={sub.submission_id}
                 sx={{
-                  backgroundColor: index % 2 === 0 ? theme.palette.action.hover : theme.palette.background.default, // Alternate row colors
+                  backgroundColor:
+                    submissions.indexOf(sub) % 2 === 0
+                      ? theme.palette.action.hover
+                      : theme.palette.background.default,
                 }}
               >
-                <TableCell>{assignment.student}</TableCell>
-                <TableCell>{assignment.assignmentName}</TableCell>
+                <TableCell>{sub.student_id}</TableCell>
+                <TableCell>{sub.class_name}</TableCell>
+                <TableCell>{sub.subject_name}</TableCell>
+                <TableCell>{sub.assignment_name}</TableCell>
                 <TableCell>
                   <Box display="flex" alignItems="center">
                     <PictureAsPdfIcon sx={{ color: 'red', mr: 1 }} />
                     <Typography
                       variant="body2"
                       sx={{
-                        color: theme.palette.primary.main, // Dynamic link color
-                        cursor: 'pointer',
+                        color: theme.palette.primary.main,
                         textDecoration: 'underline',
+                        cursor: 'pointer',
                       }}
-                      onClick={() => {
-                        // Logic to download or view the file
-                        console.log(`Downloading ${assignment.file}`);
-                      }}
+                      onClick={() =>
+                        navigate(`/submission/view/${sub.submission_id}`)
+                      }
                     >
-                      {assignment.file}
+                      {sub.file_name}
                     </Typography>
                   </Box>
                 </TableCell>
@@ -138,24 +170,29 @@ const CheckAssignment = () => {
                   <TextField
                     variant="outlined"
                     size="small"
-                    value={marks[index] || ''}
-                    onChange={(e) => handleMarkChange(index, e.target.value)}
+                    value={
+                      marksInput[sub.submission_id] ??
+                      (sub.marks != null ? sub.marks : '')
+                    }
+                    onChange={(e) =>
+                      handleMarkChange(sub.submission_id, e.target.value)
+                    }
                     sx={{
                       width: '80px',
-                      backgroundColor: theme.palette.background.paper, // Dynamic input background
-                      color: theme.palette.text.primary, // Dynamic text color
+                      backgroundColor: theme.palette.background.paper,
                     }}
                   />
                 </TableCell>
                 <TableCell>
                   <Button
                     variant="contained"
-                    onClick={() => handleSubmit(index)}
+                    size="small"
+                    onClick={() => handleSubmitMarks(sub.submission_id)}
                     sx={{
-                      backgroundColor: theme.palette.primary.main, // Dynamic button background
-                      color: theme.palette.primary.contrastText, // Dynamic button text color
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.primary.contrastText,
                       '&:hover': {
-                        backgroundColor: theme.palette.primary.dark, // Dynamic hover background
+                        backgroundColor: theme.palette.primary.dark,
                       },
                     }}
                   >

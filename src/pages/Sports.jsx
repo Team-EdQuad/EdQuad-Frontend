@@ -8,6 +8,7 @@ import basketballImg from "../assets/basketball.png";
 import badmintonImg from "../assets/badminton.png";
 import swimmingImg from "../assets/swimming.png";
 import tennisImg from "../assets/tennis.png";
+import sportwallpaper from "../assets/sportswall.jpg"
 
 const sportsData = [
   {
@@ -68,12 +69,19 @@ const sportsData = [
 
 const Sports = () => {
   return (
-    <Box p={4} sx={{ backgroundColor: "#e6f0ff", minHeight: "100vh" }}>
-      <Typography variant="h2" fontWeight="bold" mb={3} align="center">
+    <Box p={4} sx={{
+    minHeight: "100vh",
+    // backgroundImage: `url(${sportwallpaper})`, 
+    // backgroundSize: "cover",
+    // backgroundPosition: "center",
+    // backgroundRepeat: "no-repeat",
+    backgroundColor: "#e6f0ff", 
+  }}>
+      <Typography variant="h2" fontWeight="bold" mb={3} align="center" >
         Sports Activities
       </Typography>
 
-      <Box display="flex" gap={2} mb={4}>
+      {/* <Box display="flex" gap={2} mb={4}>
         <Select defaultValue="All Sports">
           <MenuItem value="All Sports">All Sports</MenuItem>
           <MenuItem value="Indoor Sports">Indoor Sports</MenuItem>
@@ -83,7 +91,7 @@ const Sports = () => {
           <MenuItem value="Team Sports">Team Sports</MenuItem>
           <MenuItem value="Individual Sports">Individual Sports</MenuItem>
         </Select>
-      </Box>
+      </Box> */}
 
       <Grid container spacing={3}>
         {sportsData.map((sport, index) => (

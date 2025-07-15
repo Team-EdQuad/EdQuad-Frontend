@@ -1,19 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Box, Typography, useTheme, MenuItem, Select, FormControl, InputLabel,
 } from '@mui/material';
 import axios from 'axios';
+import { StoreContext } from '../context/StoreContext';
+const Url = import.meta.env.VITE_BACKEND_URL
 
 const TermTestMarks = () => {
   const theme = useTheme();
   const [data, setData] = useState([]);
   const [selectedYear, setSelectedYear] = useState('');
   const [availableYears, setAvailableYears] = useState([]);
+  
+  const { id: studentId } = useContext(StoreContext);
 
   useEffect(() => {
     // Fetch marks from the backend
-    axios.get('http://127.0.0.1:8000/api/exammarks/STU001')
+    axios.get(`${Url}/api/exammarks/${studentId}`)
       .then((res) => {
         setData(res.data);
         const years = [...new Set(res.data.map(entry => entry.exam_year))];
