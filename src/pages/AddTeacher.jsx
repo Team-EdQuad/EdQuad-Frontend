@@ -28,28 +28,28 @@ const Url = import.meta.env.VITE_BACKEND_URL;
 
 // Available subjects
 const subjects = [
-  { id: "SUB001", name: "Mathematics" },
-  { id: "SUB002", name: "Physics" },
-  { id: "SUB003", name: "Chemistry" },
-  { id: "SUB004", name: "Biology" },
+  { id: "SUB001", name: "English" },
+  { id: "SUB002", name: "Science" },
+  { id: "SUB003", name: "Computer Science" },
+  { id: "SUB004", name: "Mathematics" },
   { id: "SUB005", name: "History" },
   { id: "SUB006", name: "English Literature" },
-  { id: "SUB007", name: "Computer Science" },
-  { id: "SUB008", name: "Geography" },
-  { id: "SUB009", name: "Economics" },
-  { id: "SUB010", name: "Art" },
 ];
 
 // Available classes
 const availableClasses = [
-  { id: "CLS001", name: "Grade 10-A" },
-  { id: "CLS002", name: "Grade 10-B" },
-  { id: "CLS003", name: "Grade 11-A" },
-  { id: "CLS004", name: "Grade 11-B" },
-  { id: "CLS005", name: "Grade 12-A" },
-  { id: "CLS006", name: "Grade 12-B" },
-  { id: "CLS007", name: "Grade 13-A" },
-  { id: "CLS008", name: "Grade 13-B" },
+  { id: "CLS001", name: "6-A" },
+  { id: "CLS002", name: "6-B" },
+  { id: "CLS003", name: "7-A" },
+  { id: "CLS004", name: "7-B" },
+  { id: "CLS005", name: "8-A" },
+  { id: "CLS006", name: "8-B" },
+  { id: "CLS007", name: "9-A" },
+  { id: "CLS008", name: "9-B" },
+  { id: "CLS009", name: "10-A" },
+  { id: "CLS010", name: "10-B" },
+  { id: "CLS011", name: "11-A" },
+  { yid: "CLS012", name: "11-B" }
 ];
 
 const AddTeacher = () => {
@@ -412,16 +412,16 @@ const AddTeacher = () => {
                   return (
                     <Card key={subjectId} sx={{ mb: 2, backgroundColor: colors.primary[500] }}>
                       <CardContent>
-                        <Typography variant="h6" sx={{ mb: 2 }}>
+                        <Typography variant="h6" sx={{ mb: 2 ,color: "white"}}>
                           {subject?.name} - Select Classes:
                         </Typography>
-                        <Grid container spacing={1}>
+                        <Grid container spacing={1} sx={{color: "white"}}>
                           {availableClasses.map((cls) => (
                             <Grid item xs={12} sm={6} md={3} key={cls.id}>
                               <FormGroup>
                                 <FormControlLabel
                                   control={
-                                    <Checkbox
+                                    <Checkbox sx={{ color: "white" }}
                                       checked={subjectClasses[subjectId]?.includes(cls.id) || false}
                                       onChange={() => handleClassToggle(subjectId, cls.id)}
                                     />

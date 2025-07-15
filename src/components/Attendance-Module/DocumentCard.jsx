@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Button, Card, Typography } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
-const DocumentCard = ({ doc, index, onView, onDelete }) => {
+const DocumentCard = ({ doc, index, onView, onDelete, isDeleting }) => {
     return (
         <Card
             sx={{
@@ -39,18 +39,40 @@ const DocumentCard = ({ doc, index, onView, onDelete }) => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                     <Button
                         variant="contained"
-                        sx={{ backgroundColor: '#3674B5', borderRadius: '5px', width: '120px', height: '35px', boxShadow: 0 }}
+                        sx={{ 
+                            backgroundColor: '#3674B5', 
+                            borderRadius: '5px', 
+                            width: '120px', 
+                            height: '35px', 
+                            boxShadow: 0,
+                            '&:disabled': {
+                                backgroundColor: '#3674B5',
+                                opacity: 0.7
+                            }
+                        }}
                         onClick={() => onView(doc)}
+                        disabled={isDeleting}
                     >
                         View
                     </Button>
                     <Button
                         variant="outlined"
                         color="secondary"
-                        sx={{ borderRadius: '5px', width: '120px', height: '35px', boxShadow: 0 }}
+                        sx={{ 
+                            borderRadius: '5px', 
+                            width: '120px', 
+                            height: '35px', 
+                            boxShadow: 0,
+                            '&:disabled': {
+                                borderColor: '#f44336',
+                                color: '#f44336',
+                                opacity: 0.7
+                            }
+                        }}
                         onClick={() => onDelete(doc)}
+                        disabled={isDeleting}
                     >
-                        Delete
+                        {isDeleting ? 'Deleting...' : 'Delete'}
                     </Button>
                 </Box>
             </Box>

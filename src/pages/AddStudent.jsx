@@ -24,21 +24,28 @@ const Url = import.meta.env.VITE_BACKEND_URL;
 
 
 const subjects = [
-  { code: "SUB001", name: "Mathematics" },
-  { code: "SUB003", name: "Chemistry" },
-  { code: "SUB004", name: "Biology" },
+  { code: "SUB001", name: "English" },
+  { code: "SUB002", name: "Science" },
+  { code: "SUB003", name: "Computer Science" },
+  { code: "SUB004", name: "Mathematics" },
   { code: "SUB005", name: "History" },
   { code: "SUB006", name: "English Literature" },
-  { code: "SUB007", name: "Computer Science" },
 ];
 
+
 const classes = [
-  { class_id: "CLS001", class_name: "10-A" },
-  { class_id: "CLS002", class_name: "10-B" },
-  { class_id: "CLS003", class_name: "11-A" },
-  { class_id: "CLS004", class_name: "11-B" },
-  { class_id: "CLS005", class_name: "12-A" },
-  { class_id: "CLS013", class_name: "13-A" },
+  { class_id: "CLS001", class_name: "6-A" },
+  { class_id: "CLS002", class_name: "6-B" },
+  { class_id: "CLS003", class_name: "7-A" },
+  { class_id: "CLS004", class_name: "7-B" },
+  { class_id: "CLS005", class_name: "8-A" },
+  { class_id: "CLS006", class_name: "8-B" },
+  { class_id: "CLS007", class_name: "9-A" },
+  { class_id: "CLS008", class_name: "9-B" },
+  { class_id: "CLS009", class_name: "10-A" },
+  { class_id: "CLS010", class_name: "10-B" },
+  { class_id: "CLS011", class_name: "11-A" },
+  { class_id: "CLS012", class_name: "11-B" }
 ];
 
 const AddStudent = () => {
@@ -116,11 +123,14 @@ const AddStudent = () => {
     
     const payload = {
       ...formData,
+      phone_no: formData.phone,
+      subject_id: formData.subject,
       full_name: `${formData.first_name} ${formData.last_name}`.trim(),
       join_date: formData.join_date || today,
       last_edit_date: formData.last_edit_date || today,
     };
-
+    delete payload.phone;
+    delete payload.subject;
     console.log("Sending payload:", payload); // Debug log
     console.log("Using token:", token ? "Token present" : "No token"); // Debug log
 
@@ -142,9 +152,13 @@ const AddStudent = () => {
 
       if (!response.ok) {
         throw new Error(
-          responseData.detail || 
-          responseData.message || 
-          `HTTP error! status: ${response.status}`
+          // responseData.detail || 
+          // responseData.message || 
+          typeof responseData.detail === "string"
+            ? responseData.detail
+            : responseData.message ||
+              JSON.stringify(responseData) || 
+              `HTTP error! status: ${response.status}`
         );
       }
 
@@ -410,7 +424,7 @@ const AddStudent = () => {
               }
               size="small"
               sx={{ mt: 1 }}
-              placeholder="e.g., CLUB001,CLUB002"
+              placeholder="e.g., CLB001,CLB002"
             />
           </Grid>
 
@@ -429,7 +443,7 @@ const AddStudent = () => {
               }
               size="small"
               sx={{ mt: 1 }}
-              placeholder="e.g., SPORT001,SPORT002"
+              placeholder="e.g., SPT001,SPT002"
             />
           </Grid>
 

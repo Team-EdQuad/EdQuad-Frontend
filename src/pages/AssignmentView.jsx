@@ -22,7 +22,7 @@ const AssignmentView = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Assignment data:', data); // ✅ Debug logging
+        console.log('Assignment data:', data); 
         setAssignment(data);
         setLoading(false);
       } catch (error) {
@@ -45,16 +45,7 @@ const AssignmentView = () => {
   
 
   const handleView = () => {
-  if (assignment.assignment_file_id) {
-    // ✅ Pass file ID for Google Drive files
-    navigate('/assignment-file-view', {
-      state: {
-        fileId: assignment.assignment_file_id,
-        assignmentFileName: getFileName(),
-        assignmentFileUrl: `https://drive.google.com/file/d/${assignment.assignment_file_id}/view`
-      }
-    });
-  } else if (assignment.assignment_file_path) {
+   if (assignment.assignment_file_path) {
     // Local file
     const fileUrl = `${Url}/api/assignment/file/${assignment.assignment_id}`;
     navigate('/assignment-file-view', {
@@ -73,7 +64,7 @@ const AssignmentView = () => {
     navigate(`/submission/${assignment.assignment_id}`);
   };
   
-  // ✅ Get file name for display
+  // Get file name for display
   const getFileName = () => {
     if (assignment.file_name) {
       return assignment.file_name;
@@ -105,7 +96,7 @@ const AssignmentView = () => {
           {assignment.description || 'No description available.'}
         </Typography>
         
-        {/* ✅ Only show file section if file exists */}
+        {/*  Only show file section if file exists */}
         {(assignment.assignment_file_id || assignment.assignment_file_path) && (
           <Box mt={2} display="flex" alignItems="center" justifyContent="space-between">
             <Box display="flex" alignItems="center">

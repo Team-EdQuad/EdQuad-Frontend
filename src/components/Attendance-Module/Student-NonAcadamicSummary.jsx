@@ -1,21 +1,56 @@
-import React, { use } from 'react'
-import { Box, Paper, Typography } from '@mui/material'
-import Calendar from './CustomCalender'
-import CustomDropdown from './CustomDropdown'
-import BarChartCompo from './BarChartCompo'
-import { useState, useEffect } from 'react'
-import { fi } from 'date-fns/locale'
+import React, { useState, useEffect } from 'react';
+import { Box, Paper, Typography, CircularProgress } from '@mui/material';
+import Calendar from './CustomCalender';
+import CustomDropdown from './CustomDropdown';
+import BarChartCompo from './BarChartCompo';
 import axios from 'axios';
+import { getSubjectName } from './SubjectNameMapping';
+
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
-const NonAcadamicSummary = ({ studentId }) => {
+const LoadingOverlay = () => (
+    <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        zIndex: 1,
+        borderRadius: 'inherit'
+    }}>
+        <CircularProgress />
+    </Box>
+);
 
+const NoDataMessage = () => (
+    <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 1,
+        py: 4,
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+    }}>
+        <Typography variant="h6" color="text.secondary">👀</Typography>
+        <Typography variant="body1" color="text.secondary">Data not found</Typography>
+    </Box>
+);
+
+const NonAcadamicSummary = ({ studentId }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const [dailyData, setDailyData] = useState({});
+    const [dailyData, setDailyData] = useState(null);
     const [monthlyData, setMonthlyData] = useState([]);
-    const [weeklyData, setWeeklyData] = useState([]);
+    const [weeklyData, setWeeklyData] = useState(null);
 
     const [subjectType, setSubjectType] = useState('');
     const [subjectTypeOptions, setSubjectTypeOptions] = useState([]);
@@ -24,21 +59,18 @@ const NonAcadamicSummary = ({ studentId }) => {
         setSubjectType(e.target.value);
     };
 
-    // Function to fetch non-academic subjects
     const fetchNonAcademicSubjects = async () => {
         try {
             const response = await axios.get(`${attendanceModuleUrl}/non-acadamic/subjects/${studentId}`);
             const subjects = response.data.subject_ids;
-            
-            // Transform the subject IDs into the format needed for the dropdown
+
             const options = subjects.map(id => ({
-                label: id, // You might want to add a more descriptive label if available from the API
+                label: getSubjectName(id),
                 value: id
             }));
-            
+
             setSubjectTypeOptions(options);
-            
-            // Set initial value if not set
+
             if (!subjectType && options.length > 0) {
                 setSubjectType(options[0].value);
             }
@@ -48,7 +80,6 @@ const NonAcadamicSummary = ({ studentId }) => {
         }
     };
 
-    // Add useEffect for fetching subjects
     useEffect(() => {
         fetchNonAcademicSubjects();
     }, [studentId]);
@@ -57,14 +88,8 @@ const NonAcadamicSummary = ({ studentId }) => {
 
     const fetchSubjects = async (studentId) => {
         try {
-            const response = await fetch(
-                `${attendanceModuleUrl}/subjects/${studentId}`
-            );
-
-            if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
-            }
-
+            const response = await fetch(`${attendanceModuleUrl}/subjects/${studentId}`);
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
             const data = await response.json();
             console.log("Fetched subjects:", data.subject_ids);
             return data.subject_ids;
@@ -78,11 +103,9 @@ const NonAcadamicSummary = ({ studentId }) => {
         fetchSubjects(studentId).then((subjects) => {
             setSubjectList(subjects);
         });
-        console.log("Subject List:", subjectList);
     }, [studentId]);
 
     const [summeryType, setSummeryType] = useState('Monthly');
-
     const handlesummeryTypeChange = (e) => {
         setSummeryType(e.target.value);
     };
@@ -94,7 +117,6 @@ const NonAcadamicSummary = ({ studentId }) => {
     ];
 
     const [month, setMonth] = useState('April');
-
     const monthOptions = [
         { label: 'January', value: 'January' },
         { label: 'February', value: 'February' },
@@ -114,125 +136,122 @@ const NonAcadamicSummary = ({ studentId }) => {
         setMonth(e.target.value);
     };
 
-    // Function to fetch data from your API
     const fetchAttendanceData = async (summaryType, month, subjectType) => {
         setLoading(true);
         setError(null);
         try {
-
-            // const response = await fetch(`${attendanceModuleUrl}/class/nonacademic/summary?class_id=${classId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
             const response = await fetch(`${attendanceModuleUrl}/student/nonacademic/summary?student_id=${studentId}&subject_id=${subjectType}&summary_type=${summaryType}&month=${month}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
-            console.log("Final Format:", data.data.result);
+            const result = data.data.result;
 
             if (summaryType === 'daily') {
-                const dailyData = Object.fromEntries(
-                    Object.entries(data.data.result).map(([date, value]) => [
+                const daily = Object.fromEntries(
+                    Object.entries(result).map(([date, value]) => [
                         date,
                         value === 100 ? "Present" : "Absent"
                     ])
                 );
-                console.log("Daily Data:", dailyData);
-                setDailyData(dailyData);
-
+                setDailyData(Object.keys(daily).length ? daily : null);
+                setWeeklyData(null);
+                setMonthlyData([]);
             } else if (summaryType === 'weekly') {
-                const weeklyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
-                setWeeklyData(weeklyData);
+                const weekly = Object.entries(result).map(([x, value]) => ({ x: x.slice(0, 3), value }));
+                setWeeklyData(weekly.length ? weekly : null);
+                setDailyData(null);
+                setMonthlyData([]);
             } else if (summaryType === 'monthly') {
-                const monthlyData = Object.entries(data.data.result).map(([x, value]) => ({ x: x.slice(0, 3), value: (value) }));
-                setMonthlyData(monthlyData);
+                const monthly = Object.entries(result).map(([x, value]) => ({ x: x.slice(0, 3), value }));
+                setMonthlyData(monthly.length ? monthly : []);
+                setWeeklyData(null);
+                setDailyData(null);
             }
-
         } catch (error) {
-            if (error.response) {
-                console.error(`Error ${error.response.status}:`, error.response.data);
-                if (error.response.status === 404) {
-                    console.error("Data not found (404)");
-                    setAcadamicApiData(null);
-                }
-            } else {
-                console.error("Error:", error.message);
-            }
+            console.error("Error:", error.message);
+            setDailyData(null);
+            setWeeklyData(null);
+            setMonthlyData([]);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        // Fetch initial data (e.g., for 'yearly')
         fetchAttendanceData(summeryType.toLowerCase(), month, subjectType);
     }, [summeryType, month, subjectType]);
 
+    const hasData = (data) => {
+        if (!data) return false;
+        if (Array.isArray(data)) return data.length > 0;
+        return Object.keys(data).length > 0;
+    };
+
+    const renderContent = () => {
+        if (!subjectType) return <NoDataMessage />;
+
+        if (summeryType === 'Monthly') {
+            return hasData(monthlyData) ? <BarChartCompo data={monthlyData} /> : <NoDataMessage />;
+        } else if (summeryType === 'Weekly') {
+            return hasData(weeklyData) ? <BarChartCompo data={weeklyData} /> : <NoDataMessage />;
+        } else if (summeryType === 'Daily') {
+            return hasData(dailyData) ? <Calendar attendanceData={dailyData} month={month} /> : <NoDataMessage />;
+        }
+        return null;
+    };
+
     return (
-        <Box sx={{
-            // width: '100%',
-            height: '100%',
-            backgroundColor: '#EFF3FF',
-            p: 2,
-        }}>
-            <Paper
-                sx={{
-                    height: '550px',
-                    width: 'auto',
+        <Box sx={{ height: '100%', backgroundColor: '#EFF3FF', p: 2 }}>
+            <Paper sx={{
+                minHeight: 400,
+                height: 'auto',
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: 2,
+                borderRadius: '10px',
+                position: 'relative',
+                boxShadow: 'none'
+            }}>
+
+                {loading && <LoadingOverlay />}
+                <Typography variant="h5" sx={{ mb: '20px' }}>
+                    Non-Academic Summary
+                </Typography>
+
+                <Box sx={{
                     display: 'flex',
-                    flexDirection: 'column',
+                    justifyContent: 'flex-start',
                     alignItems: 'center',
-                    paddingX: '11px',
-                    borderRadius: '10px',
-                    position: 'relative',
-                    boxShadow: 'none'
-                }}
-            >
-                <Box sx={{ display: 'fles', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '25px 25px 10px 25px' }}>
-                    <Typography variant="h5" color="#000">Non-Academic</Typography>
-                    <Box display="flex" justifyContent="center" flexDirection="column" alignItems="center" gap='10px'>
+                    width: '100%',
+                    mb: 2,
+                    gap: 1
+                }}>
+                    <CustomDropdown
+                        value={subjectType}
+                        onChange={handleSubjectTypeChange}
+                        menuItems={subjectTypeOptions}
+                    />
+                    <CustomDropdown
+                        value={summeryType}
+                        onChange={handlesummeryTypeChange}
+                        menuItems={summeryTypeOptions}
+                    />
+                    {(summeryType === 'Weekly' || summeryType === 'Daily') && (
                         <CustomDropdown
-                            value={subjectType}
-                            onChange={handleSubjectTypeChange}
-                            menuItems={subjectTypeOptions}
+                            value={month}
+                            onChange={handleMonthChange}
+                            menuItems={monthOptions}
                         />
-                        <CustomDropdown
-                            value={summeryType}
-                            onChange={handlesummeryTypeChange}
-                            menuItems={summeryTypeOptions}
-                        />
-                    </Box>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'left', alignItems: 'flex-start', width: '100%' }}>
-                    {summeryType === 'Monthly' ? (
-                        <BarChartCompo data={monthlyData} />
-                    ) : summeryType === 'Weekly' ? (
-                        <Box>
-                            <Box display="flex" justifyContent="flex-end" mb={2} mx={"25px"}>
-                                <CustomDropdown
-                                    value={month}
-                                    onChange={handleMonthChange}
-                                    menuItems={monthOptions}
-                                />
-                            </Box>
-                            <BarChartCompo data={weeklyData} />
-                        </Box>
-                    ) : summeryType === 'Daily' ? (
-                        <Box>
-                            <Box display="flex" justifyContent="flex-end" mb={2} mx={"25px"}>
-                                <CustomDropdown
-                                    value={month}
-                                    onChange={handleMonthChange}
-                                    menuItems={monthOptions}
-                                />
-                            </Box>
-                            {/* {console.log("Daily Data:", dailyData)} */}
-                            <Calendar attendanceData={dailyData} month={month} />
-                        </Box>
-                    ) : null}
+                    )}
                 </Box>
 
+                <Box sx={{ display: 'flex', justifyContent: 'left', alignItems: 'flex-start', width: '100%', mt: 2 }}>
+                    {!loading && renderContent()}
+                </Box>
             </Paper>
         </Box>
-    )
-}
+    );
+};
 
-export default NonAcadamicSummary
+export default NonAcadamicSummary;

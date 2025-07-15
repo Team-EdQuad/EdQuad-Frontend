@@ -3,7 +3,7 @@ import axios from 'axios';
 // const API_URL = 'http://127.0.0.1:8000';
 const API_URL = import.meta.env.VITE_BACKEND_URL; // Use this if you have a VITE environment variable set
 
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds
+const CACHE_DURATION = 0.5 * 60 * 1000; // 1 minutes in milliseconds
 
 const fetchWithCache = async (key, url, params = null) => {
   const cached = localStorage.getItem(key);
@@ -40,7 +40,8 @@ export const getUserProfiles = async (searchWithId = "", role = "", classId = ""
     role: role || undefined,
     class_id: classId || undefined,
   };
-  return await fetchWithCache("user_profiles", endpoint, params);
+  const cacheKey = `user_profiles_${searchWithId}_${role}_${classId}`;
+  return await fetchWithCache(cacheKey, endpoint, params);
 };
 
 
@@ -48,4 +49,20 @@ export const getAllClasses = async () => {
   const key = `classList`;
   const url = `${API_URL}/api/teacher/dashboard/classes`; 
   return fetchWithCache(key, url);
+};
+
+export const getAccessProfile = async (userId) => {
+  const endpoint = `${API_URL}/api/admin/dashboard/admin-access-profile`;
+  const params = { user_id: userId };
+
+  const url = new URL(endpoint);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) url.searchParams.append(key, value);
+  });
+
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Error fetching user profile: ${response.statusText}`);
+  }
+  return await response.json();
 };

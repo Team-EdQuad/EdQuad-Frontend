@@ -35,7 +35,7 @@ const StudentProgressMonitoring = () => {
         setClassOptions(res.classes);
 
         // Set default class to "10-A"
-        const defaultClass = res.classes.find(cls => cls.class_name === "10-A");
+        const defaultClass = res.classes.find(cls => cls.class_name === "6-A");
         if (defaultClass) {
           setSelectedClass(defaultClass.class_id);
           setClassName(defaultClass.class_name);
