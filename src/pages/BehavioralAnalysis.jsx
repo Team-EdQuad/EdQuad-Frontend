@@ -334,17 +334,17 @@ const BehavioralAnalysis = () => {
           <Card><CardContent><AccessTimeIcon color="primary" sx={{ fontSize: 40, mb: 1 }} /><Typography variant="h6">Avg. Daily Active Time</Typography><Typography variant="h4">{avgActiveTime.toFixed(2)} mins</Typography></CardContent></Card>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <Card><CardContent><InsertChartIcon color="secondary" sx={{ fontSize: 40, mb: 1 }} /><Typography variant="h6">Time Spent on Resources</Typography><Typography variant="h4">{avgTimeSpent.toFixed(2)} mins</Typography></CardContent></Card>
+          <Card><CardContent><InsertChartIcon color="secondary" sx={{ fontSize: 40, mb: 1 }} /><Typography variant="h6">Avg. Time Spent on Resources</Typography><Typography variant="h4">{avgTimeSpent.toFixed(2)} mins</Typography></CardContent></Card>
         </Grid>
         <Grid item xs={12} sm={12} md={4}>
-          <Card><CardContent><TrendingUpIcon color="success" sx={{ fontSize: 40, mb: 1 }} /><Typography variant="h6">Resource Access Frequency</Typography><Typography variant="h4">{Math.round(avgAccessFrequency)} /day</Typography></CardContent></Card>
+          <Card><CardContent><TrendingUpIcon color="success" sx={{ fontSize: 40, mb: 1 }} /><Typography variant="h6">Avg. Resource Access Frequency</Typography><Typography variant="h4">{Math.round(avgAccessFrequency)} /day</Typography></CardContent></Card>
         </Grid>
       </Grid>
       
       <Card>
         <CardContent>
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
-                <Typography variant="h6">📈 Weekly Active Time Trends</Typography>
+                <Typography variant="h6">📈 Weekly Active Time On Resources</Typography>
                 <FormControl sx={{ m: 1, minWidth: 150 }} size="small">
                     <InputLabel>Time Range</InputLabel>
                     <Select value={weekRange} label="Time Range" onChange={(e) => setWeekRange(Number(e.target.value))}>
