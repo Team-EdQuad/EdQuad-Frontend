@@ -166,71 +166,75 @@ const BehavioralAnalysis = () => {
   };
 
   const handleSubmit = async () => {
-    const selectedSubjectObj = subjectsGrades.find((item) => item.subject_name === subject);
-    const selectedGradeObj = selectedSubjectObj?.classes.find((cls) => cls.class_name === grade);
-    const subject_id = selectedSubjectObj?.subject_id;
-    const class_id = selectedGradeObj?.class_id;
+  const selectedSubjectObj = subjectsGrades.find((item) => item.subject_name === subject);
+  const selectedGradeObj = selectedSubjectObj?.classes.find((cls) => cls.class_name === grade);
+  const subject_id = selectedSubjectObj?.subject_id;
+  const class_id = selectedGradeObj?.class_id;
 
-    if (!subject_id || !class_id || !expectedContentCount || !assignmentAvailable) {
-      setError('Please select a subject, grade, and provide all prediction inputs.');
-      return;
-    }
-    const contentCount = Number(expectedContentCount);
-    if (isNaN(contentCount) || contentCount < 0) {
-      setError('Expected Content Count must be a valid non-negative number.');
-      return;
-    }
+  if (!subject_id || !class_id || !expectedContentCount || !assignmentAvailable) {
+    setError('Please select a subject, grade, and provide all prediction inputs.');
+    return;
+  }
+  const contentCount = Number(expectedContentCount);
+  if (isNaN(contentCount) || contentCount < 0) {
+    setError('Expected Content Count must be a valid non-negative number.');
+    return;
+  }
 
-    setLoading(true);
-    setError('');
+  setLoading(true);
+  setError('');
 
-    try {
-      const [timeSpentResponse, activeTimeResponse, accessFrequencyResponse] = await Promise.all([
-        axios.get(`${API_BASE_URL}/TimeSpendOnResources/${subject_id}/${class_id}`),
-        axios.get(`${API_BASE_URL}/SiteAverageActiveTime/${class_id}`),
-        axios.get(`${API_BASE_URL}/ResourceAccessFrequency/${subject_id}/${class_id}`),
-      ]);
+  try {
+    
+    await axios.post(`${API_BASE_URL}/update_collection/${subject_id}/${class_id}`);
 
-      setAvgTimeSpent(timeSpentResponse.data.avgTimeSpentPerStudent || 0);
-      setAvgActiveTime(activeTimeResponse.data.siteAverageActiveTimePerStudent || 0);
-      setAvgAccessFrequency(accessFrequencyResponse.data.avgAccessPerStudentInClass || 0);
+    const [timeSpentResponse, activeTimeResponse, accessFrequencyResponse] = await Promise.all([
+      axios.get(`${API_BASE_URL}/TimeSpendOnResources/${subject_id}/${class_id}`),
+      axios.get(`${API_BASE_URL}/SiteAverageActiveTime/${class_id}`),
+      axios.get(`${API_BASE_URL}/ResourceAccessFrequency/${subject_id}/${class_id}`),
+    ]);
 
-      const requestBody = {
-          SpecialEventThisWeek: assignmentAvailable === 'Yes' ? 1 : 0,
-          ResourcesUploadedThisWeek: contentCount
-      };
+    setAvgTimeSpent(timeSpentResponse.data.avgTimeSpentPerStudent || 0);
+    setAvgActiveTime(activeTimeResponse.data.siteAverageActiveTimePerStudent || 0);
+    setAvgAccessFrequency(accessFrequencyResponse.data.avgAccessPerStudentInClass || 0);
+
+    const requestBody = {
+        SpecialEventThisWeek: assignmentAvailable === 'Yes' ? 1 : 0,
+        ResourcesUploadedThisWeek: contentCount
+    };
+    
+    const predictResponse = await axios.post(
+      `${API_BASE_URL}/predict_active_time/${subject_id}/${class_id}`,
+      requestBody
+    );
+
+    const newPrediction = predictResponse.data;
+    setPredictedData(newPrediction);
+    await fetchVisualizationData(subject_id, class_id, newPrediction);
+
+  } catch (err) {
+    console.error('Error during analysis:', err);
+    if (err.response) {
+      const status = err.response.status;
+      let message = 'An unknown server error occurred.';
       
-      const predictResponse = await axios.post(
-        `${API_BASE_URL}/predict_active_time/${subject_id}/${class_id}`,
-        requestBody
-      );
-
-      const newPrediction = predictResponse.data;
-      setPredictedData(newPrediction);
-      await fetchVisualizationData(subject_id, class_id, newPrediction);
-
-    } catch (err) {
-      console.error('Error during analysis:', err);
-      if (err.response) {
-        const status = err.response.status;
-        let message = 'An unknown server error occurred.';
-        
-        if (err.response.data && typeof err.response.data.detail === 'object') {
-            message = JSON.stringify(err.response.data.detail);
-        } else if (err.response.data && err.response.data.detail) {
-            message = err.response.data.detail;
-        }
-        setError(`Error ${status}: ${message}. Please check your inputs or API status.`);
-      } else if (err.request) {
-        setError('Network Error: Could not connect to the server. Please check your connection and the backend status.');
-      } else {
-        setError(`An unexpected error occurred: ${err.message}`);
+      if (err.response.data && typeof err.response.data.detail === 'object') {
+          message = JSON.stringify(err.response.data.detail);
+      } else if (err.response.data && err.response.data.detail) {
+          message = err.response.data.detail;
       }
-      setPredictedData(null); 
-    } finally {
-      setLoading(false);
+      setError(`Error ${status}: ${message}. Please check your inputs or API status.`);
+    } else if (err.request) {
+      setError('Network Error: Could not connect to the server. Please check your connection and the backend status.');
+    } else {
+      setError(`An unexpected error occurred: ${err.message}`);
     }
-  };
+    setPredictedData(null); 
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleTrainModel = async () => {
     setLoading(true);
