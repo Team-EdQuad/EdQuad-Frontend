@@ -16,7 +16,7 @@ import CustomDropdown from '../../components/Attendance-Module/CustomDropdown';
 const TeacherAnalysis = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const [classId, setClassId] = useState('CLS013');
+    const [classId, setClassId] = useState('CLS001');
     const [panelRef, panelSize] = useElementSize();
 
     const handleClassIdChange = (e) => {
@@ -24,10 +24,19 @@ const TeacherAnalysis = () => {
     };
 
     const classIdOptions = [
-        { label: 'CLS001', value: 'CLS001' },
-        { label: 'CLS002', value: 'CLS002' },
-        { label: 'CLS003', value: 'CLS003' },
-        { label: 'CLS013', value: 'CLS013' },
+        { label: 'Grade 6A', value: 'CLS001' },
+        { label: 'Grade 6B', value: 'CLS002' },
+        { label: 'Grade 7A', value: 'CLS003' },
+        { label: 'Grade 7B', value: 'CLS004' },
+        { label: 'Grade 8A', value: 'CLS005' },
+        { label: 'Grade 8B', value: 'CLS006' },
+        { label: 'Grade 9A', value: 'CLS007' },
+        { label: 'Grade 9B', value: 'CLS008' },
+        { label: 'Grade 10A', value: 'CLS009' },
+        { label: 'Grade 10B', value: 'CLS010' },
+        { label: 'Grade 11A', value: 'CLS011' },
+        { label: 'Grade 11B', value: 'CLS012' }
+
     ];
 
     const isExtraSmallPaper = panelSize.width < 430;
@@ -90,16 +99,21 @@ const TeacherAnalysis = () => {
                 </Box>
 
                 <Box sx={{ 
-                    display: 'flex', 
-                    flexWrap: 'wrap',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 550px), 1fr))',
                     gap: 2,
-                    '& > *': { flexGrow: 1, minWidth: 'min(100%, 550px)' }
+                    width: '100%'
                 }}>
                     <AcadamicSummary classId={classId} />
                     <NonAcadamicSummary classId={classId} />
                 </Box>
 
-                <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                <Box sx={{ 
+                    flex: 1, 
+                    overflow: 'hidden',
+                    width: '100%',
+                    minHeight: '300px'
+                }}>
                     <History classId={classId} />
                 </Box>
             </Box>

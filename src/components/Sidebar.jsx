@@ -650,12 +650,12 @@ const AppSidebar = () => {
               </MenuItem>
 
               <MenuItem
-                active={selected === "Calender"}
-                onClick={() => setSelected("Calender")}
-                icon={<ReceiptOutlined />}
-                component={<Link to="/calender" />}
+                active={selected === "Calendar Management"}
+                onClick={() => setSelected("Calendar Management")}
+                icon={<CalendarTodayOutlined />}
+                component={<Link to="/admin-calendar" />}
               >
-                <Typography>Calender</Typography>
+                <Typography>Event Management</Typography>
               </MenuItem>
 
               <MenuItem
@@ -748,7 +748,7 @@ const AppSidebar = () => {
                 active={selected === "Access Tracking"}
                 onClick={() => setSelected("Access Tracking")}
                 icon={<TrackChangesOutlined />}
-                component={<Link to="/access-tracking" />}
+                component={<Link to="/accesstracking" />}
               >
                 <Typography>Access Tracking</Typography>
               </MenuItem>

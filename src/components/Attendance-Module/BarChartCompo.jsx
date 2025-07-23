@@ -29,3 +29,4 @@ const BarChartCompo = ({ data }) => {
 export default BarChartCompo;
 
 
+

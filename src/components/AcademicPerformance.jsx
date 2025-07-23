@@ -1,6 +1,108 @@
+// import React, { useEffect, useState } from "react";
+// import { Bar } from "react-chartjs-2";
+// import { getStudentExamMarks } from "../services/studentDService"; 
+// import {
+//   Chart as ChartJS,
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// } from "chart.js";
+// import { Paper, Box, Typography, CircularProgress } from "@mui/material";
+
+// ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+// const StudentExamMarksChart = ({ studentId, classId, examYear }) => {
+//   const [chartData, setChartData] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const loadData = async () => {
+//       try {
+//         const data = await getStudentExamMarks(studentId, classId, examYear);
+
+//         const subjects = [...new Set(data.map((d) => d.subject_name))];
+//         const terms = [...new Set(data.map((d) => d.term))];
+
+//         const datasets = terms.map((term, idx) => ({
+//           label: `Term ${term}`,
+//           data: subjects.map((subject) => {
+//             const match = data.find((d) => d.subject_name === subject && d.term === term);
+//             return match ? match.marks : 0;
+//           }),
+//           backgroundColor: ["#428df5", "#12db4b", "#b042f5"][idx % 3],
+//         }));
+
+//         setChartData({
+//           labels: subjects,
+//           datasets,
+//         });
+//         setLoading(false);
+//       } catch (error) {
+//         console.error("Error loading student exam marks:", error);
+//       }
+//     };
+
+//     loadData();
+//   }, [studentId, classId, examYear]);
+
+//   return (
+//     <Paper elevation={3} sx={{ mt: 4, p: 3, ml:5, mr:2 }}>
+//       <Box sx={{borderBottom: 1, borderColor: "divider", mb:2, pb: 1}}>
+//       <Typography variant="h4" gutterBottom fontWeight="bold" >
+//         Student Exam Marks by Term - {examYear}
+//       </Typography>
+//       </Box>
+//       {loading ? (
+//         <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+//           <CircularProgress />
+//         </Box>
+//       ) : (
+//         <Bar
+//           data={chartData}
+//           options={{
+//             responsive: true,
+//             plugins: {
+//               legend: {
+//                 position: "right",
+//                 labels: {
+//                   boxWidth: 20,
+//                   padding: 15,
+//                 },
+//               },
+//               title: {
+//                 display: true,
+//                 text: "Grouped Bar Chart of Exam Marks",
+//               },
+//             },
+//             scales: {
+//               y: {
+//                 beginAtZero: true,
+//                 max: 100,
+//               },
+//               x: {
+//                 ticks: {
+//                   autoSkip: false,
+//                   maxRotation: 90,
+//                   minRotation: 45,
+//                 },
+//               },
+//             },
+//           }}
+          
+//         />
+//       )}
+//     </Paper>
+//   );
+// };
+
+// export default StudentExamMarksChart;
+
 import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
-import { getStudentExamMarks } from "../services/studentDService"; 
+import { getStudentExamMarks } from "../services/studentDService";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -39,9 +141,23 @@ const StudentExamMarksChart = ({ studentId, classId, examYear }) => {
           labels: subjects,
           datasets,
         });
+        // setLoading(false);
+      } 
+      // catch (error) {
+    //     console.error("Error loading student exam marks:", error);
+    //   }
+    // };
+
+    // loadData();
+      catch (error) {
+        if (error.response && error.response.status === 505) {
+          console.warn("No exam marks found for this student.");
+          setChartData(null); // Explicitly set to null or empty
+        } else {
+          console.error("Error loading student exam marks:", error);
+        }
+      } finally {
         setLoading(false);
-      } catch (error) {
-        console.error("Error loading student exam marks:", error);
       }
     };
 
@@ -49,50 +165,67 @@ const StudentExamMarksChart = ({ studentId, classId, examYear }) => {
   }, [studentId, classId, examYear]);
 
   return (
-    <Paper elevation={3} sx={{ mt: 4, p: 3, ml:5, mr:2 }}>
-      <Box sx={{borderBottom: 1, borderColor: "divider", mb:2, pb: 1}}>
-      <Typography variant="h4" gutterBottom fontWeight="bold" >
-        Student Exam Marks by Term - {examYear}
-      </Typography>
+    <Paper
+      elevation={4}
+      sx={{ mt: 4, ml: 5, mr: 2, borderRadius: 3 }}
+    >
+      <Box
+        sx={{
+          p: 3,
+          background: "linear-gradient(90deg, #2196f3 0%, #1976d2 100%)",
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+        }}
+      >
+        <Typography variant="h4" fontWeight="bold" color="white">
+          Student Exam Marks by Term - {examYear}
+        </Typography>
       </Box>
+
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
           <CircularProgress />
         </Box>
-      ) : (
-        <Bar
-          data={chartData}
-          options={{
-            responsive: true,
-            plugins: {
-              legend: {
-                position: "right",
-                labels: {
-                  boxWidth: 20,
-                  padding: 15,
+      ) : chartData ?(
+        <Box sx={{ px: 2, pt: 3 ,padding: 3, height: "500px"}}>
+          <Bar
+            data={chartData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "right",
+                  labels: {
+                    boxWidth: 20,
+                    padding: 15,
+                  },
+                },
+                title: {
+                  display: false,
                 },
               },
-              title: {
-                display: true,
-                text: "Grouped Bar Chart of Exam Marks",
-              },
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                max: 100,
-              },
-              x: {
-                ticks: {
-                  autoSkip: false,
-                  maxRotation: 90,
-                  minRotation: 45,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  max: 100,
+                },
+                x: {
+                  ticks: {
+                    autoSkip: false,
+                    maxRotation: 90,
+                    minRotation: 45,
+                  },
                 },
               },
-            },
-          }}
-          
-        />
+            }}
+          />
+        </Box>
+        ) : (
+          <Box sx={{ textAlign: "center", py: 5 }}>
+            <Typography variant="h6" color="text.secondary">
+              No exam data found for this student in {examYear}.
+            </Typography>
+          </Box>
       )}
     </Paper>
   );

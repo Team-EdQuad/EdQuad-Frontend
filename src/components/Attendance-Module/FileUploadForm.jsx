@@ -1,49 +1,70 @@
-import React, { useState } from 'react';
-import {
-    Box,
-    Button,
-    Typography,
-    Paper,
-    Stack
-} from '@mui/material';
+import React, { useState, useContext } from 'react';
+import { Box, Paper, Typography, Button } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { StoreContext } from '../../context/StoreContext';
+
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
 const FileUploadForm = ({ student_id, class_id, subject_id, onUploadSuccess }) => {
     const [file, setFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
-
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        setFile(selectedFile);
-        generatePreview(selectedFile);
-    };
+    const [isUploading, setIsUploading] = useState(false);
+    const { showNotification } = useContext(StoreContext);
 
     const handleDrop = (e) => {
         e.preventDefault();
         const droppedFile = e.dataTransfer.files[0];
-        setFile(droppedFile);
-        generatePreview(droppedFile);
+        if (droppedFile) {
+            validateAndSetFile(droppedFile);
+        }
     };
 
     const handleDragOver = (e) => {
         e.preventDefault();
     };
 
-    const generatePreview = (file) => {
-        if (file && file.type.startsWith('image/')) {
-            setPreviewUrl(URL.createObjectURL(file));
-        } else {
-            setPreviewUrl(null);
-        }
-    };
+    const validateAndSetFile = (file) => {
+        // Validate file type and size
+        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
 
-    const handleSubmit = async () => {
-        if (!file || !student_id || !class_id) {
-            alert('Please fill in all required fields and choose a file.');
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Please upload a PDF, JPEG, or PNG file', 'error');
             return;
         }
 
+        if (file.size > maxSize) {
+            showNotification('File size should not exceed 5MB', 'error');
+            return;
+        }
+
+        setFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleFileSelect = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            validateAndSetFile(selectedFile);
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!file) {
+            showNotification('Please select a file first', 'warning');
+            return;
+        }
+
+        if (!student_id || !class_id) {
+            showNotification('Missing required information', 'error');
+            return;
+        }
+
+        setIsUploading(true);
         const data = new FormData();
         data.append('file', file);
         data.append('student_id', student_id);
@@ -57,24 +78,28 @@ const FileUploadForm = ({ student_id, class_id, subject_id, onUploadSuccess }) =
                 body: data,
             });
             if (response.ok) {
-                alert('File uploaded successfully');
+                showNotification('File uploaded successfully', 'success');
                 if (onUploadSuccess) {
-                    onUploadSuccess();  // 🔁 Notify parent to refresh
+                    onUploadSuccess();
                 }
                 setFile(null);
                 setPreviewUrl(null);
             } else {
-                alert('Upload failed');
+                const errorData = await response.json();
+                showNotification(errorData.message || 'Upload failed', 'error');
             }
         } catch (error) {
             console.error(error);
-            alert('An error occurred');
+            showNotification('An error occurred during upload', 'error');
+        } finally {
+            setIsUploading(false);
         }
     };
 
     const handleCancel = () => {
         setFile(null);
         setPreviewUrl(null);
+        showNotification('Upload cancelled', 'info');
     };
 
     return (
@@ -102,45 +127,61 @@ const FileUploadForm = ({ student_id, class_id, subject_id, onUploadSuccess }) =
                         </Typography>
                     </Box>
                 )}
-
-                {file && previewUrl && (
-                    <img
-                        src={previewUrl}
-                        alt="Preview"
-                        style={{ maxWidth: '100%', maxHeight: '176px' }}
-                    />
+                {file && (
+                    <Box>
+                        <Typography variant="subtitle1">
+                            Selected file: {file.name}
+                        </Typography>
+                        {previewUrl && file.type.startsWith('image/') && (
+                            <img
+                                src={previewUrl}
+                                alt="Preview"
+                                style={{ maxWidth: '200px', marginTop: '10px' }}
+                            />
+                        )}
+                    </Box>
                 )}
-
-                {file && !previewUrl && (
-                    <Typography variant="subtitle1">{file.name}</Typography>
-                )}
-
                 <input
-                    id="fileInput"
                     type="file"
-                    hidden
-                    onChange={handleFileChange}
+                    id="fileInput"
+                    style={{ display: 'none' }}
+                    onChange={handleFileSelect}
+                    accept=".pdf,.jpg,.jpeg,.png"
                 />
             </Paper>
 
-            <Stack direction="row" spacing={2} justifyContent="flex-end">
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit}
-                    sx={{ backgroundColor: '#3674B5', borderRadius: '5px', width: '120px', height: '35px', boxShadow: 0 }}
-                >
-                    Submit
-                </Button>
-                <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={handleCancel}
-                    sx={{ borderRadius: '5px', width: '120px', height: '35px', boxShadow: 0 }}
-                >
-                    Cancel
-                </Button>
-            </Stack>
+            {file && (
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        onClick={handleCancel}
+                        disabled={isUploading}
+                        sx={{ borderRadius: '5px', width: '120px', height: '35px', boxShadow: 0 }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleUpload}
+                        disabled={isUploading}
+                        sx={{ 
+                            backgroundColor: '#3674B5', 
+                            borderRadius: '5px', 
+                            width: '120px', 
+                            height: '35px', 
+                            boxShadow: 0,
+                            '&:disabled': {
+                                backgroundColor: '#3674B5',
+                                opacity: 0.7
+                            }
+                        }}
+                    >
+                        {isUploading ? 'Uploading...' : 'Upload'}
+                    </Button>
+                </Box>
+            )}
         </Box>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import {
   Box, Typography, Button, useTheme, List, ListItem,
   ListItemText, Divider, LinearProgress, Snackbar, Alert, IconButton
@@ -7,13 +7,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
+const Url = import.meta.env.VITE_BACKEND_URL
+import { StoreContext } from '../context/StoreContext';
 
 const Submission = () => {
   const theme = useTheme();
   const { assignment_id } = useParams();
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
-  const student_id = "STU001";
+  const {id:student_id} = useContext(StoreContext);
 
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -52,7 +54,7 @@ const Submission = () => {
       setProgress(0);
 
       const response = await axios.post(
-        `http://localhost:8000/api/submission/${student_id}/${assignment_id}`,
+        `${Url}/api/submission/${student_id}/${assignment_id}`,
         formData,
         {
           headers: {

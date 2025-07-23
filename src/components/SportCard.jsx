@@ -48,16 +48,16 @@ const SportCard = ({ title, category, description, location, time, image }) => {
           />
         </Box>
 
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h6" p={1} gutterBottom>
           {description}
         </Typography>
-        <Typography variant="body1" fontWeight="bold" mt={2}>
+        <Typography variant="body1" p={0.5} fontWeight="bold" mt={2}>
           Location:{" "}
           <Typography variant="body1" component="span">
             {location}
           </Typography>
         </Typography>
-        <Typography variant="body1" fontWeight="bold">
+        <Typography variant="body1" p={0.5} fontWeight="bold">
           Practice Time:{" "}
           <Typography variant="body1" component="span">
             {time}

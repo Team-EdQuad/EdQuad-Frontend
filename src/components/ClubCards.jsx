@@ -37,17 +37,17 @@ const ClubCard = ({ title, description, location, practiceTime, image }) => {
             }}
           />
         
-        <Typography variant="h5" color="textSecondary" gutterBottom mt={2}>
+        <Typography variant="h6" p={1} color="textSecondary" gutterBottom mt={2}>
           {description}
         </Typography>
         <Box mt={2}>
-          <Typography variant="body1" fontWeight="bold">
+          <Typography variant="body1" p={0.5} fontWeight="bold">
             Location: {" "}
             <Typography variant="body1" component="span">
               {location}
             </Typography>
           </Typography>
-          <Typography variant="body1" fontWeight="bold">
+          <Typography variant="body1"  p={0.5} fontWeight="bold">
             Practice Time: {" "}
               <Typography variant="body1" component="span">
                 {practiceTime}

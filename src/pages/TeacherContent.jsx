@@ -1,17 +1,19 @@
-import React from 'react';
 import { Box, Typography, Grid, Paper, useTheme } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useContext } from 'react';
 import { Assignment, LibraryBooks } from '@mui/icons-material';
+import { StoreContext } from '../context/StoreContext';
 
 const TeacherContent = () => {
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const { subject, className, subject_id, class_id } = location.state || {}; 
+  const {id:teacher_id} = useContext(StoreContext);
 
   const handleCreateAssignment = () => {
     navigate('/assignment-create', {
-      state: { subject_id, class_id, teacher_id: 'TCH001' } 
+      state: { subject_id, class_id, teacher_id:  teacher_id } 
     }); 
   };
 

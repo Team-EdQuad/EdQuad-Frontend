@@ -1,15 +1,36 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Box, Typography } from '@mui/material';
 import axios from 'axios';
 
 import DocumentCard from '../../components/Attendance-Module/DocumentCard';
 import CustomDropdown from '../../components/Attendance-Module/CustomDropdown';
+import { StoreContext } from '../../context/StoreContext';
+
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
+
+// Subject ID to Name mapping
+const SUBJECT_NAMES = {
+    'SPT001': 'Cricket',
+    'SPT002': 'Football',
+    'SPT003': 'Basketball',
+    'SPT004': 'Tennis',
+    'SPT005': 'Swimming',
+    'SPT006': 'Badminton',
+    'CLB001': 'Netball',
+    'CLB002': 'Dance',
+    'CLB003': 'Drama',
+    'CLB004': 'Singing',
+    'CLB005': 'Scout',
+    'CLB006': 'Science Club',
+    // Add more mappings as needed
+};
 
 const TeacherDocument = () => {
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { showNotification } = useContext(StoreContext);
+    const [deletingId, setDeletingId] = useState(null);
 
     // for dropdown
     const [attendanceType, setAttendanceType] = useState('academic');
@@ -38,11 +59,20 @@ const TeacherDocument = () => {
 
     const classIdOptions = [
         { label: 'All', value: 'all'},
-        { label: 'CLS001', value: 'CLS001' },
-        { label: 'CLS002', value: 'CLS002' },
-        { label: 'CLS003', value: 'CLS003' },
-        { label: 'CLS013', value: 'CLS013' },
+        { label: 'Grade 6A', value: 'CLS001' },
+        { label: 'Grade 6B', value: 'CLS002' },
+        { label: 'Grade 7A', value: 'CLS003' },
+        { label: 'Grade 7B', value: 'CLS004' },
+        { label: 'Grade 8A', value: 'CLS005' },
+        { label: 'Grade 8B', value: 'CLS006' },
+        { label: 'Grade 9A', value: 'CLS007' },
+        { label: 'Grade 9B', value: 'CLS008' },
+        { label: 'Grade 10A', value: 'CLS009' },
+        { label: 'Grade 10B', value: 'CLS010' },
+        { label: 'Grade 11A', value: 'CLS011' },
+        { label: 'Grade 11B', value: 'CLS012' }
     ];
+    
     const attendanceTypeOptions = [
         { label: 'Academic', value: 'academic' },
         { label: 'Sports', value: 'sport' },
@@ -57,14 +87,14 @@ const TeacherDocument = () => {
             
             // Filter and set sports options
             const sports = subjects.filter(id => id.startsWith('SPT')).map(id => ({
-                label: id,
+                label: SUBJECT_NAMES[id] || id,
                 value: id
             }));
             setSportsOptions(sports);
             
             // Filter and set clubs options
             const clubs = subjects.filter(id => id.startsWith('CLB')).map(id => ({
-                label: id,
+                label: SUBJECT_NAMES[id] || id,
                 value: id
             }));
             setClubsOptions(clubs);
@@ -74,6 +104,7 @@ const TeacherDocument = () => {
             if (!clubsId && clubs.length > 0) setClubsId(clubs[0].value);
         } catch (error) {
             console.error('Failed to fetch subjects:', error);
+            showNotification('Failed to fetch subjects', 'error');
         }
     };
 
@@ -83,8 +114,12 @@ const TeacherDocument = () => {
                 `${attendanceModuleUrl}/documents?class_id=${classId}&subject_id=${subjectParam}&student_id=all`
             );
             setDocuments(response.data.data || []);
+            if (response.data.data?.length === 0) {
+                showNotification('No documents found for the selected criteria', 'info');
+            }
         } catch (error) {
             console.error('Failed to fetch documents:', error);
+            showNotification('Failed to fetch documents. Please try again later.', 'error');
             setDocuments([]);
         } finally {
             setLoading(false);
@@ -92,18 +127,26 @@ const TeacherDocument = () => {
     };
 
     const handleView = (doc) => {
-        window.open(doc.file_url, '_blank');
+        try {
+            window.open(doc.file_url, '_blank');
+            showNotification('Opening document in new tab', 'info');
+        } catch (error) {
+            console.error('Failed to open document:', error);
+            showNotification('Failed to open document. Please try again.', 'error');
+        }
     };
 
     const handleDelete = async (doc) => {
-        if (!window.confirm('Are you sure you want to delete this document?')) return;
-
+        setDeletingId(doc._id);
         try {
-            await axios.delete(`${attendanceModuleUrl}/delete-document/${doc._id}`);
+            await axios.delete(`${attendanceModuleUrl}/delete/document/${doc._id}`);
             setDocuments((prevDocs) => prevDocs.filter((d) => d._id !== doc._id));
+            showNotification('Document deleted successfully', 'success');
         } catch (error) {
             console.error('Failed to delete document:', error);
-            alert('Failed to delete document.');
+            showNotification('Failed to delete document. Please try again.', 'error');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -163,6 +206,7 @@ const TeacherDocument = () => {
                     index={index}
                     onView={handleView}
                     onDelete={handleDelete}
+                    isDeleting={deletingId === doc._id}
                 />
             ))}
         </Box>

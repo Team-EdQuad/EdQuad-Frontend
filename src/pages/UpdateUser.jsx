@@ -16,12 +16,54 @@ import {
     MenuItem,
     Snackbar,
     Alert,
+    Select,
+    InputLabel,
 } from "@mui/material";
 import { tokens } from "../theme";
 
-const subjects = Array.from({ length: 12 }, (_, i) => `Subject ${i + 1}`);
-const classes = ["A", "B", "C", "D", "E"];
-const userTypes = ["Student", "Teacher"];
+const Url = import.meta.env.VITE_BACKEND_URL;
+
+// Updated subjects with proper structure
+const subjects = [
+    { code: "SUB001", name: "English" },
+    { code: "SUB002", name: "Science" },
+    { code: "SUB003", name: "Computer Science" },
+    { code: "SUB004", name: "Mathematics" },
+    { code: "SUB005", name: "History" },
+    { code: "SUB006", name: "English Literature" },
+];
+
+// Updated classes with proper structure
+const classes = [
+     { class_id: "CLS001", class_name: "6-A" },
+     { class_id: "CLS002", class_name: "6-B" },
+     { class_id: "CLS003", class_name: "7-A" },
+     { class_id: "CLS004", class_name: "7-B" },
+     { class_id: "CLS005", class_name: "8-A" },
+     { class_id: "CLS006", class_name: "8-B" },
+     { class_id: "CLS007", class_name: "9-A" },
+     { class_id: "CLS008", class_name: "9-B" },
+     { class_id: "CLS009", class_name: "10-A" },
+     { class_id: "CLS010", class_name: "10-B" },
+     { class_id: "CLS011", class_name: "11-A" },
+     { class_id: "CLS012", class_name: "11-B" }
+];
+function getCurrentDateIST() {
+  const date = new Date();
+
+  const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+  const istOffset = 5.5 * 60 * 60000; 
+
+  const istDate = new Date(utc + istOffset);
+
+  const year = istDate.getFullYear();
+  const month = String(istDate.getMonth() + 1).padStart(2, "0");
+  const day = String(istDate.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+
 const UpdateUser = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -30,10 +72,11 @@ const UpdateUser = () => {
         studentId: "",
         firstName: "",
         lastName: "",
-        gender: "Male",
+        gender: "male", 
         email: "",
-        class: "",
-        selectedSubjects: [],
+        classId: "", 
+        selectedSubjects: [], 
+        phoneNo: "",
     });
 
     const [alert, setAlert] = useState({ open: false, type: "", message: "" });
@@ -42,34 +85,102 @@ const UpdateUser = () => {
         setFormData({ ...formData, [field]: e.target.value });
     };
 
-    const handleSubjectToggle = (subject) => {
+    const handleFetchStudent = async () => {
+        if (!formData.studentId) {
+            setAlert({ open: true, type: "error", message: "Enter a Student ID to fetch data." });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${Url}/api/user-management/get-student/${formData.studentId}`, {                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.detail || "Failed to fetch student");
+            }
+
+            const data = await res.json();
+
+            // Prefill the form with fetched data
+            setFormData({
+                studentId: data.student_id || "",
+                firstName: data.first_name || "",
+                lastName: data.last_name || "",
+                gender: data.gender || "male",
+                email: data.email || "",
+                classId: data.class_id || "",
+                selectedSubjects: data.subject_id || [],
+                phoneNo: data.phone_no || "",
+            });
+
+            setAlert({ open: true, type: "success", message: "Student data loaded!" });
+
+        } catch (err) {
+            setAlert({ open: true, type: "error", message: err.message });
+        }
+    };
+
+
+    const handleSubjectToggle = (subjectCode) => {
         setFormData((prev) => {
-            const updated = prev.selectedSubjects.includes(subject)
-                ? prev.selectedSubjects.filter((s) => s !== subject)
-                : [...prev.selectedSubjects, subject];
+            const updated = prev.selectedSubjects.includes(subjectCode)
+                ? prev.selectedSubjects.filter((code) => code !== subjectCode)
+                : [...prev.selectedSubjects, subjectCode];
             return { ...prev, selectedSubjects: updated };
         });
     };
 
     const handleSubmit = async () => {
+        // Validate required fields
+        if (!formData.studentId || !formData.firstName || !formData.lastName || 
+            !formData.email || !formData.classId || !formData.phoneNo) {
+            setAlert({
+                open: true,
+                type: "error",
+                message: "Please fill in all required fields!",
+            });
+            return;
+        }
+
         const payload = {
-            studentId: formData.studentId,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
+            student_id: formData.studentId,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            full_name: `${formData.firstName} ${formData.lastName}`,
             gender: formData.gender,
             email: formData.email,
-            class: formData.class,
-            subjects: formData.selectedSubjects,
+            password: "defaultPassword123", // You might want to add a password field
+            class_id: formData.classId,
+            phone_no: formData.phoneNo,
+            subject_id: formData.selectedSubjects, // This sends the subject codes
+            join_date: getCurrentDateIST(),
+            last_edit_date: getCurrentDateIST(),
+            club_id: [],
+            sport_id: [],
+            role: "student"
         };
 
         try {
-            const res = await fetch("http://localhost:8000/api/students", {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${Url}/api/user-management/update-student`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
                 body: JSON.stringify(payload),
             });
 
-            if (!res.ok) throw new Error("Failed to add student");
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.detail || "Failed to add student");
+            }
 
             setAlert({
                 open: true,
@@ -77,15 +188,16 @@ const UpdateUser = () => {
                 message: "Student added successfully!",
             });
 
-            // Optional: Reset form
+            // Reset form
             setFormData({
                 studentId: "",
                 firstName: "",
                 lastName: "",
-                gender: "Male",
+                gender: "male",
                 email: "",
-                class: "",
+                classId: "",
                 selectedSubjects: [],
+                phoneNo: "",
             });
         } catch (err) {
             setAlert({ open: true, type: "error", message: err.message });
@@ -108,7 +220,6 @@ const UpdateUser = () => {
                 }}
             >
                 <Grid container spacing={3}>
-
                     <Grid item xs={12} md={6}>
                         <Box
                             display="flex"
@@ -116,32 +227,37 @@ const UpdateUser = () => {
                             justifyContent="space-between"
                             height="100%"
                         >
-
                             {/* Student ID */}
                             <Grid item xs={12}>
                                 <Box
                                     display="flex"
-                                    flexDirection="column"
-                                    justifyContent="space-between"
+                                    flexDirection="row"
+                                    justifyContent="space-start"
                                     width="100%"
+                                    gap={2}
                                 >
-                                    <Box display="flex"
-                                        flexDirection="row"
-                                        justifyContent="space-start"
-                                        width="100%"
-                                        gap={2}>
-                                        <Typography fontWeight="bold" fontSize={14} sx={{ mt: 1 }}>
-                                            ID
-                                        </Typography>
-                                        <TextField
-                                            size="small"
-                                            sx={{ width: "48%" }}
-                                        />
-                                    </Box>
+                                    <Typography fontWeight="bold" fontSize={14} sx={{ mt: 1 }}>
+                                        Student ID
+                                    </Typography>
+                                    <TextField
+                                        size="small"
+                                        sx={{ width: "48%" }}
+                                        value={formData.studentId}
+                                        onChange={handleChange("studentId")}
+                                        placeholder="e.g., STU001"
+                                    />
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{ ml: 2 }}
+                                        onClick={handleFetchStudent}
+                                    >
+                                        Fetch Student
+                                    </Button>
                                 </Box>
                             </Grid>
 
-                            {/* Name Field */}
+                            {/* Name Fields */}
                             <Grid item xs={12}>
                                 <Box
                                     display="flex"
@@ -161,6 +277,8 @@ const UpdateUser = () => {
                                         <TextField
                                             size="small"
                                             sx={{ width: "48%" }}
+                                            value={formData.firstName}
+                                            onChange={handleChange("firstName")}
                                         />
                                     </Box>
                                     <Box display="flex"
@@ -174,6 +292,8 @@ const UpdateUser = () => {
                                         <TextField
                                             size="small"
                                             sx={{ width: "48%" }}
+                                            value={formData.lastName}
+                                            onChange={handleChange("lastName")}
                                         />
                                     </Box>
                                 </Box>
@@ -183,39 +303,35 @@ const UpdateUser = () => {
                             <Grid item xs={12}>
                                 <Box
                                     display="flex"
-                                    flexDirection="column"
-                                    justifyContent="space-between"
+                                    flexDirection="row"
+                                    justifyContent="space-start"
                                     width="100%"
+                                    gap={2}
                                 >
-                                    <Box display="flex"
-                                        flexDirection="row"
-                                        justifyContent="space-start"
-                                        width="100%"
-                                        gap={2}>
-                                        <Typography fontWeight="bold" fontSize={14} sx={{ mt: 2 }}>
-                                            Gender
-                                        </Typography>
-                                        <FormControl sx={{ mt: 1 }}>
-                                            <RadioGroup
-                                                row
-                                                value={formData.gender}
-                                                onChange={handleChange("gender")}
-                                            >
-                                                <FormControlLabel
-                                                    value="Male"
-                                                    control={<Radio />}
-                                                    label="Male"
-                                                />
-                                                <FormControlLabel
-                                                    value="Female"
-                                                    control={<Radio />}
-                                                    label="Female"
-                                                />
-                                            </RadioGroup>
-                                        </FormControl>
-                                    </Box>
+                                    <Typography fontWeight="bold" fontSize={14} sx={{ mt: 2 }}>
+                                        Gender
+                                    </Typography>
+                                    <FormControl sx={{ mt: 1 }}>
+                                        <RadioGroup
+                                            row
+                                            value={formData.gender}
+                                            onChange={handleChange("gender")}
+                                        >
+                                            <FormControlLabel
+                                                value="male"
+                                                control={<Radio />}
+                                                label="Male"
+                                            />
+                                            <FormControlLabel
+                                                value="female"
+                                                control={<Radio />}
+                                                label="Female"
+                                            />
+                                        </RadioGroup>
+                                    </FormControl>
                                 </Box>
                             </Grid>
+
                             {/* Email Field */}
                             <Grid item xs={12}>
                                 <Box
@@ -229,10 +345,33 @@ const UpdateUser = () => {
                                     </Typography>
                                     <TextField
                                         fullWidth
-                                        value={formData.studentId}
-                                        onChange={handleChange("studentId")}
+                                        value={formData.email}
+                                        onChange={handleChange("email")}
                                         size="small"
                                         sx={{ mt: 1 }}
+                                        type="email"
+                                    />
+                                </Box>
+                            </Grid>
+
+                            {/* Phone Number Field */}
+                            <Grid item xs={12}>
+                                <Box
+                                    display="flex"
+                                    flexDirection="row"
+                                    justifyContent="space-between"
+                                    gap={2}
+                                >
+                                    <Typography fontWeight="bold" fontSize={14} sx={{ mt: 1 }}>
+                                        Phone No
+                                    </Typography>
+                                    <TextField
+                                        fullWidth
+                                        value={formData.phoneNo}
+                                        onChange={handleChange("phoneNo")}
+                                        size="small"
+                                        sx={{ mt: 1 }}
+                                        placeholder="10 digits"
                                     />
                                 </Box>
                             </Grid>
@@ -248,28 +387,32 @@ const UpdateUser = () => {
                                     <Typography fontWeight="bold" fontSize={14} sx={{ mt: 1 }}>
                                         Class
                                     </Typography>
-                                    <TextField
-                                        fullWidth
-                                        value={formData.studentId}
-                                        onChange={handleChange("studentId")}
-                                        size="small"
-                                        sx={{ mt: 1 }}
-                                    />
+                                    <FormControl fullWidth sx={{ mt: 1 }}>
+                                        <Select
+                                            value={formData.classId}
+                                            onChange={handleChange("classId")}
+                                            size="small"
+                                            displayEmpty
+                                        >
+                                            <MenuItem value="">
+                                                <em>Select a class</em>
+                                            </MenuItem>
+                                            {classes.map((cls) => (
+                                                <MenuItem key={cls.class_id} value={cls.class_id}>
+                                                    {cls.class_name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
                                 </Box>
                             </Grid>
+
                             {/* Subjects */}
                             <Grid item xs={12}>
-                                <Box
-                                    display="flex"
-                                    flexDirection="row"
-                                    justifyContent="space-between"
-                                    gap={2}
-                                    sx={{ mt: 1 }}
-                                >
+                                <Box sx={{ mt: 2 }}>
                                     <Typography fontWeight="bold" fontSize={14} sx={{ mb: 1 }}>
                                         Subjects
                                     </Typography>
-
                                     <Grid container spacing={2}>
                                         {[0, 1, 2].map((colIndex) => (
                                             <Grid item xs={12} md={4} key={colIndex}>
@@ -278,14 +421,14 @@ const UpdateUser = () => {
                                                         .filter((_, i) => i % 3 === colIndex)
                                                         .map((subject) => (
                                                             <FormControlLabel
-                                                                key={subject}
+                                                                key={subject.code}
                                                                 control={
                                                                     <Checkbox
-                                                                        checked={formData.selectedSubjects.includes(subject)}
-                                                                        onChange={() => handleSubjectToggle(subject)}
+                                                                        checked={formData.selectedSubjects.includes(subject.code)}
+                                                                        onChange={() => handleSubjectToggle(subject.code)}
                                                                     />
                                                                 }
-                                                                label={subject}
+                                                                label={subject.name}
                                                             />
                                                         ))}
                                                 </FormGroup>
@@ -294,7 +437,8 @@ const UpdateUser = () => {
                                     </Grid>
                                 </Box>
                             </Grid>
-                            {/* Submit */}
+
+                            {/* Submit Button */}
                             <Grid item xs={12}>
                                 <Box mt={4}>
                                     <Button
@@ -303,7 +447,7 @@ const UpdateUser = () => {
                                         sx={{ textTransform: "none", fontWeight: "bold", px: 5 }}
                                         onClick={handleSubmit}
                                     >
-                                        Submit
+                                        Update Student
                                     </Button>
                                 </Box>
                             </Grid>
@@ -312,7 +456,6 @@ const UpdateUser = () => {
 
                     {/* Empty spacer */}
                     <Grid item xs={12} md={6}></Grid>
-
                 </Grid>
             </Paper>
 

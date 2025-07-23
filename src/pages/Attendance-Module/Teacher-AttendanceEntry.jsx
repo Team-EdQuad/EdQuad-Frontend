@@ -12,6 +12,22 @@ import DateSelector from '../../components/Attendance-Module/DateSelector';
 import AttendanceTable from '../../components/Attendance-Module/AttendanceTable';
 const attendanceModuleUrl = import.meta.env.VITE_ATTENDANCE_MODULE_BACKEND_URL;
 
+// Subject ID to Name mapping
+const SUBJECT_NAMES = {
+    'SPT001': 'Cricket',
+    'SPT002': 'Football',
+    'SPT003': 'Basketball',
+    'SPT004': 'Tennis',
+    'SPT005': 'Swimming',
+    'SPT006': 'Badminton',
+    'CLB001': 'Netball',
+    'CLB002': 'Dance',
+    'CLB003': 'Drama',
+    'CLB004': 'Singing',
+    'CLB005': 'Scout',
+    'CLB006': 'Science Club',
+    // Add more mappings as needed
+};
 
 const TeacherAttendanceEntry = () => {
     const [panelRef, panelSize] = useElementSize();
@@ -23,7 +39,7 @@ const TeacherAttendanceEntry = () => {
     const isLargePaper = panelSize.width >= 840;
 
     const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-    const [classId, setClassId] = useState('CLS013');
+    const [classId, setClassId] = useState('CLS001');
     const [subjectType, setsubjectType] = useState('academic');
     const [sportsId, setSportsId] = useState('');
     const [clubsId, setClubsId] = useState('');
@@ -45,14 +61,14 @@ const TeacherAttendanceEntry = () => {
             
             // Filter and set sports options
             const sports = subjects.filter(id => id.startsWith('SPT')).map(id => ({
-                label: id,
+                label: SUBJECT_NAMES[id] || id,
                 value: id
             }));
             setSportsOptions(sports);
             
             // Filter and set clubs options
             const clubs = subjects.filter(id => id.startsWith('CLB')).map(id => ({
-                label: id,
+                label: SUBJECT_NAMES[id] || id,
                 value: id
             }));
             setClubsOptions(clubs);
@@ -82,17 +98,35 @@ const TeacherAttendanceEntry = () => {
         setClubsId(e.target.value);
     };
 
+    // const classIdOptions = [
+    //     { label: 'CLS001', value: 'CLS001' },
+    //     { label: 'CLS002', value: 'CLS002' },
+    //     { label: 'CLS003', value: 'CLS003' },
+    //     { label: 'CLS013', value: 'CLS013' },
+    // ];
+
     const classIdOptions = [
-        { label: 'CLS001', value: 'CLS001' },
-        { label: 'CLS002', value: 'CLS002' },
-        { label: 'CLS003', value: 'CLS003' },
-        { label: 'CLS013', value: 'CLS013' },
+        { label: 'Grade 6A', value: 'CLS001' },
+        { label: 'Grade 6B', value: 'CLS002' },
+        { label: 'Grade 7A', value: 'CLS003' },
+        { label: 'Grade 7B', value: 'CLS004' },
+        { label: 'Grade 8A', value: 'CLS005' },
+        { label: 'Grade 8B', value: 'CLS006' },
+        { label: 'Grade 9A', value: 'CLS007' },
+        { label: 'Grade 9B', value: 'CLS008' },
+        { label: 'Grade 10A', value: 'CLS009' },
+        { label: 'Grade 10B', value: 'CLS010' },
+        { label: 'Grade 11A', value: 'CLS011' },
+        { label: 'Grade 11B', value: 'CLS012' }
+
     ];
+
     const subjectTypeOptions = [
         { label: 'Academic', value: 'academic' },
         { label: 'Sports', value: 'sport' },
         { label: 'Clubs', value: 'club' }
     ];
+
 
     return (
         <Box ref={panelRef} sx={{
@@ -163,6 +197,9 @@ const TeacherAttendanceEntry = () => {
                         mode='edit'
                         panelSize={panelSize.width}
                     />
+                    {/* {console.log("This is from teacher attendance entry: " + subjectType)}
+                    {console.log("This is from teacher attendance entry: " + sportsId)}
+                    {console.log("This is from teacher attendance entry: " + clubsId)} */}
                 </Box>
             </Box>
         </Box>

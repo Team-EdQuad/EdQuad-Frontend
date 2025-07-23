@@ -1,53 +1,64 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import axios from "axios";
+import { getLowAttendanceRiskStudentsCount } from "../services/teacherDService";
 
 const AttendanceAlertBox = () => {
   const [count, setCount] = useState(0);
 
-  // Replace this with your actual endpoint
   useEffect(() => {
-    axios.get("/api/attendance-risk-count")  // <-- your backend endpoint
-      .then(response => {
-        setCount(response.data.count);  // Adjust according to your response
-      })
-      .catch(error => {
+    const fetchCount = async () => {
+      try {
+        const response = await getLowAttendanceRiskStudentsCount();
+        setCount(response.low_attendance_student_count);
+      } catch (error) {
         console.error("Failed to fetch attendance risk count", error);
-      });
+      }
+    };
+
+    fetchCount();
   }, []);
 
   return (
     <Box
       sx={{
-        border: "2px solid red",
-        borderRadius: "12px",
-        padding: "40px",
+        border: "1.5px solid #d32f2f",
+        borderRadius: 2,
+        p: 4,
         textAlign: "center",
-        backgroundColor: "#fefefe",
-        width: '28%',
-        boxShadow: 3,
-        mr:2,
-        ml:2,
-        mt:8
+        backgroundColor: "#fff5f5",
+        width: "28%",
+        boxShadow: "0 2px 6px rgba(211, 47, 47, 0.2)",
+        mr: 2,
+        ml: 2,
+        mt: 8,
+        userSelect: "none",
       }}
     >
       <Box display="flex" alignItems="center" justifyContent="center" mb={1}>
-        <WarningAmberIcon sx={{ color: "red", mr: 1 }} />
-        <Typography variant="h4" sx={{ color: "red", fontWeight: "bold" }}>
+        <WarningAmberIcon sx={{ color: "#d32f2f", mr: 1, fontSize: 30 }} />
+        <Typography variant="h5" sx={{ color: "#d32f2f", fontWeight: "600" }}>
           Attendance Alert
         </Typography>
       </Box>
 
-      <Typography variant="h1" sx={{ color: "red", fontWeight: "bold", m: 2 }}>
-        {3}
+      <Typography
+        variant="h2"
+        sx={{ color: "#b71c1c", fontWeight: "700", my: 2, letterSpacing: "0.05em" }}
+      >
+        {count}
       </Typography>
 
-      <Typography variant="body1" sx={{ fontWeight: "bold", mb: 2 }}>
+      <Typography variant="body1" sx={{ fontWeight: "600", mb: 3, color: "#880e0e" }}>
         Students with Low Attendance Risk
       </Typography>
 
-      <Button variant="contained" color="primary" onClick={() => window.location.href = "/attendance/analysis"}>
+      <Button
+        variant="contained"
+        color="error"
+        onClick={() => (window.location.href = "/dashboard#attendance-risk")}
+        sx={{ textTransform: "none", fontWeight: "600", px: 4 }}
+      >
         View Risk Details
       </Button>
     </Box>
